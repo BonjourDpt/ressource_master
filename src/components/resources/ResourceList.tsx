@@ -34,7 +34,7 @@ export function ResourceList({ resources }: ResourceListProps) {
   return (
     <>
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold tracking-tight">Resources</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-[var(--rm-fg)]">Resources</h1>
         <Button onClick={openCreate}>New resource</Button>
       </div>
 
@@ -42,16 +42,16 @@ export function ResourceList({ resources }: ResourceListProps) {
         <table className="w-full min-w-[400px] text-left text-sm">
           <thead>
             <tr className="border-b border-[var(--rm-border)]">
-              <th className="pb-3 font-medium">Name</th>
-              <th className="pb-3 font-medium">Role</th>
-              <th className="pb-3 font-medium">Team</th>
-              <th className="pb-3 font-medium text-right">Actions</th>
+              <th className="pb-3 pl-0 font-medium text-[13px] text-[var(--rm-muted)]">Name</th>
+              <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Role</th>
+              <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Team</th>
+              <th className="pb-3 text-right font-medium text-[13px] text-[var(--rm-muted)]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {resources.map((r) => (
-              <tr key={r.id} className="border-b border-[var(--rm-border)] last:border-0">
-                <td className="py-3">{r.name}</td>
+              <tr key={r.id} className="border-b border-[var(--rm-border-subtle)] last:border-0">
+                <td className="py-3 pl-0 text-[var(--rm-fg)]">{r.name}</td>
                 <td className="py-3 text-[var(--rm-muted)]">{r.role ?? "—"}</td>
                 <td className="py-3 text-[var(--rm-muted)]">{r.team ?? "—"}</td>
                 <td className="py-3 text-right">

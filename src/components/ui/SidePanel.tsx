@@ -30,7 +30,7 @@ export function SidePanel({ open, onClose, title, children }: SidePanelProps) {
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-black/30"
+        className="fixed inset-0 z-40 bg-black/60"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -38,17 +38,20 @@ export function SidePanel({ open, onClose, title, children }: SidePanelProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="side-panel-title"
-        className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-[var(--rm-border)] bg-[var(--rm-card)] shadow-xl"
+        className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] shadow-xl"
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-[var(--rm-border)] px-4 py-3">
-          <h2 id="side-panel-title" className="text-lg font-semibold">
+        <div className="flex shrink-0 items-center justify-between border-b border-[var(--rm-border)] px-6 py-4">
+          <h2
+            id="side-panel-title"
+            className="text-lg font-semibold tracking-tight text-[var(--rm-fg)]"
+          >
             {title}
           </h2>
           <Button variant="ghost" type="button" onClick={onClose} aria-label="Close">
             ×
           </Button>
         </div>
-        <div className="flex-1 overflow-y-auto p-4">{children}</div>
+        <div className="flex-1 overflow-y-auto p-6">{children}</div>
       </aside>
     </>
   );

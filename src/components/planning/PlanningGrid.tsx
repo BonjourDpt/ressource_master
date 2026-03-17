@@ -102,19 +102,19 @@ export function PlanningGrid({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold tracking-tight">Planning</h1>
-        <div className="flex items-center gap-3">
+        <h1 className="text-xl font-semibold tracking-tight text-[var(--rm-fg)]">Planning</h1>
+        <div className="flex items-center gap-4">
           <div
             role="tablist"
-            className="inline-flex rounded-xl border border-[var(--rm-border)] p-1"
+            className="inline-flex rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] p-1"
           >
             <button
               role="tab"
               aria-selected={view === "project"}
               onClick={() => setView("project")}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 view === "project"
-                  ? "bg-[var(--rm-surface)] text-[var(--rm-fg)]"
+                  ? "bg-[var(--rm-bg)] text-[var(--rm-fg)]"
                   : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]"
               }`}
             >
@@ -124,9 +124,9 @@ export function PlanningGrid({
               role="tab"
               aria-selected={view === "resource"}
               onClick={() => setView("resource")}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
                 view === "resource"
-                  ? "bg-[var(--rm-surface)] text-[var(--rm-fg)]"
+                  ? "bg-[var(--rm-bg)] text-[var(--rm-fg)]"
                   : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]"
               }`}
             >
@@ -136,7 +136,7 @@ export function PlanningGrid({
           <div className="flex items-center gap-1">
             <button
               onClick={() => shiftWeeks(-1)}
-              className="rounded-lg px-2 py-1.5 text-sm text-[var(--rm-muted)] hover:bg-[var(--rm-surface)] hover:text-[var(--rm-fg)]"
+              className="rounded-lg px-2.5 py-1.5 text-sm text-[var(--rm-muted)] hover:bg-[var(--rm-surface)] hover:text-[var(--rm-fg)] transition-colors"
               aria-label="Previous weeks"
             >
               ←
@@ -147,7 +147,7 @@ export function PlanningGrid({
             </span>
             <button
               onClick={() => shiftWeeks(1)}
-              className="rounded-lg px-2 py-1.5 text-sm text-[var(--rm-muted)] hover:bg-[var(--rm-surface)] hover:text-[var(--rm-fg)]"
+              className="rounded-lg px-2.5 py-1.5 text-sm text-[var(--rm-muted)] hover:bg-[var(--rm-surface)] hover:text-[var(--rm-fg)] transition-colors"
               aria-label="Next weeks"
             >
               →
@@ -156,17 +156,17 @@ export function PlanningGrid({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="rm-scroll-x overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse text-sm">
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 min-w-[140px] border-b border-[var(--rm-border)] bg-[var(--rm-card)] py-3 pr-4 text-left font-medium">
+              <th className="sticky left-0 top-0 z-20 min-w-[160px] border-b border-r border-[var(--rm-border)] bg-[var(--rm-surface)] py-3 px-4 text-left text-[13px] font-medium text-[var(--rm-muted)]">
                 {view === "project" ? "Project" : "Resource"}
               </th>
               {weekRange.map((w) => (
                 <th
                   key={weekKey(w)}
-                  className="min-w-[100px] border-b border-[var(--rm-border)] py-3 px-2 text-center font-medium text-[var(--rm-muted)]"
+                  className="sticky top-0 z-10 min-w-[110px] border-b border-[var(--rm-border)] bg-[var(--rm-surface)] py-3 px-4 text-center text-[13px] font-medium text-[var(--rm-muted)]"
                 >
                   {formatWeekLabel(w)}
                 </th>
@@ -175,8 +175,8 @@ export function PlanningGrid({
           </thead>
           <tbody>
             {rows.map((entity) => (
-              <tr key={entity.id} className="border-b border-[var(--rm-border)] last:border-0">
-                <td className="sticky left-0 z-10 border-r border-[var(--rm-border)] bg-[var(--rm-card)] py-2 pr-4">
+              <tr key={entity.id} className="border-b border-[var(--rm-border-subtle)] last:border-0">
+                <td className="sticky left-0 z-10 border-r border-[var(--rm-border)] bg-[var(--rm-bg)] py-2 px-4">
                   {view === "project" && "color" in entity && entity.color && (
                     <span
                       className="mr-2 inline-block h-2 w-2 rounded-full"
@@ -196,15 +196,15 @@ export function PlanningGrid({
                   return (
                     <td
                       key={weekKey(week)}
-                      className="border-r border-[var(--rm-border)]/50 py-2 px-2 last:border-r-0"
+                      className="border-r border-[var(--rm-border-subtle)] py-2 px-4 last:border-r-0"
                     >
-                      <div className="flex min-h-[44px] flex-col gap-1">
+                      <div className="flex min-h-[48px] flex-col gap-1.5">
                         {cellBookings.map((b) => (
                           <button
                             key={b.id}
                             type="button"
                             onClick={() => openEdit(b)}
-                            className="group flex w-full items-center justify-between rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] px-2 py-1 text-left text-xs transition-colors hover:border-[var(--rm-fg)]/30 hover:bg-[var(--rm-surface)]"
+                            className="flex w-full items-center justify-between rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] px-2.5 py-1.5 text-left text-xs text-[var(--rm-fg)] transition-colors hover:border-[var(--rm-muted)]"
                           >
                             <span
                               className="truncate"
@@ -230,12 +230,12 @@ export function PlanningGrid({
                                 : { resourceId: entity.id, weekStart: weekKey(week) }
                             )
                           }
-                          className="flex min-h-[28px] w-full items-center justify-center rounded-lg border border-dashed border-[var(--rm-border)] text-[var(--rm-muted)] transition-colors hover:border-[var(--rm-fg)]/40 hover:text-[var(--rm-fg)]"
+                          className="flex min-h-[32px] w-full items-center justify-center rounded-lg border border-dashed border-[var(--rm-border)] text-[var(--rm-muted)] transition-colors hover:border-[var(--rm-muted)] hover:text-[var(--rm-fg)]"
                         >
                           +
                         </button>
                         {isOverAllocated && (
-                          <span className="text-xs text-amber-600 dark:text-amber-400">
+                          <span className="text-xs text-[var(--rm-warning)]">
                             {totalPct}%
                           </span>
                         )}

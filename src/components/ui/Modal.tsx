@@ -38,13 +38,16 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={(e) => e.target === overlayRef.current && onClose()}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/60" />
       <div
-        className="relative w-full max-w-md rounded-2xl border border-[var(--rm-border)] bg-[var(--rm-card)] p-6 shadow-xl"
+        className="relative w-full max-w-md rounded-2xl border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 id="modal-title" className="text-lg font-semibold">
+        <div className="mb-6 flex items-center justify-between">
+          <h2
+            id="modal-title"
+            className="text-lg font-semibold tracking-tight text-[var(--rm-fg)]"
+          >
             {title}
           </h2>
           <Button variant="ghost" type="button" onClick={onClose} aria-label="Close">

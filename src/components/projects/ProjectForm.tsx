@@ -51,7 +51,7 @@ export function ProjectForm({ project, onSuccess, onCancel }: ProjectFormProps) 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {errors._form && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">
+        <p className="rounded-lg bg-[var(--rm-danger)]/10 px-3 py-2 text-sm text-[var(--rm-danger)]">
           {errors._form[0]}
         </p>
       )}
@@ -75,16 +75,16 @@ export function ProjectForm({ project, onSuccess, onCancel }: ProjectFormProps) 
         placeholder="Optional"
       />
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-[var(--rm-fg)]">Color</label>
+        <label className="block text-[13px] font-medium text-[var(--rm-muted)]">Color</label>
         <div className="flex gap-2">
           {PROJECT_COLORS.map((hex) => (
             <button
               key={hex}
               type="button"
               onClick={() => setForm((p) => ({ ...p, color: form.color === hex ? "" : hex }))}
-              className={`h-8 w-8 shrink-0 rounded-full border-2 transition-all ${
+              className={`h-8 w-8 shrink-0 rounded-full border-2 transition-colors ${
                 form.color === hex
-                  ? "border-[var(--rm-fg)] ring-2 ring-[var(--rm-fg)]/20"
+                  ? "border-[var(--rm-primary)] ring-2 ring-[var(--rm-primary)]/20"
                   : "border-transparent hover:border-[var(--rm-border)]"
               }`}
               style={{ backgroundColor: hex }}
@@ -94,10 +94,10 @@ export function ProjectForm({ project, onSuccess, onCancel }: ProjectFormProps) 
           ))}
         </div>
         {errors.color?.[0] && (
-          <p className="text-xs text-red-600 dark:text-red-400">{errors.color[0]}</p>
+          <p className="text-xs text-[var(--rm-danger)]">{errors.color[0]}</p>
         )}
       </div>
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-2 pt-6">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>

@@ -22,13 +22,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <aside className="hidden w-56 shrink-0 sm:block">
           <div className="sticky top-6 space-y-4">
             <div className="px-3">
-              <div className="text-sm font-semibold tracking-tight">
+              <div className="text-sm font-semibold tracking-tight text-[var(--rm-fg)]">
                 Resource Master
               </div>
               <div className="text-xs text-[var(--rm-muted)]">MVP</div>
             </div>
 
-            <nav className="rounded-2xl border border-[var(--rm-border)] bg-white/70 p-2 backdrop-blur dark:bg-black/20">
+            <nav className="rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] p-2">
               <ul className="space-y-1">
                 {navItems.map((item) => {
                   const active =
@@ -40,10 +40,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       <Link
                         href={item.href}
                         className={classNames(
-                          "flex items-center justify-between rounded-xl px-3 py-2 text-sm transition-colors",
+                          "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
                           active
-                            ? "bg-[var(--rm-surface)] text-[var(--rm-fg)]"
-                            : "text-[var(--rm-muted)] hover:bg-[var(--rm-surface)] hover:text-[var(--rm-fg)]",
+                            ? "bg-[var(--rm-bg)] text-[var(--rm-fg)]"
+                            : "text-[var(--rm-muted)] hover:bg-[var(--rm-bg)] hover:text-[var(--rm-fg)]",
                         )}
                       >
                         {item.label}
@@ -59,7 +59,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="min-w-0 flex-1">
           <header className="mb-6 flex items-center justify-between">
             <div className="sm:hidden">
-              <div className="text-sm font-semibold tracking-tight">
+              <div className="text-sm font-semibold tracking-tight text-[var(--rm-fg)]">
                 Resource Master
               </div>
               <div className="text-xs text-[var(--rm-muted)]">MVP</div>
@@ -68,7 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="hidden sm:block" />
           </header>
 
-          <main className="rounded-3xl border border-[var(--rm-border)] bg-[var(--rm-card)] p-6 shadow-sm">
+          <main className="rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] p-6">
             {children}
           </main>
         </div>
@@ -76,4 +76,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-

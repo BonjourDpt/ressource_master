@@ -34,7 +34,7 @@ export function ProjectList({ projects }: ProjectListProps) {
   return (
     <>
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold tracking-tight">Projects</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-[var(--rm-fg)]">Projects</h1>
         <Button onClick={openCreate}>New project</Button>
       </div>
 
@@ -42,16 +42,16 @@ export function ProjectList({ projects }: ProjectListProps) {
         <table className="w-full min-w-[400px] text-left text-sm">
           <thead>
             <tr className="border-b border-[var(--rm-border)]">
-              <th className="pb-3 font-medium">Name</th>
-              <th className="pb-3 font-medium">Client</th>
-              <th className="pb-3 font-medium">Color</th>
-              <th className="pb-3 font-medium text-right">Actions</th>
+              <th className="pb-3 pl-0 font-medium text-[13px] text-[var(--rm-muted)]">Name</th>
+              <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Client</th>
+              <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Color</th>
+              <th className="pb-3 text-right font-medium text-[13px] text-[var(--rm-muted)]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {projects.map((p) => (
-              <tr key={p.id} className="border-b border-[var(--rm-border)] last:border-0">
-                <td className="py-3">
+              <tr key={p.id} className="border-b border-[var(--rm-border-subtle)] last:border-0">
+                <td className="py-3 pl-0 text-[var(--rm-fg)]">
                   <span
                     className="inline-block h-2 w-2 rounded-full"
                     style={{ backgroundColor: p.color ?? "transparent" }}

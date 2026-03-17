@@ -1,12 +1,31 @@
 @import "tailwindcss";
 
+/* Design system: dark-first, minimal, soft contrast */
 :root {
-  --rm-bg: #f6f7f9;
-  --rm-fg: #111827;
-  --rm-muted: #6b7280;
-  --rm-border: rgba(17, 24, 39, 0.10);
-  --rm-surface: rgba(17, 24, 39, 0.06);
-  --rm-card: rgba(255, 255, 255, 0.9);
+  /* Surfaces (opaque, no transparency for content) */
+  --rm-bg: #0d0d0f;
+  --rm-surface: #161618;
+  --rm-surface-elevated: #1c1c1f;
+
+  /* Borders */
+  --rm-border: #2a2a2e;
+  --rm-border-subtle: #222226;
+
+  /* Text */
+  --rm-fg: #fafafa;
+  --rm-muted: #a1a1a6;
+  --rm-muted-subtle: #6e6e73;
+
+  /* Primary (accent) */
+  --rm-primary: #6366f1;
+  --rm-primary-hover: #818cf8;
+
+  /* Danger */
+  --rm-danger: #ef4444;
+  --rm-danger-hover: #f87171;
+
+  /* Warning (e.g. over-allocation) */
+  --rm-warning: #f59e0b;
 }
 
 @theme inline {
@@ -16,18 +35,28 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --rm-bg: #0b0f17;
-    --rm-fg: #e5e7eb;
-    --rm-muted: #9ca3af;
-    --rm-border: rgba(229, 231, 235, 0.12);
-    --rm-surface: rgba(229, 231, 235, 0.08);
-    --rm-card: rgba(0, 0, 0, 0.25);
-  }
-}
-
 body {
   background: var(--rm-bg);
   color: var(--rm-fg);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Slim scrollbar for planning grid */
+.rm-scroll-x {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rm-border) transparent;
+}
+.rm-scroll-x::-webkit-scrollbar {
+  height: 8px;
+}
+.rm-scroll-x::-webkit-scrollbar-track {
+  background: transparent;
+}
+.rm-scroll-x::-webkit-scrollbar-thumb {
+  background: var(--rm-border);
+  border-radius: 4px;
+}
+.rm-scroll-x::-webkit-scrollbar-thumb:hover {
+  background: var(--rm-muted-subtle);
 }

@@ -87,15 +87,19 @@ export function BookingForm({
     return { value: d.toISOString().slice(0, 10), label: formatWeekLabel(d) };
   });
 
+  const selectClass =
+    "h-10 w-full rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] px-3 py-2 text-sm text-[var(--rm-fg)] outline-none focus:ring-2 focus:ring-[var(--rm-primary)]/20 focus:border-[var(--rm-primary)] transition-colors";
+  const labelClass = "block text-[13px] font-medium text-[var(--rm-muted)]";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {errors._form && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">
+        <p className="rounded-lg bg-[var(--rm-danger)]/10 px-3 py-2 text-sm text-[var(--rm-danger)]">
           {errors._form[0]}
         </p>
       )}
-      <div className="space-y-1">
-        <label htmlFor="projectId" className="block text-sm font-medium text-[var(--rm-fg)]">
+      <div className="space-y-2">
+        <label htmlFor="projectId" className={labelClass}>
           Project
         </label>
         <select
@@ -103,7 +107,7 @@ export function BookingForm({
           name="projectId"
           value={form.projectId}
           onChange={(e) => setForm((p) => ({ ...p, projectId: e.target.value }))}
-          className="w-full rounded-xl border border-[var(--rm-border)] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rm-fg)]/20"
+          className={selectClass}
         >
           <option value="">Select project</option>
           {projects.map((p) => (
@@ -113,11 +117,11 @@ export function BookingForm({
           ))}
         </select>
         {errors.projectId?.[0] && (
-          <p className="text-xs text-red-600 dark:text-red-400">{errors.projectId[0]}</p>
+          <p className="text-xs text-[var(--rm-danger)]">{errors.projectId[0]}</p>
         )}
       </div>
-      <div className="space-y-1">
-        <label htmlFor="resourceId" className="block text-sm font-medium text-[var(--rm-fg)]">
+      <div className="space-y-2">
+        <label htmlFor="resourceId" className={labelClass}>
           Resource
         </label>
         <select
@@ -125,7 +129,7 @@ export function BookingForm({
           name="resourceId"
           value={form.resourceId}
           onChange={(e) => setForm((p) => ({ ...p, resourceId: e.target.value }))}
-          className="w-full rounded-xl border border-[var(--rm-border)] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rm-fg)]/20"
+          className={selectClass}
         >
           <option value="">Select resource</option>
           {resources.map((r) => (
@@ -135,11 +139,11 @@ export function BookingForm({
           ))}
         </select>
         {errors.resourceId?.[0] && (
-          <p className="text-xs text-red-600 dark:text-red-400">{errors.resourceId[0]}</p>
+          <p className="text-xs text-[var(--rm-danger)]">{errors.resourceId[0]}</p>
         )}
       </div>
-      <div className="space-y-1">
-        <label htmlFor="weekStart" className="block text-sm font-medium text-[var(--rm-fg)]">
+      <div className="space-y-2">
+        <label htmlFor="weekStart" className={labelClass}>
           Week
         </label>
         <select
@@ -147,7 +151,7 @@ export function BookingForm({
           name="weekStart"
           value={form.weekStart}
           onChange={(e) => setForm((p) => ({ ...p, weekStart: e.target.value }))}
-          className="w-full rounded-xl border border-[var(--rm-border)] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--rm-fg)]/20"
+          className={selectClass}
         >
           {weekOptions.map((o) => (
             <option key={o.value} value={o.value}>
@@ -156,7 +160,7 @@ export function BookingForm({
           ))}
         </select>
         {errors.weekStart?.[0] && (
-          <p className="text-xs text-red-600 dark:text-red-400">{errors.weekStart[0]}</p>
+          <p className="text-xs text-[var(--rm-danger)]">{errors.weekStart[0]}</p>
         )}
       </div>
       <FormField
@@ -179,7 +183,7 @@ export function BookingForm({
         error={errors.note?.[0]}
         placeholder="Optional"
       />
-      <div className="flex justify-between gap-2 pt-4">
+      <div className="flex justify-between gap-2 pt-6">
         <div>
           {booking && (
             <Button

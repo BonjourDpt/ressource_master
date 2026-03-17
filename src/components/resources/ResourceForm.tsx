@@ -44,7 +44,7 @@ export function ResourceForm({ resource, onSuccess, onCancel }: ResourceFormProp
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {errors._form && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">
+        <p className="rounded-lg bg-[var(--rm-danger)]/10 px-3 py-2 text-sm text-[var(--rm-danger)]">
           {errors._form[0]}
         </p>
       )}
@@ -75,7 +75,7 @@ export function ResourceForm({ resource, onSuccess, onCancel }: ResourceFormProp
         error={errors.team?.[0]}
         placeholder="Optional"
       />
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex justify-end gap-2 pt-6">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>
