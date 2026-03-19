@@ -25,7 +25,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="text-sm font-semibold tracking-tight text-[var(--rm-fg)]">
                 Resource Master
               </div>
-              <div className="text-xs text-[var(--rm-muted)]">v1.1</div>
+              <div className="text-xs text-[var(--rm-muted)]">v1.2</div>
             </div>
 
             <nav className="rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] p-2">
@@ -62,7 +62,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="text-sm font-semibold tracking-tight text-[var(--rm-fg)]">
                 Resource Master
               </div>
-              <div className="text-xs text-[var(--rm-muted)]">v1.1</div>
+              <div className="text-xs text-[var(--rm-muted)]">v1.2</div>
             </div>
 
             <div className="hidden sm:block" />
