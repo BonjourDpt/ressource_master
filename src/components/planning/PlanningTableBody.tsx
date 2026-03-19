@@ -1,0 +1,180 @@
+"use client";
+
+import { formatWeekLabel, getIsoMonday } from "@/lib/weeks";
+import type { BookingWithRelations, PlanningMatrixGroup } from "@/lib/planning-view-model";
+
+function weekKey(d: Date): string {
+  return getIsoMonday(d).toISOString().slice(0, 10);
+}
+
+/** Timeline cells show this string only — never project or resource names. */
+export function formatAllocationPercent(pct: number): string {
+  return `${pct}%`;
+}
+
+const stickyFirst =
+  "sticky left-0 z-[21] w-40 min-w-[160px] max-w-[200px] border-r border-[var(--rm-border)] bg-[var(--rm-surface)] align-middle shadow-[4px_0_12px_-6px_rgba(0,0,0,0.45)]";
+const stickySecond =
+  "sticky left-40 z-[20] min-w-[132px] w-44 max-w-[200px] border-r border-[var(--rm-border)] bg-[var(--rm-surface)] align-middle shadow-[4px_0_12px_-6px_rgba(0,0,0,0.35)]";
+
+export interface PlanningTableBodyProps {
+  groups: PlanningMatrixGroup[];
+  weekRange: Date[];
+  resWeekTotals: Map<string, number>;
+  onEditBooking: (b: BookingWithRelations) => void;
+  onAddBooking: (ctx: {
+    projectId?: string;
+    resourceId?: string;
+    weekStart?: string;
+  }) => void;
+}
+
+export function PlanningTableBody({
+  groups,
+  weekRange,
+  resWeekTotals,
+  onEditBooking,
+  onAddBooking,
+}: PlanningTableBodyProps) {
+  return (
+    <>
+      {groups.map((g) => (
+        <tbody key={g.groupId} data-planning-group={g.groupId}>
+          {g.rows.map((row, rowIndex) => {
+            const isLastSubRow = rowIndex === g.rows.length - 1;
+            return (
+              <tr
+                key={`${g.groupId}-${rowIndex}`}
+                className={
+                  isLastSubRow
+                    ? "border-b-2 border-[var(--rm-border)]"
+                    : "border-b border-[var(--rm-border-subtle)]"
+                }
+              >
+                {rowIndex === 0 && (
+                  <td className={stickyFirst} rowSpan={g.rows.length}>
+                    <div className="flex flex-col gap-2 py-2.5 pr-2">
+                      <div className="flex items-center gap-2">
+                        {g.mode === "project" && g.groupColor && (
+                          <span
+                            className="inline-block h-2 w-2 shrink-0 rounded-full ring-1 ring-[var(--rm-border)] ring-offset-1 ring-offset-[var(--rm-surface)]"
+                            style={{ backgroundColor: g.groupColor }}
+                          />
+                        )}
+                        <span className="text-[13px] font-semibold leading-snug tracking-tight text-[var(--rm-fg)]">
+                          {g.groupLabel}
+                        </span>
+                      </div>
+                      {g.mode === "resource" &&
+                        weekRange.some(
+                          (w) =>
+                            (resWeekTotals.get(`${g.groupId}:${weekKey(w)}`) ?? 0) > 100
+                        ) && (
+                          <div className="text-[11px] leading-relaxed text-[var(--rm-warning)]">
+                            {weekRange.map((w) => {
+                              const wk = weekKey(w);
+                              const t = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
+                              if (t <= 100) return null;
+                              return (
+                                <div key={wk}>
+                                  {formatWeekLabel(w)}: {formatAllocationPercent(t)}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                    </div>
+                  </td>
+                )}
+                <td className={`${stickySecond} px-3 py-2 align-middle`}>
+                  <div
+                    className={
+                      row.secondaryId === null
+                        ? "text-[11px] font-normal text-[var(--rm-muted-subtle)]"
+                        : "flex items-center gap-2 text-[12px] font-normal leading-snug text-[var(--rm-muted)]"
+                    }
+                  >
+                    {row.secondaryId !== null &&
+                      g.mode === "resource" &&
+                      row.secondaryColor && (
+                        <span
+                          className="h-1.5 w-1.5 shrink-0 rounded-full ring-1 ring-[var(--rm-border)]"
+                          style={{ backgroundColor: row.secondaryColor }}
+                          aria-hidden
+                        />
+                      )}
+                    <span>{row.secondaryLabel}</span>
+                  </div>
+                </td>
+                {row.weeks.map((cell) => (
+                  <td
+                    key={cell.weekStart}
+                    className="border-r border-[var(--rm-border-subtle)] bg-[var(--rm-bg)]/20 px-2 py-2 align-middle last:border-r-0"
+                  >
+                    <div className="flex min-h-[36px] items-center justify-center">
+                      {cell.booking ? (
+                        <button
+                          type="button"
+                          onClick={() => onEditBooking(cell.booking!)}
+                          title="Edit allocation"
+                          aria-label={`Edit allocation ${formatAllocationPercent(cell.booking.allocationPct)}`}
+                          className="tabular-nums min-w-[3rem] rounded-md border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] px-2.5 py-1.5 text-center text-[13px] font-medium text-[var(--rm-fg)] transition-colors hover:border-[var(--rm-muted-subtle)] hover:bg-[var(--rm-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)] active:bg-[var(--rm-surface)]"
+                          style={
+                            g.mode === "resource" && row.secondaryColor
+                              ? {
+                                  boxShadow: `inset 3px 0 0 0 ${row.secondaryColor}`,
+                                }
+                              : undefined
+                          }
+                        >
+                          {formatAllocationPercent(cell.booking.allocationPct)}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          aria-label="Add allocation"
+                          onClick={() => {
+                            if (g.mode === "resource") {
+                              if (row.secondaryId) {
+                                onAddBooking({
+                                  resourceId: g.groupId,
+                                  projectId: row.secondaryId,
+                                  weekStart: cell.weekStart,
+                                });
+                              } else {
+                                onAddBooking({
+                                  resourceId: g.groupId,
+                                  weekStart: cell.weekStart,
+                                });
+                              }
+                            } else {
+                              if (row.secondaryId) {
+                                onAddBooking({
+                                  projectId: g.groupId,
+                                  resourceId: row.secondaryId,
+                                  weekStart: cell.weekStart,
+                                });
+                              } else {
+                                onAddBooking({
+                                  projectId: g.groupId,
+                                  weekStart: cell.weekStart,
+                                });
+                              }
+                            }
+                          }}
+                          className="flex min-h-[32px] w-full max-w-[3.5rem] items-center justify-center rounded-md text-[15px] font-light leading-none text-[var(--rm-muted-subtle)] transition-colors hover:bg-[var(--rm-border-subtle)]/50 hover:text-[var(--rm-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)]"
+                        >
+                          +
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      ))}
+    </>
+  );
+}
