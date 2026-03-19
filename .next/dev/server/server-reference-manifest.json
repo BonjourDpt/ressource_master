@@ -44,51 +44,6 @@
       },
       "filename": "src/app/planning/actions.ts",
       "exportedName": "deleteBooking"
-    },
-    "40f1ed70451f77f85a4507e423ce18a5cf1f09bfcf": {
-      "workers": {
-        "app/projects/page": {
-          "moduleId": "[project]/.next-internal/server/app/projects/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/projects/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "deleteProject",
-          "filename": "src/app/projects/actions.ts"
-        }
-      },
-      "layer": {
-        "app/projects/page": "action-browser"
-      },
-      "filename": "src/app/projects/actions.ts",
-      "exportedName": "deleteProject"
-    },
-    "40ac126781013da1066ae073110fa5179acae84055": {
-      "workers": {
-        "app/projects/page": {
-          "moduleId": "[project]/.next-internal/server/app/projects/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/projects/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "createProject",
-          "filename": "src/app/projects/actions.ts"
-        }
-      },
-      "layer": {
-        "app/projects/page": "action-browser"
-      },
-      "filename": "src/app/projects/actions.ts",
-      "exportedName": "createProject"
-    },
-    "6035de5df0c7c1a448cb041061f77969221ab78030": {
-      "workers": {
-        "app/projects/page": {
-          "moduleId": "[project]/.next-internal/server/app/projects/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/projects/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "updateProject",
-          "filename": "src/app/projects/actions.ts"
-        }
-      },
-      "layer": {
-        "app/projects/page": "action-browser"
-      },
-      "filename": "src/app/projects/actions.ts",
-      "exportedName": "updateProject"
     }
   },
   "edge": {},
