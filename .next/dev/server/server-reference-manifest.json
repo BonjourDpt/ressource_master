@@ -89,51 +89,6 @@
       },
       "filename": "src/app/projects/actions.ts",
       "exportedName": "updateProject"
-    },
-    "40732c197032258a316eae3975562805c79459aa91": {
-      "workers": {
-        "app/resources/page": {
-          "moduleId": "[project]/.next-internal/server/app/resources/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/resources/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "deleteResource",
-          "filename": "src/app/resources/actions.ts"
-        }
-      },
-      "layer": {
-        "app/resources/page": "action-browser"
-      },
-      "filename": "src/app/resources/actions.ts",
-      "exportedName": "deleteResource"
-    },
-    "404505b1a240b07957fe56a6a9d8bdb8ed8251c44a": {
-      "workers": {
-        "app/resources/page": {
-          "moduleId": "[project]/.next-internal/server/app/resources/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/resources/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "createResource",
-          "filename": "src/app/resources/actions.ts"
-        }
-      },
-      "layer": {
-        "app/resources/page": "action-browser"
-      },
-      "filename": "src/app/resources/actions.ts",
-      "exportedName": "createResource"
-    },
-    "608c2e5a45c43c1a388203858ac49a76e27b93471d": {
-      "workers": {
-        "app/resources/page": {
-          "moduleId": "[project]/.next-internal/server/app/resources/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/resources/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "updateResource",
-          "filename": "src/app/resources/actions.ts"
-        }
-      },
-      "layer": {
-        "app/resources/page": "action-browser"
-      },
-      "filename": "src/app/resources/actions.ts",
-      "exportedName": "updateResource"
     }
   },
   "edge": {},

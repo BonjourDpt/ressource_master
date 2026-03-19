@@ -5,13 +5,17 @@ import { FormField } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import { createBooking, updateBooking, deleteBooking } from "@/app/planning/actions";
 import type { BookingFormData } from "@/lib/validations";
-import type { Booking, Project, Resource } from "@prisma/client";
 import { getWeekRange, getIsoMonday, formatWeekLabel } from "@/lib/weeks";
+import type {
+  BookingWithRelations,
+  ProjectModel,
+  ResourceModel,
+} from "@/lib/planning-view-model";
 
 interface BookingFormProps {
-  booking: (Booking & { project: Project; resource: Resource }) | null;
-  projects: Project[];
-  resources: Resource[];
+  booking: BookingWithRelations | null;
+  projects: ProjectModel[];
+  resources: ResourceModel[];
   weekRange: Date[];
   initialProjectId?: string;
   initialResourceId?: string;

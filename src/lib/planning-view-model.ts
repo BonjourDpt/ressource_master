@@ -3,11 +3,39 @@
  * sub-rows for each related project/resource line, and per-week allocation cells.
  */
 import { getIsoMonday } from "@/lib/weeks";
-import type { Booking, Project, Resource } from "@prisma/client";
 
 export type PlanningViewMode = "project" | "resource";
 
-export type BookingWithRelations = Booking & { project: Project; resource: Resource };
+// Minimal model types used by the planning UI.
+// We intentionally avoid importing `Project` / `Resource` from `@prisma/client`
+// because the generated type exports can be inconsistent in the editor.
+export type ProjectModel = {
+  id: string;
+  name: string;
+  color: string | null;
+  client: string | null;
+};
+
+export type ResourceModel = {
+  id: string;
+  name: string;
+  role: string | null;
+  team: string | null;
+};
+
+export type BookingModel = {
+  id: string;
+  projectId: string;
+  resourceId: string;
+  weekStart: Date;
+  allocationPct: number;
+  note: string | null;
+};
+
+export type BookingWithRelations = BookingModel & {
+  project: ProjectModel;
+  resource: ResourceModel;
+};
 
 export type PlanningWeekCell = {
   weekStart: string;
@@ -76,8 +104,8 @@ function emptyWeekCells(weekRange: Date[]): PlanningWeekCell[] {
 /** Builds grouped rows for both “By resource” and “By project” modes. */
 export function buildPlanningMatrix(
   view: PlanningViewMode,
-  projects: Project[],
-  resources: Resource[],
+  projects: ProjectModel[],
+  resources: ResourceModel[],
   bookings: BookingWithRelations[],
   weekRange: Date[]
 ): PlanningMatrixGroup[] {

@@ -5,22 +5,22 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { ProjectForm } from "./ProjectForm";
 import { deleteProject } from "@/app/projects/actions";
-import type { Project } from "@prisma/client";
+import type { ProjectModel } from "@/lib/planning-view-model";
 
 interface ProjectListProps {
-  projects: Project[];
+  projects: ProjectModel[];
 }
 
 export function ProjectList({ projects }: ProjectListProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<Project | null>(null);
+  const [editing, setEditing] = useState<ProjectModel | null>(null);
 
   const openCreate = () => {
     setEditing(null);
     setModalOpen(true);
   };
 
-  const openEdit = (p: Project) => {
+  const openEdit = (p: ProjectModel) => {
     setEditing(p);
     setModalOpen(true);
   };

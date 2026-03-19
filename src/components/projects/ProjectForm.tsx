@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/Button";
 import { createProject, updateProject } from "@/app/projects/actions";
 import { PROJECT_COLORS } from "@/lib/validations";
 import type { ProjectFormData } from "@/lib/validations";
-import type { Project } from "@prisma/client";
+import type { ProjectModel } from "@/lib/planning-view-model";
 
 interface ProjectFormProps {
-  project?: Project | null;
+  project?: ProjectModel | null;
   onSuccess: () => void;
   onCancel: () => void;
 }

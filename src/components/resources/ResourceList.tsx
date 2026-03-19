@@ -5,22 +5,22 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { ResourceForm } from "./ResourceForm";
 import { deleteResource } from "@/app/resources/actions";
-import type { Resource } from "@prisma/client";
+import type { ResourceModel } from "@/lib/planning-view-model";
 
 interface ResourceListProps {
-  resources: Resource[];
+  resources: ResourceModel[];
 }
 
 export function ResourceList({ resources }: ResourceListProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<Resource | null>(null);
+  const [editing, setEditing] = useState<ResourceModel | null>(null);
 
   const openCreate = () => {
     setEditing(null);
     setModalOpen(true);
   };
 
-  const openEdit = (r: Resource) => {
+  const openEdit = (r: ResourceModel) => {
     setEditing(r);
     setModalOpen(true);
   };

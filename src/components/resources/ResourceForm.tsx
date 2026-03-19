@@ -5,10 +5,10 @@ import { FormField } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import { createResource, updateResource } from "@/app/resources/actions";
 import type { ResourceFormData } from "@/lib/validations";
-import type { Resource } from "@prisma/client";
+import type { ResourceModel } from "@/lib/planning-view-model";
 
 interface ResourceFormProps {
-  resource?: Resource | null;
+  resource?: ResourceModel | null;
   onSuccess: () => void;
   onCancel: () => void;
 }

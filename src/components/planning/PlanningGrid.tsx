@@ -10,15 +10,16 @@ import {
   buildPlanningMatrix,
   resourceWeekTotals,
   type BookingWithRelations,
+  type ProjectModel,
+  type ResourceModel,
 } from "@/lib/planning-view-model";
-import type { Booking, Project, Resource } from "@prisma/client";
 
 type ViewMode = "project" | "resource";
 
 interface PlanningGridProps {
-  projects: Project[];
-  resources: Resource[];
-  bookings: (Booking & { project: Project; resource: Resource })[];
+  projects: ProjectModel[];
+  resources: ResourceModel[];
+  bookings: BookingWithRelations[];
   startWeek: Date;
   span: number;
 }
