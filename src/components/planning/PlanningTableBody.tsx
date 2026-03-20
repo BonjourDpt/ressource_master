@@ -1,8 +1,14 @@
 "use client";
 
+import type { Dispatch, SetStateAction } from "react";
 import { formatWeekLabel, toWeekStartKey } from "@/lib/weeks";
 import { formatAllocationPercent } from "@/lib/planning-format";
-import type { PlanningMatrixGroup, ProjectModel, ResourceModel } from "@/lib/planning-view-model";
+import type {
+  PlanningEditingCell,
+  PlanningMatrixGroup,
+  ProjectModel,
+  ResourceModel,
+} from "@/lib/planning-view-model";
 import { AllocationCell } from "./AllocationCell";
 import { stickyBodyFirst, stickyBodySecond, weekBodyCell } from "./planningStickyClasses";
 import { TotalPctPill } from "./TotalPctPill";
@@ -49,17 +55,21 @@ function SecondaryCellContent({
   );
 }
 
+const rowLine = "border-b border-[var(--rm-border-subtle)]";
+const addRowLine = `${rowLine} h-7 [&>td]:py-0.5 [&>td]:align-middle opacity-[0.72]`;
+
 export interface PlanningTableBodyProps {
   groups: PlanningMatrixGroup[];
   weekRange: Date[];
   resWeekTotals: Map<string, number>;
   projects: ProjectModel[];
   resources: ResourceModel[];
-  activeCellKey: string | null;
-  onActiveCellKeyChange: (key: string | null) => void;
+  editingCell: PlanningEditingCell;
+  onEditingCellChange: Dispatch<SetStateAction<PlanningEditingCell>>;
+  onTabNavigate: (rowId: string, weekId: string, delta: number) => void;
+  onAddAllocationRow: (groupId: string) => void;
+  onDraftPairChange: (draftRowId: string, pairedEntityId: string) => void;
 }
-
-const rowLine = "border-b border-[var(--rm-border-subtle)]";
 
 export function PlanningTableBody({
   groups,
@@ -67,164 +77,167 @@ export function PlanningTableBody({
   resWeekTotals,
   projects,
   resources,
-  activeCellKey,
-  onActiveCellKeyChange,
+  editingCell,
+  onEditingCellChange,
+  onTabNavigate,
+  onAddAllocationRow,
+  onDraftPairChange,
 }: PlanningTableBodyProps) {
   return (
     <>
       {groups.map((g, groupIndex) => {
         const groupTop = groupIndex > 0 ? "border-t border-[var(--rm-border-subtle)]" : "";
+        const rowSpan = g.rows.length;
 
-        if (g.mode !== "resource") {
-          return (
-            <tbody key={g.groupId} data-planning-group={g.groupId}>
-              {g.rows.map((row, rowIndex) => (
-                <tr
-                  key={`${g.groupId}-${rowIndex}`}
-                  className={`${rowLine} ${rowIndex === 0 ? groupTop : ""}`.trim()}
-                >
-                  {rowIndex === 0 && (
-                    <td className={stickyBodyFirst} rowSpan={g.rows.length}>
-                      <div className="flex flex-col py-0.5">
-                        <div className="flex items-center gap-2">
-                          {g.mode === "project" && g.groupColor ? (
-                            <span
-                              className="size-2 shrink-0 rounded-full"
-                              style={{ backgroundColor: g.groupColor }}
-                              aria-hidden
-                            />
-                          ) : null}
-                          <span className="text-sm font-medium leading-snug text-[var(--rm-fg)]">
-                            {g.groupLabel}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                  )}
-                  <td className={stickyBodySecond}>
-                    <SecondaryCellContent
-                      label={row.secondaryLabel}
-                      muted={row.secondaryId === null}
-                    />
-                  </td>
-                  {row.weeks.map((cell) => (
-                    <td key={cell.weekStart} className={weekBodyCell}>
-                      <AllocationCell
-                        g={g}
-                        row={row}
-                        cell={cell}
-                        projects={projects}
-                        resources={resources}
-                        activeCellKey={activeCellKey}
-                        onActiveCellKeyChange={onActiveCellKeyChange}
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          );
-        }
+        const overloads: Overload[] =
+          g.mode === "resource"
+            ? weekRange
+                .map((w) => {
+                  const wk = toWeekStartKey(w);
+                  const t = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
+                  if (t <= 100) return null;
+                  return { wk, label: formatWeekLabel(w), pct: t };
+                })
+                .filter((v): v is Overload => v !== null)
+            : [];
 
-        const hasOpenRow = g.rows.length > 0 && g.rows[g.rows.length - 1].secondaryId === null;
-        const openRow = hasOpenRow ? g.rows[g.rows.length - 1] : null;
-        const projectRows = hasOpenRow ? g.rows.slice(0, -1) : g.rows;
-
-        const stickyRowSpan = g.rows.length + 1;
-        const overloads: Overload[] = weekRange
-          .map((w) => {
-            const wk = toWeekStartKey(w);
-            const t = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
-            if (t <= 100) return null;
-            return { wk, label: formatWeekLabel(w), pct: t };
-          })
-          .filter((v): v is Overload => v !== null);
-
-        const resourceTitleBlock = (
-          <div className="flex flex-col py-0.5">
-            <span className="text-sm font-medium leading-snug text-[var(--rm-fg)]">{g.groupLabel}</span>
-            <OverloadHint items={overloads} />
-          </div>
-        );
+        const resourceTitleBlock =
+          g.mode === "resource" ? (
+            <div className="flex flex-col py-0.5">
+              <span className="text-sm font-medium leading-snug text-[var(--rm-fg)]">{g.groupLabel}</span>
+              <OverloadHint items={overloads} />
+            </div>
+          ) : null;
 
         return (
           <tbody key={g.groupId} data-planning-group={g.groupId}>
-            {projectRows.map((row, rowIndex) => (
-              <tr
-                key={`${g.groupId}-${rowIndex}`}
-                className={`${rowLine} ${rowIndex === 0 ? groupTop : ""}`.trim()}
-              >
-                {rowIndex === 0 && (
-                  <td className={stickyBodyFirst} rowSpan={stickyRowSpan}>
-                    {resourceTitleBlock}
-                  </td>
-                )}
-                <td className={stickyBodySecond}>
+            {g.rows.map((row, rowIndex) => {
+              const isFirstInGroup = rowIndex === 0;
+              const trClass =
+                row.rowType === "add"
+                  ? `${addRowLine} ${isFirstInGroup ? groupTop : ""}`.trim()
+                  : `${rowLine} ${isFirstInGroup ? groupTop : ""}`.trim();
+
+              const pairingIncomplete =
+                row.rowType === "allocation" && (!row.projectId || !row.resourceId);
+
+              const secondaryCell =
+                row.rowType === "add" ? (
+                  <button
+                    type="button"
+                    onClick={() => onAddAllocationRow(g.groupId)}
+                    className="text-left text-xs text-[var(--rm-muted)] transition-colors hover:text-[var(--rm-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
+                  >
+                    {g.mode === "project" ? "＋ Add resource" : "＋ Add project"}
+                  </button>
+                ) : row.rowType === "summary" ? (
+                  <span className="text-xs font-medium text-[var(--rm-muted)]">Total</span>
+                ) : pairingIncomplete ? (
+                  <div className="min-w-0">
+                    {g.mode === "project" ? (
+                      <select
+                        value={row.resourceId ?? ""}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v) onDraftPairChange(row.id, v);
+                        }}
+                        className="max-w-full rounded border border-[var(--rm-border-subtle)] bg-[var(--rm-surface)] px-1.5 py-1 text-xs text-[var(--rm-fg)] focus:border-[var(--rm-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--rm-primary)]/35"
+                        aria-label="Resource for new row"
+                      >
+                        <option value="">Resource…</option>
+                        {resources.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <select
+                        value={row.projectId ?? ""}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v) onDraftPairChange(row.id, v);
+                        }}
+                        className="max-w-full rounded border border-[var(--rm-border-subtle)] bg-[var(--rm-surface)] px-1.5 py-1 text-xs text-[var(--rm-fg)] focus:border-[var(--rm-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--rm-primary)]/35"
+                        aria-label="Project for new row"
+                      >
+                        <option value="">Project…</option>
+                        {projects.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                ) : (
                   <SecondaryCellContent
                     label={row.secondaryLabel}
-                    muted={row.secondaryId === null}
-                    dotColor={row.secondaryId !== null ? row.secondaryColor : null}
+                    muted={false}
+                    dotColor={g.mode === "resource" ? row.secondaryColor : null}
                   />
-                </td>
-                {row.weeks.map((cell) => (
-                  <td key={cell.weekStart} className={weekBodyCell}>
-                    <AllocationCell
-                      g={g}
-                      row={row}
-                      cell={cell}
-                      projects={projects}
-                      resources={resources}
-                      activeCellKey={activeCellKey}
-                      onActiveCellKeyChange={onActiveCellKeyChange}
-                    />
-                  </td>
-                ))}
-              </tr>
-            ))}
-
-            <tr className={rowLine}>
-              {projectRows.length === 0 && (
-                <td className={stickyBodyFirst} rowSpan={stickyRowSpan}>
-                  {resourceTitleBlock}
-                </td>
-              )}
-
-              <td className={stickyBodySecond}>
-                <span className="text-xs font-medium text-[var(--rm-muted)]">Total</span>
-              </td>
-              {weekRange.map((w) => {
-                const wk = toWeekStartKey(w);
-                const total = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
-                return (
-                  <td key={wk} className={weekBodyCell}>
-                    <div className="flex min-h-9 items-center justify-center">
-                      <TotalPctPill pct={total} />
-                    </div>
-                  </td>
                 );
-              })}
-            </tr>
 
-            {openRow && (
-              <tr className={rowLine}>
-                <td className={stickyBodySecond}>
-                  <SecondaryCellContent label={openRow.secondaryLabel} muted />
-                </td>
-                {openRow.weeks.map((cell) => (
-                  <td key={cell.weekStart} className={weekBodyCell}>
-                    <AllocationCell
-                      g={g}
-                      row={openRow}
-                      cell={cell}
-                      projects={projects}
-                      resources={resources}
-                      activeCellKey={activeCellKey}
-                      onActiveCellKeyChange={onActiveCellKeyChange}
-                    />
-                  </td>
-                ))}
-              </tr>
-            )}
+              return (
+                <tr key={row.id} className={trClass} data-row-type={row.rowType}>
+                  {isFirstInGroup && (
+                    <td className={stickyBodyFirst} rowSpan={rowSpan}>
+                      {g.mode === "project" ? (
+                        <div className="flex flex-col py-0.5">
+                          <div className="flex items-center gap-2">
+                            {g.groupColor ? (
+                              <span
+                                className="size-2 shrink-0 rounded-full"
+                                style={{ backgroundColor: g.groupColor }}
+                                aria-hidden
+                              />
+                            ) : null}
+                            <span className="text-sm font-medium leading-snug text-[var(--rm-fg)]">
+                              {g.groupLabel}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        resourceTitleBlock
+                      )}
+                    </td>
+                  )}
+                  <td className={stickyBodySecond}>{secondaryCell}</td>
+                  {row.rowType === "allocation" &&
+                    row.weeks.map((cell) => (
+                      <td key={cell.weekStart} className={weekBodyCell}>
+                        <AllocationCell
+                          g={g}
+                          row={row}
+                          cell={cell}
+                          editingCell={editingCell}
+                          onEditingCellChange={onEditingCellChange}
+                          onTabNavigate={onTabNavigate}
+                        />
+                      </td>
+                    ))}
+                  {row.rowType === "add" &&
+                    weekRange.map((w) => {
+                      const wk = toWeekStartKey(w);
+                      return (
+                        <td key={wk} className={`${weekBodyCell} bg-[var(--rm-bg)]`} aria-hidden />
+                      );
+                    })}
+                  {row.rowType === "summary" &&
+                    weekRange.map((w) => {
+                      const wk = toWeekStartKey(w);
+                      const total = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
+                      return (
+                        <td key={wk} className={weekBodyCell}>
+                          <div className="flex min-h-9 items-center justify-center">
+                            <TotalPctPill pct={total} />
+                          </div>
+                        </td>
+                      );
+                    })}
+                </tr>
+              );
+            })}
           </tbody>
         );
       })}

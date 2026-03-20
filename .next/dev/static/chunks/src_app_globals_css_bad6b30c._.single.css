@@ -477,6 +477,10 @@
     height: calc(var(--spacing) * 2);
   }
 
+  .h-7 {
+    height: calc(var(--spacing) * 7);
+  }
+
   .h-8 {
     height: calc(var(--spacing) * 8);
   }
@@ -815,6 +819,16 @@
   @supports (color: color-mix(in lab, red, red)) {
     .border-\[var\(--rm-primary\)\]\/25 {
       border-color: color-mix(in oklab, var(--rm-primary) 25%, transparent);
+    }
+  }
+
+  .border-\[var\(--rm-primary\)\]\/40 {
+    border-color: var(--rm-primary);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .border-\[var\(--rm-primary\)\]\/40 {
+      border-color: color-mix(in oklab, var(--rm-primary) 40%, transparent);
     }
   }
 
@@ -1171,6 +1185,25 @@
     opacity: .6;
   }
 
+  .opacity-\[0\.72\] {
+    opacity: .72;
+  }
+
+  .shadow-\[inset_0_0_0_1px_var\(--rm-primary\)\]\/15 {
+    --tw-shadow-alpha: 15%;
+    --tw-shadow: inset 0 0 0 1px var(--tw-shadow-color, var(--rm-primary));
+  }
+
+  @supports (color: lab(from red l a b)) {
+    .shadow-\[inset_0_0_0_1px_var\(--rm-primary\)\]\/15 {
+      --tw-shadow: inset 0 0 0 1px var(--tw-shadow-color, oklab(from var(--rm-primary) l a b / 15%));
+    }
+  }
+
+  .shadow-\[inset_0_0_0_1px_var\(--rm-primary\)\]\/15 {
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+
   .shadow-\[0_0_0_1px_color-mix\(in_oklab\,var\(--rm-primary\)_35\%\,transparent\)\] {
     --tw-shadow: 0 0 0 1px var(--tw-shadow-color, var(--rm-primary));
   }
@@ -1371,6 +1404,16 @@
 
   .focus\:border-\[var\(--rm-primary\)\]:focus {
     border-color: var(--rm-primary);
+  }
+
+  .focus\:border-\[var\(--rm-primary\)\]\/60:focus {
+    border-color: var(--rm-primary);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .focus\:border-\[var\(--rm-primary\)\]\/60:focus {
+      border-color: color-mix(in oklab, var(--rm-primary) 60%, transparent);
+    }
   }
 
   .focus\:ring-1:focus {
@@ -1574,6 +1617,14 @@
       font-size: var(--text-sm);
       line-height: var(--tw-leading, var(--text-sm--line-height));
     }
+  }
+
+  .\[\&\>td\]\:py-0\.5 > td {
+    padding-block: calc(var(--spacing) * .5);
+  }
+
+  .\[\&\>td\]\:align-middle > td {
+    vertical-align: middle;
   }
 }
 

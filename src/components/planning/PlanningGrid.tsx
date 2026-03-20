@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PlanningTable } from "./PlanningTable";
-import { addWeeks, formatWeekLabel, getWeekRange } from "@/lib/weeks";
+import { addWeeks, formatWeekLabel, getWeekRange, toWeekStartKey } from "@/lib/weeks";
 import {
   buildPlanningMatrix,
+  mergeDraftRowsIntoGroups,
   resourceWeekTotals,
   type BookingWithRelations,
+  type PlanningDraftAllocationLine,
+  type PlanningEditingCell,
   type ProjectModel,
   type ResourceModel,
 } from "@/lib/planning-view-model";
@@ -20,6 +23,13 @@ interface PlanningGridProps {
   bookings: BookingWithRelations[];
   startWeek: Date;
   span: number;
+}
+
+function newDraftId(): string {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return `draft:${crypto.randomUUID()}`;
+  }
+  return `draft:${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 export function PlanningGrid({
@@ -41,11 +51,104 @@ export function PlanningGrid({
 
   const resWeekTotals = useMemo(() => resourceWeekTotals(bookings), [bookings]);
 
-  const [activeCellKey, setActiveCellKey] = useState<string | null>(null);
+  const [editingCell, setEditingCell] = useState<PlanningEditingCell>(null);
+  const [draftLines, setDraftLines] = useState<PlanningDraftAllocationLine[]>([]);
+
+  const mergedGroups = useMemo(
+    () => mergeDraftRowsIntoGroups(groups, draftLines, weekRange, projects, resources),
+    [groups, draftLines, weekRange, projects, resources],
+  );
+
+  const focusOrder = useMemo(() => {
+    const order: { rowId: string; weekId: string }[] = [];
+    for (const g of mergedGroups) {
+      for (const row of g.rows) {
+        if (row.rowType !== "allocation") continue;
+        if (!row.projectId || !row.resourceId) continue;
+        for (const cell of row.weeks) {
+          order.push({ rowId: row.id, weekId: cell.weekStart });
+        }
+      }
+    }
+    return order;
+  }, [mergedGroups]);
 
   useEffect(() => {
-    setActiveCellKey(null);
+    setEditingCell(null);
+    setDraftLines([]);
   }, [view, startWeek.getTime(), span]);
+
+  useEffect(() => {
+    setDraftLines((prev) =>
+      prev.filter((draft) => {
+        const g = groups.find((x) => x.groupId === draft.groupId);
+        if (!g || !draft.pairedEntityId) return true;
+        const pid = g.mode === "project" ? g.groupId : draft.pairedEntityId;
+        const rid = g.mode === "resource" ? g.groupId : draft.pairedEntityId;
+        const serverHasLine = g.rows.some(
+          (r) =>
+            r.rowType === "allocation" &&
+            r.projectId === pid &&
+            r.resourceId === rid,
+        );
+        return !serverHasLine;
+      }),
+    );
+  }, [groups]);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+    const flat = mergedGroups.flatMap((g) =>
+      g.rows.map((r) => ({
+        groupId: g.groupId,
+        rowId: r.id,
+        rowType: r.rowType,
+        projectId: r.projectId,
+        resourceId: r.resourceId,
+      })),
+    );
+    console.debug("[planning] rowType per row", flat);
+  }, [mergedGroups]);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+    console.debug("[planning] editingCell", editingCell);
+  }, [editingCell]);
+
+  useEffect(() => {
+    if (!editingCell) return;
+    const rowExists = mergedGroups.some((g) =>
+      g.rows.some((r) => r.id === editingCell.rowId),
+    );
+    if (!rowExists) setEditingCell(null);
+  }, [mergedGroups, editingCell]);
+
+  const onTabNavigate = useCallback(
+    (rowId: string, weekId: string, delta: number) => {
+      const idx = focusOrder.findIndex((x) => x.rowId === rowId && x.weekId === weekId);
+      if (idx < 0) return;
+      const next = focusOrder[idx + delta];
+      setEditingCell(next ?? null);
+    },
+    [focusOrder],
+  );
+
+  const onAddAllocationRow = useCallback((groupId: string) => {
+    setDraftLines((prev) => [...prev, { id: newDraftId(), groupId, pairedEntityId: null }]);
+  }, []);
+
+  const onDraftPairChange = useCallback(
+    (draftRowId: string, pairedEntityId: string) => {
+      setDraftLines((prev) =>
+        prev.map((d) => (d.id === draftRowId ? { ...d, pairedEntityId } : d)),
+      );
+      const firstWk = weekRange[0] ? toWeekStartKey(weekRange[0]) : null;
+      if (firstWk) {
+        setEditingCell({ rowId: draftRowId, weekId: firstWk });
+      }
+    },
+    [weekRange],
+  );
 
   const setView = (v: PlanningViewMode) => {
     const p = new URLSearchParams(searchParams.toString());
@@ -127,12 +230,15 @@ export function PlanningGrid({
       <PlanningTable
         view={view}
         weekRange={weekRange}
-        groups={groups}
+        groups={mergedGroups}
         resWeekTotals={resWeekTotals}
         projects={projects}
         resources={resources}
-        activeCellKey={activeCellKey}
-        onActiveCellKeyChange={setActiveCellKey}
+        editingCell={editingCell}
+        onEditingCellChange={setEditingCell}
+        onTabNavigate={onTabNavigate}
+        onAddAllocationRow={onAddAllocationRow}
+        onDraftPairChange={onDraftPairChange}
         groupListEmpty={groupListEmpty}
       />
     </div>

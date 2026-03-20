@@ -1,59 +1,59 @@
 "use client";
 
+import type { Dispatch, SetStateAction } from "react";
 import type {
+  PlanningEditingCell,
   PlanningMatrixGroup,
   PlanningMatrixRow,
   PlanningWeekCell,
-  ProjectModel,
-  ResourceModel,
 } from "@/lib/planning-view-model";
 import { EditableAllocationCell } from "./EditableAllocationCell";
-
-function allocationCellKey(
-  projectId: string | null,
-  resourceId: string | null,
-  weekStart: string,
-): string {
-  return `p:${projectId ?? "_"}|r:${resourceId ?? "_"}|w:${weekStart}`;
-}
 
 export interface AllocationCellProps {
   g: PlanningMatrixGroup;
   row: PlanningMatrixRow;
   cell: PlanningWeekCell;
-  projects: ProjectModel[];
-  resources: ResourceModel[];
-  activeCellKey: string | null;
-  onActiveCellKeyChange: (key: string | null) => void;
+  editingCell: PlanningEditingCell;
+  onEditingCellChange: Dispatch<SetStateAction<PlanningEditingCell>>;
+  onTabNavigate: (rowId: string, weekId: string, delta: number) => void;
 }
 
 export function AllocationCell({
   g,
   row,
   cell,
-  projects,
-  resources,
-  activeCellKey,
-  onActiveCellKeyChange,
+  editingCell,
+  onEditingCellChange,
+  onTabNavigate,
 }: AllocationCellProps) {
-  const projectId = g.mode === "project" ? g.groupId : row.secondaryId;
-  const resourceId = g.mode === "resource" ? g.groupId : row.secondaryId;
-  const cellKey = allocationCellKey(projectId, resourceId, cell.weekStart);
+  if (row.rowType !== "allocation") {
+    return null;
+  }
+
+  const projectId = row.projectId;
+  const resourceId = row.resourceId;
+  const paired = projectId != null && resourceId != null;
+
+  if (!paired) {
+    return <div className="min-h-9" aria-hidden />;
+  }
+
   const accentColor =
-    g.mode === "resource" && row.secondaryId !== null ? row.secondaryColor ?? null : null;
+    g.mode === "resource" ? row.secondaryColor ?? null : null;
+
+  const isEditing =
+    editingCell?.rowId === row.id && editingCell?.weekId === cell.weekStart;
 
   return (
     <EditableAllocationCell
-      cellKey={cellKey}
+      rowId={row.id}
       weekStart={cell.weekStart}
       booking={cell.booking}
       projectId={projectId}
       resourceId={resourceId}
-      projectOptions={projects}
-      resourceOptions={resources}
-      isEditing={activeCellKey === cellKey}
-      onBeginEdit={onActiveCellKeyChange}
-      onEndEdit={() => onActiveCellKeyChange(null)}
+      isEditing={isEditing}
+      onEditingCellChange={onEditingCellChange}
+      onTabNavigate={onTabNavigate}
       accentColor={accentColor}
     />
   );
