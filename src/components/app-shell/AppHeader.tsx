@@ -18,7 +18,7 @@ export function AppHeader() {
       <div className="mx-auto flex h-14 max-w-[1800px] items-center gap-8 px-4 sm:px-5">
         <div className="flex shrink-0 items-baseline gap-2">
           <span className="text-sm font-medium tracking-tight text-[var(--rm-fg)]">Resource Master</span>
-          <span className="hidden text-xs text-[var(--rm-muted)] sm:inline">v1.3</span>
+          <span className="hidden text-xs text-[var(--rm-muted)] sm:inline">v1.4</span>
         </div>
 
         <nav aria-label="Main" className="min-w-0 flex-1">
