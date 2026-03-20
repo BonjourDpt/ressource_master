@@ -12,7 +12,7 @@ Resource Master answers a simple question: **who is on what project, and when?**
 
 - **Projects** — Create, edit, delete projects (name, optional client, color from a fixed palette).
 - **Resources** — Create, edit, delete resources (name, optional role and team).
-- **Bookings** — Assign a resource to a project for a given week with an allocation percentage (1–100%); create, edit, delete from the planning grid or side panel.
+- **Bookings** — Assign a resource to a project for a given week with an allocation percentage (1–100%); create, edit, and delete inline from the planning grid.
 - **Planning view** — Weekly grid with toggle: *By project* (rows = projects) or *By resource* (rows = resources). Week navigation and URL-based state.
 - **No auth (v1)** — No login or permissions; internal use only.
 - **Minimalist UI** — Clean layout, subtle borders, iOS-inspired styling, no clutter.

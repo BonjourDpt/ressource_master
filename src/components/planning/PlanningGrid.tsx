@@ -1,9 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SidePanel } from "@/components/ui/SidePanel";
-import { BookingForm } from "./BookingForm";
 import { PlanningTableBody } from "./PlanningTableBody";
 import { getIsoMonday, addWeeks, formatWeekLabel, getWeekRange } from "@/lib/weeks";
 import {
@@ -47,13 +45,12 @@ export function PlanningGrid({
 
   const resWeekTotals = useMemo(() => resourceWeekTotals(bookings), [bookings]);
 
-  const [panelOpen, setPanelOpen] = useState(false);
-  const [editingBooking, setEditingBooking] = useState<BookingWithRelations | null>(null);
-  const [addContext, setAddContext] = useState<{
-    projectId?: string;
-    resourceId?: string;
-    weekStart?: string;
-  }>({});
+  /** At most one allocation cell in edit mode (spreadsheet-style). */
+  const [activeCellKey, setActiveCellKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    setActiveCellKey(null);
+  }, [view, startWeek.getTime(), span]);
 
   const setView = (v: ViewMode) => {
     const p = new URLSearchParams(searchParams.toString());
@@ -66,24 +63,6 @@ export function PlanningGrid({
     const p = new URLSearchParams(searchParams.toString());
     p.set("weekStart", newStart.toISOString().slice(0, 10));
     router.push(`/planning?${p.toString()}`);
-  };
-
-  const openEdit = (b: BookingWithRelations) => {
-    setEditingBooking(b);
-    setAddContext({});
-    setPanelOpen(true);
-  };
-
-  const openAdd = (ctx: { projectId?: string; resourceId?: string; weekStart?: string }) => {
-    setEditingBooking(null);
-    setAddContext(ctx);
-    setPanelOpen(true);
-  };
-
-  const closePanel = () => {
-    setPanelOpen(false);
-    setEditingBooking(null);
-    setAddContext({});
   };
 
   const groupListEmpty = view === "project" ? projects.length === 0 : resources.length === 0;
@@ -175,8 +154,10 @@ export function PlanningGrid({
             groups={groups}
             weekRange={weekRange}
             resWeekTotals={resWeekTotals}
-            onEditBooking={openEdit}
-            onAddBooking={openAdd}
+            projects={projects}
+            resources={resources}
+            activeCellKey={activeCellKey}
+            onActiveCellKeyChange={setActiveCellKey}
           />
         </table>
         {groupListEmpty && (
@@ -185,24 +166,6 @@ export function PlanningGrid({
           </p>
         )}
       </div>
-
-      <SidePanel
-        open={panelOpen}
-        onClose={closePanel}
-        title={editingBooking ? "Edit booking" : "New booking"}
-      >
-        <BookingForm
-          booking={editingBooking}
-          projects={projects}
-          resources={resources}
-          weekRange={weekRange}
-          initialProjectId={addContext.projectId}
-          initialResourceId={addContext.resourceId}
-          initialWeekStart={addContext.weekStart}
-          onSuccess={closePanel}
-          onCancel={closePanel}
-        />
-      </SidePanel>
     </div>
   );
 }

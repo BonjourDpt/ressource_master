@@ -1,16 +1,27 @@
 "use client";
 
 import { formatWeekLabel, getIsoMonday } from "@/lib/weeks";
-import type { BookingWithRelations, PlanningMatrixGroup } from "@/lib/planning-view-model";
+import { formatAllocationPercent } from "@/lib/planning-format";
+import type {
+  PlanningMatrixGroup,
+  PlanningWeekCell,
+  PlanningMatrixRow,
+  ProjectModel,
+  ResourceModel,
+} from "@/lib/planning-view-model";
 import { TotalPctPill } from "./TotalPctPill";
+import { EditableAllocationCell } from "./EditableAllocationCell";
 
 function weekKey(d: Date): string {
   return getIsoMonday(d).toISOString().slice(0, 10);
 }
 
-/** Timeline cells show this string only — never project or resource names. */
-export function formatAllocationPercent(pct: number): string {
-  return `${pct}%`;
+function allocationCellKey(
+  projectId: string | null,
+  resourceId: string | null,
+  weekStart: string
+): string {
+  return `p:${projectId ?? "_"}|r:${resourceId ?? "_"}|w:${weekStart}`;
 }
 
 const stickyFirst =
@@ -22,20 +33,60 @@ export interface PlanningTableBodyProps {
   groups: PlanningMatrixGroup[];
   weekRange: Date[];
   resWeekTotals: Map<string, number>;
-  onEditBooking: (b: BookingWithRelations) => void;
-  onAddBooking: (ctx: {
-    projectId?: string;
-    resourceId?: string;
-    weekStart?: string;
-  }) => void;
+  projects: ProjectModel[];
+  resources: ResourceModel[];
+  activeCellKey: string | null;
+  onActiveCellKeyChange: (key: string | null) => void;
+}
+
+function AllocationCell({
+  g,
+  row,
+  cell,
+  projects,
+  resources,
+  activeCellKey,
+  onActiveCellKeyChange,
+}: {
+  g: PlanningMatrixGroup;
+  row: PlanningMatrixRow;
+  cell: PlanningWeekCell;
+  projects: ProjectModel[];
+  resources: ResourceModel[];
+  activeCellKey: string | null;
+  onActiveCellKeyChange: (key: string | null) => void;
+}) {
+  const projectId = g.mode === "project" ? g.groupId : row.secondaryId;
+  const resourceId = g.mode === "resource" ? g.groupId : row.secondaryId;
+  const cellKey = allocationCellKey(projectId, resourceId, cell.weekStart);
+  const accentColor =
+    g.mode === "resource" && row.secondaryId !== null ? row.secondaryColor ?? null : null;
+
+  return (
+    <EditableAllocationCell
+      cellKey={cellKey}
+      weekStart={cell.weekStart}
+      booking={cell.booking}
+      projectId={projectId}
+      resourceId={resourceId}
+      projectOptions={projects}
+      resourceOptions={resources}
+      isEditing={activeCellKey === cellKey}
+      onBeginEdit={onActiveCellKeyChange}
+      onEndEdit={() => onActiveCellKeyChange(null)}
+      accentColor={accentColor}
+    />
+  );
 }
 
 export function PlanningTableBody({
   groups,
   weekRange,
   resWeekTotals,
-  onEditBooking,
-  onAddBooking,
+  projects,
+  resources,
+  activeCellKey,
+  onActiveCellKeyChange,
 }: PlanningTableBodyProps) {
   return (
     <>
@@ -79,13 +130,6 @@ export function PlanningTableBody({
                             : "flex items-center gap-2 text-[12px] font-normal leading-snug text-[var(--rm-muted)]"
                         }
                       >
-                        {row.secondaryId !== null && g.mode === "resource" && row.secondaryColor && (
-                          <span
-                            className="h-1.5 w-1.5 shrink-0 rounded-full ring-1 ring-[var(--rm-border)]"
-                            style={{ backgroundColor: row.secondaryColor }}
-                            aria-hidden
-                          />
-                        )}
                         <span>{row.secondaryLabel}</span>
                       </div>
                     </td>
@@ -94,63 +138,15 @@ export function PlanningTableBody({
                         key={cell.weekStart}
                         className="border-r border-[var(--rm-border-subtle)] bg-[var(--rm-bg)]/20 px-2 py-2 align-middle last:border-r-0"
                       >
-                        <div className="flex min-h-[36px] items-center justify-center">
-                          {cell.booking ? (
-                            <button
-                              type="button"
-                              onClick={() => onEditBooking(cell.booking!)}
-                              title="Edit allocation"
-                              aria-label={`Edit allocation ${formatAllocationPercent(cell.booking.allocationPct)}`}
-                              className="tabular-nums min-w-[3rem] rounded-md border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] px-2.5 py-1.5 text-center text-[13px] font-medium text-[var(--rm-fg)] transition-colors hover:border-[var(--rm-muted-subtle)] hover:bg-[var(--rm-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)] active:bg-[var(--rm-surface)]"
-                              style={
-                                g.mode === "resource" && row.secondaryColor
-                                  ? {
-                                      boxShadow: `inset 3px 0 0 0 ${row.secondaryColor}`,
-                                    }
-                                  : undefined
-                              }
-                            >
-                              {formatAllocationPercent(cell.booking.allocationPct)}
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              aria-label="Add allocation"
-                              onClick={() => {
-                                if (g.mode === "resource") {
-                                  if (row.secondaryId) {
-                                    onAddBooking({
-                                      resourceId: g.groupId,
-                                      projectId: row.secondaryId,
-                                      weekStart: cell.weekStart,
-                                    });
-                                  } else {
-                                    onAddBooking({
-                                      resourceId: g.groupId,
-                                      weekStart: cell.weekStart,
-                                    });
-                                  }
-                                } else {
-                                  if (row.secondaryId) {
-                                    onAddBooking({
-                                      projectId: g.groupId,
-                                      resourceId: row.secondaryId,
-                                      weekStart: cell.weekStart,
-                                    });
-                                  } else {
-                                    onAddBooking({
-                                      projectId: g.groupId,
-                                      weekStart: cell.weekStart,
-                                    });
-                                  }
-                                }
-                              }}
-                              className="flex min-h-[32px] w-full max-w-[3.5rem] items-center justify-center rounded-md text-[15px] font-light leading-none text-[var(--rm-muted-subtle)] transition-colors hover:bg-[var(--rm-border-subtle)]/50 hover:text-[var(--rm-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)]"
-                            >
-                              +
-                            </button>
-                          )}
-                        </div>
+                        <AllocationCell
+                          g={g}
+                          row={row}
+                          cell={cell}
+                          projects={projects}
+                          resources={resources}
+                          activeCellKey={activeCellKey}
+                          onActiveCellKeyChange={onActiveCellKeyChange}
+                        />
                       </td>
                     ))}
                   </tr>
@@ -160,12 +156,11 @@ export function PlanningTableBody({
           );
         }
 
-        // By resource mode: insert a per-resource weekly “Total” row.
         const hasOpenRow = g.rows.length > 0 && g.rows[g.rows.length - 1].secondaryId === null;
         const openRow = hasOpenRow ? g.rows[g.rows.length - 1] : null;
         const projectRows = hasOpenRow ? g.rows.slice(0, -1) : g.rows;
 
-        const stickyRowSpan = g.rows.length + 1; // +1 for the injected “Total” row
+        const stickyRowSpan = g.rows.length + 1;
         const overloads = weekRange
           .map((w) => {
             const wk = weekKey(w);
@@ -179,8 +174,6 @@ export function PlanningTableBody({
           <tbody key={g.groupId} data-planning-group={g.groupId}>
             {projectRows.map((row, rowIndex) => {
               const isFirstRenderedRow = rowIndex === 0;
-              // In “By resource” mode we always inject a “Total” row after project rows,
-              // so project rows are never the last rendered sub-row.
               const isLastSubRow = false;
               return (
                 <tr
@@ -235,55 +228,21 @@ export function PlanningTableBody({
                       key={cell.weekStart}
                       className="border-r border-[var(--rm-border-subtle)] bg-[var(--rm-bg)]/20 px-2 py-2 align-middle last:border-r-0"
                     >
-                      <div className="flex min-h-[36px] items-center justify-center">
-                        {cell.booking ? (
-                          <button
-                            type="button"
-                            onClick={() => onEditBooking(cell.booking!)}
-                            title="Edit allocation"
-                            aria-label={`Edit allocation ${formatAllocationPercent(cell.booking.allocationPct)}`}
-                            className="tabular-nums min-w-[3rem] rounded-md border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] px-2.5 py-1.5 text-center text-[13px] font-medium text-[var(--rm-fg)] transition-colors hover:border-[var(--rm-muted-subtle)] hover:bg-[var(--rm-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)] active:bg-[var(--rm-surface)]"
-                            style={
-                              row.secondaryColor
-                                ? {
-                                    boxShadow: `inset 3px 0 0 0 ${row.secondaryColor}`,
-                                  }
-                                : undefined
-                            }
-                          >
-                            {formatAllocationPercent(cell.booking.allocationPct)}
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            aria-label="Add allocation"
-                            onClick={() => {
-                              if (row.secondaryId) {
-                                onAddBooking({
-                                  resourceId: g.groupId,
-                                  projectId: row.secondaryId,
-                                  weekStart: cell.weekStart,
-                                });
-                              } else {
-                                onAddBooking({
-                                  resourceId: g.groupId,
-                                  weekStart: cell.weekStart,
-                                });
-                              }
-                            }}
-                            className="flex min-h-[32px] w-full max-w-[3.5rem] items-center justify-center rounded-md text-[15px] font-light leading-none text-[var(--rm-muted-subtle)] transition-colors hover:bg-[var(--rm-border-subtle)]/50 hover:text-[var(--rm-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)]"
-                          >
-                            +
-                          </button>
-                        )}
-                      </div>
+                      <AllocationCell
+                        g={g}
+                        row={row}
+                        cell={cell}
+                        projects={projects}
+                        resources={resources}
+                        activeCellKey={activeCellKey}
+                        onActiveCellKeyChange={onActiveCellKeyChange}
+                      />
                     </td>
                   ))}
                 </tr>
               );
             })}
 
-            {/* Total row (injected after project rows, before the “—” open row) */}
             <tr
               key={`${g.groupId}-total`}
               className={
@@ -334,10 +293,7 @@ export function PlanningTableBody({
             </tr>
 
             {openRow && (
-              <tr
-                key={`${g.groupId}-open`}
-                className="border-b-2 border-[var(--rm-border)]"
-              >
+              <tr key={`${g.groupId}-open`} className="border-b-2 border-[var(--rm-border)]">
                 <td className={`${stickySecond} px-3 py-2 align-middle`}>
                   <div className="text-[11px] font-normal text-[var(--rm-muted-subtle)]">
                     {openRow.secondaryLabel}
@@ -348,33 +304,15 @@ export function PlanningTableBody({
                     key={cell.weekStart}
                     className="border-r border-[var(--rm-border-subtle)] bg-[var(--rm-bg)]/20 px-2 py-2 align-middle last:border-r-0"
                   >
-                    <div className="flex min-h-[36px] items-center justify-center">
-                      {cell.booking ? (
-                        <button
-                          type="button"
-                          onClick={() => onEditBooking(cell.booking!)}
-                          title="Edit allocation"
-                          aria-label={`Edit allocation ${formatAllocationPercent(cell.booking.allocationPct)}`}
-                          className="tabular-nums min-w-[3rem] rounded-md border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] px-2.5 py-1.5 text-center text-[13px] font-medium text-[var(--rm-fg)] transition-colors hover:border-[var(--rm-muted-subtle)] hover:bg-[var(--rm-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)] active:bg-[var(--rm-surface)]"
-                        >
-                          {formatAllocationPercent(cell.booking.allocationPct)}
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          aria-label="Add allocation"
-                          onClick={() =>
-                            onAddBooking({
-                              resourceId: g.groupId,
-                              weekStart: cell.weekStart,
-                            })
-                          }
-                          className="flex min-h-[32px] w-full max-w-[3.5rem] items-center justify-center rounded-md text-[15px] font-light leading-none text-[var(--rm-muted-subtle)] transition-colors hover:bg-[var(--rm-border-subtle)]/50 hover:text-[var(--rm-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)]"
-                        >
-                          +
-                        </button>
-                      )}
-                    </div>
+                    <AllocationCell
+                      g={g}
+                      row={openRow}
+                      cell={cell}
+                      projects={projects}
+                      resources={resources}
+                      activeCellKey={activeCellKey}
+                      onActiveCellKeyChange={onActiveCellKeyChange}
+                    />
                   </td>
                 ))}
               </tr>
