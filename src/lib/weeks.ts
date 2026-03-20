@@ -30,3 +30,8 @@ export function getWeekRange(startWeek: Date, span: number): Date[] {
   }
   return weeks;
 }
+
+/** YYYY-MM-DD UTC key for a week's Monday (bookings / matrix keys). */
+export function toWeekStartKey(d: Date): string {
+  return getIsoMonday(d).toISOString().slice(0, 10);
+}

@@ -1,7 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
-
 type CapacityTone = "neutral" | "warning" | "danger";
 
 function getCapacityTone(pct: number): CapacityTone {
@@ -11,23 +9,25 @@ function getCapacityTone(pct: number): CapacityTone {
 }
 
 export function TotalPctPill({ pct }: { pct: number }) {
-  const tone = useMemo(() => getCapacityTone(pct), [pct]);
+  const tone = getCapacityTone(pct);
 
   if (pct === 0) {
-    return <span className="tabular-nums text-[12px] text-[var(--rm-muted-subtle)]">–</span>;
+    return <span className="text-xs tabular-nums text-[var(--rm-muted-subtle)]">–</span>;
   }
 
-  const classes =
+  const toneClass =
     tone === "neutral"
-      ? "inline-flex items-center rounded-full border border-[var(--rm-primary)]/25 bg-[var(--rm-primary)]/10 px-2 py-0.5 text-[12px] font-semibold text-[var(--rm-primary)]"
+      ? "text-[var(--rm-muted)]"
       : tone === "warning"
-        ? "inline-flex items-center rounded-full border border-[var(--rm-warning)]/25 bg-[var(--rm-warning)]/10 px-2 py-0.5 text-[12px] font-semibold text-[var(--rm-warning)]"
-        : "inline-flex items-center rounded-full border border-[var(--rm-danger)]/25 bg-[var(--rm-danger)]/10 px-2 py-0.5 text-[12px] font-semibold text-[var(--rm-danger)]";
+        ? "text-[var(--rm-warning)]"
+        : "text-[var(--rm-danger)]";
 
   return (
-    <span className={classes} title={`Total allocation: ${pct}%`}>
+    <span
+      className={`text-xs font-medium tabular-nums ${toneClass}`}
+      title={`Total allocation: ${pct}%`}
+    >
       {pct}%
     </span>
   );
 }
-

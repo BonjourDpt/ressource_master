@@ -9,7 +9,7 @@ interface PageProps {
 
 export default async function PlanningPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const span = Math.min(12, Math.max(4, parseInt(params.span ?? "8", 10) || 8));
+  const span = Math.min(12, Math.max(4, parseInt(params.span ?? "12", 10) || 12));
   const startWeek = params.weekStart
     ? getIsoMonday(new Date(params.weekStart))
     : getIsoMonday(new Date());

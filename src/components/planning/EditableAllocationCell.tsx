@@ -211,7 +211,7 @@ export function EditableAllocationCell({
             onClick={() => onBeginEdit(cellKey)}
             title="Edit allocation"
             aria-label={`Edit allocation ${formatAllocationPercent(booking.allocationPct)}`}
-            className="tabular-nums min-w-[3rem] rounded-md border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] px-2.5 py-1.5 text-center text-[13px] font-medium text-[var(--rm-fg)] transition-colors hover:border-[var(--rm-muted-subtle)] hover:bg-[var(--rm-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)] active:bg-[var(--rm-surface)]"
+            className="min-w-[3rem] rounded bg-[var(--rm-surface)] px-2.5 py-1.5 text-center text-sm font-medium tabular-nums text-[var(--rm-fg)] transition-colors hover:bg-[var(--rm-surface-elevated)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
             style={accentStyle}
           >
             {formatAllocationPercent(booking.allocationPct)}
@@ -221,7 +221,7 @@ export function EditableAllocationCell({
             type="button"
             aria-label="Add allocation"
             onClick={() => onBeginEdit(cellKey)}
-            className="flex min-h-[32px] w-full max-w-[3.5rem] items-center justify-center rounded-md text-[15px] font-light leading-none text-[var(--rm-muted-subtle)] transition-colors hover:bg-[var(--rm-border-subtle)]/50 hover:text-[var(--rm-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)]"
+            className="flex min-h-8 w-full max-w-[3.5rem] items-center justify-center rounded text-lg font-light leading-none text-[var(--rm-muted-subtle)] transition-colors hover:bg-[var(--rm-surface)] hover:text-[var(--rm-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
           >
             +
           </button>
@@ -248,7 +248,7 @@ export function EditableAllocationCell({
                 }
               }}
               disabled={isPending}
-              className="max-w-full rounded border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] px-1 py-0.5 text-[11px] text-[var(--rm-fg)] focus:border-[var(--rm-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--rm-primary)]/40"
+              className="max-w-full rounded border border-[var(--rm-border-subtle)] bg-[var(--rm-surface)] px-1 py-0.5 text-xs text-[var(--rm-fg)] focus:border-[var(--rm-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--rm-primary)]/35"
               aria-label="Project for allocation"
             >
               <option value="">Project…</option>
@@ -271,7 +271,7 @@ export function EditableAllocationCell({
                 }
               }}
               disabled={isPending}
-              className="max-w-full rounded border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] px-1 py-0.5 text-[11px] text-[var(--rm-fg)] focus:border-[var(--rm-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--rm-primary)]/40"
+              className="max-w-full rounded border border-[var(--rm-border-subtle)] bg-[var(--rm-surface)] px-1 py-0.5 text-xs text-[var(--rm-fg)] focus:border-[var(--rm-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--rm-primary)]/35"
               aria-label="Resource for allocation"
             >
               <option value="">Resource…</option>
@@ -299,11 +299,11 @@ export function EditableAllocationCell({
           onBlur={() => commit()}
           disabled={isPending}
           aria-label="Allocation percent"
-          className="h-8 w-[3.5rem] rounded-md border-2 border-[var(--rm-primary)] bg-[var(--rm-surface-elevated)] px-1.5 text-center text-[13px] font-semibold tabular-nums text-[var(--rm-fg)] shadow-[0_0_0_1px_color-mix(in_oklab,var(--rm-primary)_35%,transparent)] focus:outline-none focus:ring-2 focus:ring-[var(--rm-primary)]/30"
+          className="h-8 w-[3.5rem] rounded border border-[var(--rm-primary)] bg-[var(--rm-surface)] px-1.5 text-center text-sm font-semibold tabular-nums text-[var(--rm-fg)] focus:outline-none focus:ring-2 focus:ring-[var(--rm-primary)]/30"
           style={accentStyle}
         />
       </div>
-      {error && <p className="text-center text-[10px] leading-tight text-[var(--rm-danger)]">{error}</p>}
+      {error && <p className="text-center text-xs leading-tight text-[var(--rm-danger)]">{error}</p>}
     </div>
   );
 }

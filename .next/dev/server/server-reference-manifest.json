@@ -15,21 +15,6 @@
       "filename": "src/app/planning/actions.ts",
       "exportedName": "createBooking"
     },
-    "60e0efbab71346e97e5a1e10880323d64ef5a69370": {
-      "workers": {
-        "app/planning/page": {
-          "moduleId": "[project]/.next-internal/server/app/planning/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/planning/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "updateBooking",
-          "filename": "src/app/planning/actions.ts"
-        }
-      },
-      "layer": {
-        "app/planning/page": "action-browser"
-      },
-      "filename": "src/app/planning/actions.ts",
-      "exportedName": "updateBooking"
-    },
     "406275ff260b46fc0f44461a9ed893f306cd4294df": {
       "workers": {
         "app/planning/page": {
@@ -44,6 +29,21 @@
       },
       "filename": "src/app/planning/actions.ts",
       "exportedName": "deleteBooking"
+    },
+    "60e0efbab71346e97e5a1e10880323d64ef5a69370": {
+      "workers": {
+        "app/planning/page": {
+          "moduleId": "[project]/.next-internal/server/app/planning/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/planning/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateBooking",
+          "filename": "src/app/planning/actions.ts"
+        }
+      },
+      "layer": {
+        "app/planning/page": "action-browser"
+      },
+      "filename": "src/app/planning/actions.ts",
+      "exportedName": "updateBooking"
     },
     "40f1ed70451f77f85a4507e423ce18a5cf1f09bfcf": {
       "workers": {
@@ -89,6 +89,51 @@
       },
       "filename": "src/app/projects/actions.ts",
       "exportedName": "updateProject"
+    },
+    "40732c197032258a316eae3975562805c79459aa91": {
+      "workers": {
+        "app/resources/page": {
+          "moduleId": "[project]/.next-internal/server/app/resources/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/resources/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteResource",
+          "filename": "src/app/resources/actions.ts"
+        }
+      },
+      "layer": {
+        "app/resources/page": "action-browser"
+      },
+      "filename": "src/app/resources/actions.ts",
+      "exportedName": "deleteResource"
+    },
+    "404505b1a240b07957fe56a6a9d8bdb8ed8251c44a": {
+      "workers": {
+        "app/resources/page": {
+          "moduleId": "[project]/.next-internal/server/app/resources/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/resources/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createResource",
+          "filename": "src/app/resources/actions.ts"
+        }
+      },
+      "layer": {
+        "app/resources/page": "action-browser"
+      },
+      "filename": "src/app/resources/actions.ts",
+      "exportedName": "createResource"
+    },
+    "608c2e5a45c43c1a388203858ac49a76e27b93471d": {
+      "workers": {
+        "app/resources/page": {
+          "moduleId": "[project]/.next-internal/server/app/resources/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/resources/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateResource",
+          "filename": "src/app/resources/actions.ts"
+        }
+      },
+      "layer": {
+        "app/resources/page": "action-browser"
+      },
+      "filename": "src/app/resources/actions.ts",
+      "exportedName": "updateResource"
     }
   },
   "edge": {},

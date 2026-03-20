@@ -46,6 +46,7 @@ body {
 .rm-scroll-x {
   scrollbar-width: thin;
   scrollbar-color: var(--rm-border) transparent;
+  scroll-behavior: smooth;
 }
 .rm-scroll-x::-webkit-scrollbar {
   height: 8px;

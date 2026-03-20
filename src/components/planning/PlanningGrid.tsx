@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PlanningTableBody } from "./PlanningTableBody";
-import { getIsoMonday, addWeeks, formatWeekLabel, getWeekRange } from "@/lib/weeks";
+import { PlanningTable } from "./PlanningTable";
+import { addWeeks, formatWeekLabel, getWeekRange } from "@/lib/weeks";
 import {
   buildPlanningMatrix,
   resourceWeekTotals,
@@ -11,8 +11,8 @@ import {
   type ProjectModel,
   type ResourceModel,
 } from "@/lib/planning-view-model";
-
-type ViewMode = "project" | "resource";
+import type { PlanningViewMode } from "./TimelineHeader";
+import { cx } from "@/lib/cx";
 
 interface PlanningGridProps {
   projects: ProjectModel[];
@@ -20,10 +20,6 @@ interface PlanningGridProps {
   bookings: BookingWithRelations[];
   startWeek: Date;
   span: number;
-}
-
-function weekKey(d: Date): string {
-  return getIsoMonday(d).toISOString().slice(0, 10);
 }
 
 export function PlanningGrid({
@@ -35,24 +31,23 @@ export function PlanningGrid({
 }: PlanningGridProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const view = (searchParams.get("view") as ViewMode) || "project";
+  const view = (searchParams.get("view") as PlanningViewMode) || "project";
   const weekRange = useMemo(() => getWeekRange(startWeek, span), [startWeek, span]);
 
   const groups = useMemo(
     () => buildPlanningMatrix(view, projects, resources, bookings, weekRange),
-    [view, projects, resources, bookings, weekRange]
+    [view, projects, resources, bookings, weekRange],
   );
 
   const resWeekTotals = useMemo(() => resourceWeekTotals(bookings), [bookings]);
 
-  /** At most one allocation cell in edit mode (spreadsheet-style). */
   const [activeCellKey, setActiveCellKey] = useState<string | null>(null);
 
   useEffect(() => {
     setActiveCellKey(null);
   }, [view, startWeek.getTime(), span]);
 
-  const setView = (v: ViewMode) => {
+  const setView = (v: PlanningViewMode) => {
     const p = new URLSearchParams(searchParams.toString());
     p.set("view", v);
     router.push(`/planning?${p.toString()}`);
@@ -67,61 +62,61 @@ export function PlanningGrid({
 
   const groupListEmpty = view === "project" ? projects.length === 0 : resources.length === 0;
 
-  const stickyHeadFirst =
-    "sticky left-0 top-0 z-[31] w-40 min-w-[160px] max-w-[200px] border-b border-r border-[var(--rm-border)] bg-[var(--rm-surface)] px-4 py-2.5 text-left align-middle text-[13px] font-semibold text-[var(--rm-muted)]";
-  const stickyHeadSecond =
-    "sticky left-40 top-0 z-[30] min-w-[132px] w-44 max-w-[200px] border-b border-r border-[var(--rm-border)] bg-[var(--rm-surface)] px-4 py-2.5 text-left align-middle text-[13px] font-semibold text-[var(--rm-muted)]";
-
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold tracking-tight text-[var(--rm-fg)]">Planning</h1>
-        <div className="flex items-center gap-4">
-          <div
-            role="tablist"
-            className="inline-flex rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] p-1"
-          >
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <h1 className="text-lg font-medium tracking-tight text-[var(--rm-fg)]">Planning</h1>
+
+        <div className="flex flex-wrap items-center gap-6">
+          <div role="tablist" aria-label="Group by" className="flex items-center gap-4 text-sm">
             <button
+              type="button"
               role="tab"
               aria-selected={view === "project"}
               onClick={() => setView("project")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={cx(
+                "border-b-2 border-transparent pb-0.5 transition-colors",
                 view === "project"
-                  ? "bg-[var(--rm-bg)] text-[var(--rm-fg)]"
-                  : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]"
-              }`}
+                  ? "border-[var(--rm-fg)] font-medium text-[var(--rm-fg)]"
+                  : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]",
+              )}
             >
               By project
             </button>
             <button
+              type="button"
               role="tab"
               aria-selected={view === "resource"}
               onClick={() => setView("resource")}
-              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={cx(
+                "border-b-2 border-transparent pb-0.5 transition-colors",
                 view === "resource"
-                  ? "bg-[var(--rm-bg)] text-[var(--rm-fg)]"
-                  : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]"
-              }`}
+                  ? "border-[var(--rm-fg)] font-medium text-[var(--rm-fg)]"
+                  : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]",
+              )}
             >
               By resource
             </button>
           </div>
-          <div className="flex items-center gap-1">
+
+          <div className="flex items-center gap-2 text-sm text-[var(--rm-muted)]">
             <button
+              type="button"
               onClick={() => shiftWeeks(-1)}
-              className="rounded-lg px-2.5 py-1.5 text-sm text-[var(--rm-muted)] hover:bg-[var(--rm-surface)] hover:text-[var(--rm-fg)] transition-colors"
-              aria-label="Previous weeks"
+              className="rounded px-1.5 py-1 transition-colors hover:bg-[var(--rm-surface)] hover:text-[var(--rm-fg)]"
+              aria-label="Previous week"
             >
               ←
             </button>
-            <span className="min-w-[120px] text-center text-sm text-[var(--rm-muted)]">
+            <span className="min-w-[8.5rem] text-center text-xs tabular-nums sm:text-sm">
               {formatWeekLabel(weekRange[0] ?? startWeek)} –{" "}
               {formatWeekLabel(weekRange[span - 1] ?? startWeek)}
             </span>
             <button
+              type="button"
               onClick={() => shiftWeeks(1)}
-              className="rounded-lg px-2.5 py-1.5 text-sm text-[var(--rm-muted)] hover:bg-[var(--rm-surface)] hover:text-[var(--rm-fg)] transition-colors"
-              aria-label="Next weeks"
+              className="rounded px-1.5 py-1 transition-colors hover:bg-[var(--rm-surface)] hover:text-[var(--rm-fg)]"
+              aria-label="Next week"
             >
               →
             </button>
@@ -129,43 +124,17 @@ export function PlanningGrid({
         </div>
       </div>
 
-      <div className="rm-scroll-x overflow-x-auto">
-        <table className="w-full min-w-[600px] border-collapse text-sm text-[var(--rm-fg)]">
-          <thead>
-            <tr>
-              <th scope="col" className={stickyHeadFirst}>
-                {view === "project" ? "Project" : "Resource"}
-              </th>
-              <th scope="col" className={stickyHeadSecond}>
-                {view === "project" ? "Resource" : "Project"}
-              </th>
-              {weekRange.map((w) => (
-                <th
-                  key={weekKey(w)}
-                  scope="col"
-                  className="sticky top-0 z-10 min-w-[104px] border-b border-[var(--rm-border)] bg-[var(--rm-surface)] px-3 py-2.5 text-center align-middle text-[13px] font-medium text-[var(--rm-muted)]"
-                >
-                  {formatWeekLabel(w)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <PlanningTableBody
-            groups={groups}
-            weekRange={weekRange}
-            resWeekTotals={resWeekTotals}
-            projects={projects}
-            resources={resources}
-            activeCellKey={activeCellKey}
-            onActiveCellKeyChange={setActiveCellKey}
-          />
-        </table>
-        {groupListEmpty && (
-          <p className="py-10 text-center text-[13px] text-[var(--rm-muted-subtle)]">
-            No {view === "project" ? "projects" : "resources"} yet.
-          </p>
-        )}
-      </div>
+      <PlanningTable
+        view={view}
+        weekRange={weekRange}
+        groups={groups}
+        resWeekTotals={resWeekTotals}
+        projects={projects}
+        resources={resources}
+        activeCellKey={activeCellKey}
+        onActiveCellKeyChange={setActiveCellKey}
+        groupListEmpty={groupListEmpty}
+      />
     </div>
   );
 }
