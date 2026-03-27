@@ -26,12 +26,24 @@ export default async function PlanningPage({ searchParams }: PageProps) {
     }),
   ]);
 
+  const resourcesWithCapacity = resources.map((r) => ({
+    ...r,
+    capacity: (r as { capacity?: number }).capacity ?? 37.5,
+  }));
+  const bookingsWithCapacity = bookings.map((b) => ({
+    ...b,
+    resource: {
+      ...b.resource,
+      capacity: (b.resource as { capacity?: number }).capacity ?? 37.5,
+    },
+  }));
+
   return (
     <Suspense fallback={<div className="text-[var(--rm-muted)]">Loading…</div>}>
       <PlanningGrid
         projects={projects}
-        resources={resources}
-        bookings={bookings}
+        resources={resourcesWithCapacity}
+        bookings={bookingsWithCapacity}
         startWeek={startWeek}
         span={span}
       />

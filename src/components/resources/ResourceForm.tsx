@@ -13,12 +13,17 @@ interface ResourceFormProps {
   onCancel: () => void;
 }
 
-const empty: ResourceFormData = { name: "", role: "", team: "" };
+const empty: ResourceFormData = { name: "", role: "", team: "", capacity: 37.5 };
 
 export function ResourceForm({ resource, onSuccess, onCancel }: ResourceFormProps) {
   const [form, setForm] = useState<ResourceFormData>(
     resource
-      ? { name: resource.name, role: resource.role ?? "", team: resource.team ?? "" }
+      ? {
+          name: resource.name,
+          role: resource.role ?? "",
+          team: resource.team ?? "",
+          capacity: resource.capacity,
+        }
       : empty
   );
   const [errors, setErrors] = useState<
@@ -74,6 +79,18 @@ export function ResourceForm({ resource, onSuccess, onCancel }: ResourceFormProp
         onChange={(e) => setForm((p) => ({ ...p, team: e.target.value }))}
         error={errors.team?.[0]}
         placeholder="Optional"
+      />
+      <FormField
+        label="Capacity (h/week)"
+        name="capacity"
+        type="number"
+        step="0.1"
+        min={0}
+        value={String(form.capacity)}
+        onChange={(e) => setForm((p) => ({ ...p, capacity: e.target.valueAsNumber }))}
+        error={errors.capacity?.[0]}
+        placeholder="37.5"
+        required
       />
       <div className="flex justify-end gap-2 pt-6">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>

@@ -8,13 +8,14 @@ export async function createResource(data: ResourceFormData) {
   if (!parsed.success) {
     return { ok: false as const, error: parsed.error.flatten().fieldErrors };
   }
-  const { name, role, team } = parsed.data;
+  const { name, role, team, capacity } = parsed.data;
   try {
     await db.resource.create({
       data: {
         name: name.trim(),
         role: role?.trim() || null,
         team: team?.trim() || null,
+        capacity,
       },
     });
     revalidatePath("/resources");
@@ -31,7 +32,7 @@ export async function updateResource(id: string, data: ResourceFormData) {
   if (!parsed.success) {
     return { ok: false as const, error: parsed.error.flatten().fieldErrors };
   }
-  const { name, role, team } = parsed.data;
+  const { name, role, team, capacity } = parsed.data;
   try {
     await db.resource.update({
       where: { id },
@@ -39,6 +40,7 @@ export async function updateResource(id: string, data: ResourceFormData) {
         name: name.trim(),
         role: role?.trim() || null,
         team: team?.trim() || null,
+        capacity,
       },
     });
     revalidatePath("/resources");

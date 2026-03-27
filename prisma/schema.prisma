@@ -30,6 +30,7 @@ model Resource {
   name           String
   role           String?
   team           String?
+  capacity       Float            @default(37.5)
   status         LifecycleStatus  @default(ACTIVE)
   bookings       Booking[]
   createdAt      DateTime         @default(now())

@@ -3,5 +3,12 @@ import { ResourceList } from "@/components/resources/ResourceList";
 
 export default async function ResourcesPage() {
   const resources = await db.resource.findMany({ orderBy: { name: "asc" } });
-  return <ResourceList resources={resources} />;
+  return (
+    <ResourceList
+      resources={resources.map((r) => ({
+        ...r,
+        capacity: (r as { capacity?: number }).capacity ?? 37.5,
+      }))}
+    />
+  );
 }

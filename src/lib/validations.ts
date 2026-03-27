@@ -18,6 +18,7 @@ export const resourceSchema = z.object({
   name: z.string().min(1, "Name is required").max(120, "Name too long"),
   role: z.string().max(80).optional().or(z.literal("")),
   team: z.string().max(80).optional().or(z.literal("")),
+  capacity: z.coerce.number().min(0, "Capacity must be >= 0").max(168, "Capacity too large"),
 });
 
 export const bookingSchema = z.object({

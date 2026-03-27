@@ -26,6 +26,7 @@ export type ResourceModel = {
   name: string;
   role: string | null;
   team: string | null;
+  capacity: number;
 };
 
 export type BookingModel = {

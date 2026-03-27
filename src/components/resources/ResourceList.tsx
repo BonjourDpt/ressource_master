@@ -45,6 +45,7 @@ export function ResourceList({ resources }: ResourceListProps) {
               <th className="pb-3 pl-0 font-medium text-[13px] text-[var(--rm-muted)]">Name</th>
               <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Role</th>
               <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Team</th>
+              <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Capacity</th>
               <th className="pb-3 text-right font-medium text-[13px] text-[var(--rm-muted)]">Actions</th>
             </tr>
           </thead>
@@ -54,6 +55,7 @@ export function ResourceList({ resources }: ResourceListProps) {
                 <td className="py-3 pl-0 text-[var(--rm-fg)]">{r.name}</td>
                 <td className="py-3 text-[var(--rm-muted)]">{r.role ?? "—"}</td>
                 <td className="py-3 text-[var(--rm-muted)]">{r.team ?? "—"}</td>
+                <td className="py-3 text-[var(--rm-muted)]">{r.capacity}</td>
                 <td className="py-3 text-right">
                   <Button variant="ghost" onClick={() => openEdit(r)}>
                     Edit
