@@ -241,7 +241,7 @@ export function buildPlanningMatrix(
       groupColor: project.color,
       rows,
     };
-  });
+  }).filter((group) => group.rows.some((r) => r.rowType === "allocation"));
 }
 
 /** Client-side draft line: user picked the secondary entity (resource or project) for this group. */
