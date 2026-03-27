@@ -27,7 +27,7 @@ model Project {
 
 model Resource {
   id             String           @id @default(uuid())
-  name           String
+  name           String           @unique
   role           String?
   team           String?
   capacity       Float            @default(37.5)
@@ -37,7 +37,6 @@ model Resource {
   updatedAt      DateTime         @updatedAt
 
   @@index([status])
-  @@index([name])
 }
 
 model Booking {

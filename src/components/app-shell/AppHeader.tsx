@@ -8,6 +8,7 @@ const navItems = [
   { href: "/planning", label: "Planning" },
   { href: "/projects", label: "Projects" },
   { href: "/resources", label: "Resources" },
+  { href: "/admin", label: "Admin" },
 ] as const;
 
 export function AppHeader() {
