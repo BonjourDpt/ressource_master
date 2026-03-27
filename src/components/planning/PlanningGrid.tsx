@@ -6,6 +6,7 @@ import { PlanningTable } from "./PlanningTable";
 import { addWeeks, formatWeekLabel, getWeekRange, toWeekStartKey } from "@/lib/weeks";
 import {
   buildPlanningMatrix,
+  filterActiveGroups,
   mergeDraftRowsIntoGroups,
   resourceWeekTotals,
   type BookingWithRelations,
@@ -44,7 +45,7 @@ export function PlanningGrid({
   const view = (searchParams.get("view") as PlanningViewMode) || "project";
   const weekRange = useMemo(() => getWeekRange(startWeek, span), [startWeek, span]);
 
-  const groups = useMemo(
+  const allGroups = useMemo(
     () => buildPlanningMatrix(view, projects, resources, bookings, weekRange),
     [view, projects, resources, bookings, weekRange],
   );
@@ -53,6 +54,12 @@ export function PlanningGrid({
 
   const [editingCell, setEditingCell] = useState<PlanningEditingCell>(null);
   const [draftLines, setDraftLines] = useState<PlanningDraftAllocationLine[]>([]);
+  const [pinnedGroupIds, setPinnedGroupIds] = useState<Set<string>>(new Set());
+
+  const groups = useMemo(
+    () => filterActiveGroups(allGroups, pinnedGroupIds),
+    [allGroups, pinnedGroupIds],
+  );
 
   const mergedGroups = useMemo(
     () => mergeDraftRowsIntoGroups(groups, draftLines, weekRange, projects, resources),
@@ -76,6 +83,7 @@ export function PlanningGrid({
   useEffect(() => {
     setEditingCell(null);
     setDraftLines([]);
+    setPinnedGroupIds(new Set());
   }, [view, startWeek.getTime(), span]);
 
   useEffect(() => {
@@ -163,6 +171,22 @@ export function PlanningGrid({
     router.push(`/planning?${p.toString()}`);
   };
 
+  const visibleGroupIds = useMemo(() => new Set(groups.map((g) => g.groupId)), [groups]);
+
+  const unallocatedEntities = useMemo(() => {
+    if (view === "project") {
+      return projects.filter((p) => !visibleGroupIds.has(p.id));
+    }
+    return resources.filter((r) => !visibleGroupIds.has(r.id));
+  }, [view, projects, resources, visibleGroupIds]);
+
+  const handleAddGroup = useCallback(
+    (entityId: string) => {
+      setPinnedGroupIds((prev) => new Set([...prev, entityId]));
+    },
+    [],
+  );
+
   const groupListEmpty = view === "project" ? projects.length === 0 : resources.length === 0;
 
   return (
@@ -241,6 +265,34 @@ export function PlanningGrid({
         onDraftPairChange={onDraftPairChange}
         groupListEmpty={groupListEmpty}
       />
+
+      {unallocatedEntities.length > 0 && (
+        <div className="flex items-center gap-3">
+          <label
+            htmlFor="add-group-select"
+            className="text-xs text-[var(--rm-muted)]"
+          >
+            ＋ Add allocation
+          </label>
+          <select
+            id="add-group-select"
+            value=""
+            onChange={(e) => {
+              if (e.target.value) handleAddGroup(e.target.value);
+            }}
+            className="rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] px-3 py-2 text-sm text-[var(--rm-fg)] outline-none transition-colors focus:border-[var(--rm-primary)]"
+          >
+            <option value="">
+              {view === "project" ? "Select a project..." : "Select a resource..."}
+            </option>
+            {unallocatedEntities.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }
