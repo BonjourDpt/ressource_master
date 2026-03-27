@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useCallback, useEffect, useId, useRef } from "react";
 import FocusTrap from "focus-trap-react";
 import { Button } from "./Button";
 
@@ -13,16 +13,25 @@ interface ModalProps {
 
 export function Modal({ open, onClose, title, children }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
+  const stableOnClose = useCallback(() => onClose(), [onClose]);
+
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    }
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") stableOnClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+
     return () => {
       document.body.style.overflow = "";
+      document.removeEventListener("keydown", handleEscape);
     };
-  }, [open]);
+  }, [open, stableOnClose]);
 
   if (!open) return null;
 
@@ -32,20 +41,21 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={(e) => e.target === overlayRef.current && onClose()}
     >
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <FocusTrap
         focusTrapOptions={{
-          escapeDeactivates: true,
-          onDeactivate: onClose,
+          escapeDeactivates: false,
           allowOutsideClick: true,
-          fallbackFocus: () => overlayRef.current ?? document.body,
+          fallbackFocus: () => panelRef.current!,
         }}
       >
         <div
+          ref={panelRef}
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          className="relative w-full max-w-md rounded-2xl border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] p-6 shadow-xl"
+          tabIndex={-1}
+          className="relative w-full max-w-md rounded-2xl border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] p-6 shadow-xl outline-none"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="mb-6 flex items-center justify-between">
