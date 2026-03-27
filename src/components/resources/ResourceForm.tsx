@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { FormField } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import { createResource, updateResource } from "@/app/resources/actions";
@@ -39,6 +40,7 @@ export function ResourceForm({ resource, onSuccess, onCancel }: ResourceFormProp
         ? await updateResource(resource.id, form)
         : await createResource(form);
       if (result.ok) {
+        toast.success(resource ? "Resource saved" : "Resource created");
         onSuccess();
       } else {
         setErrors(result.error as Partial<Record<keyof ResourceFormData | "_form", string[]>>);

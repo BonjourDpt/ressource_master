@@ -67,3 +67,27 @@ export async function deleteProject(id: string) {
     return { ok: false as const, error: { _form: [msg] } };
   }
 }
+
+export async function archiveProject(id: string) {
+  try {
+    await db.project.update({ where: { id }, data: { status: "ARCHIVED" } });
+    revalidatePath("/projects");
+    revalidatePath("/planning");
+    return { ok: true as const };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Failed to archive project";
+    return { ok: false as const, error: { _form: [msg] } };
+  }
+}
+
+export async function unarchiveProject(id: string) {
+  try {
+    await db.project.update({ where: { id }, data: { status: "ACTIVE" } });
+    revalidatePath("/projects");
+    revalidatePath("/planning");
+    return { ok: true as const };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Failed to unarchive project";
+    return { ok: false as const, error: { _form: [msg] } };
+  }
+}

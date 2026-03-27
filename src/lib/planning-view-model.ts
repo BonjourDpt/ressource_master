@@ -14,11 +14,14 @@ export type PlanningEditingCell = { rowId: string; weekId: string } | null;
 // Minimal model types used by the planning UI.
 // We intentionally avoid importing `Project` / `Resource` from `@prisma/client`
 // because the generated type exports can be inconsistent in the editor.
+export type LifecycleStatus = "ACTIVE" | "ARCHIVED";
+
 export type ProjectModel = {
   id: string;
   name: string;
   color: string | null;
   client: string | null;
+  status?: LifecycleStatus;
 };
 
 export type ResourceModel = {
@@ -27,6 +30,7 @@ export type ResourceModel = {
   role: string | null;
   team: string | null;
   capacity: number;
+  status?: LifecycleStatus;
 };
 
 export type BookingModel = {

@@ -57,11 +57,15 @@ export function EditableAllocationCell({
   const skipBlurCommit = useRef(false);
 
   const [draft, setDraft] = useState("");
+  const [draftNote, setDraftNote] = useState("");
+  const [showNote, setShowNote] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const resetFromProps = useCallback(() => {
     setDraft(booking ? String(booking.allocationPct) : "");
+    setDraftNote(booking?.note ?? "");
+    setShowNote(false);
     setError(null);
   }, [booking]);
 
@@ -82,8 +86,9 @@ export function EditableAllocationCell({
   }, [isEditing]);
 
   const runSave = useCallback(
-    (parsed: ParsedInput) => {
+    (parsed: ParsedInput, noteOverride?: string) => {
       setError(null);
+      const noteVal = noteOverride ?? draftNote;
 
       const clearIfStillHere = () => {
         onEditingCellChange((cur) =>
@@ -105,9 +110,6 @@ export function EditableAllocationCell({
         startTransition(async () => {
           const r = await deleteBooking(booking.id);
           if (r.ok) {
-            if (process.env.NODE_ENV === "development") {
-              console.debug("[planning] allocation delete", { bookingId: booking.id, weekStart });
-            }
             router.refresh();
             clearIfStillHere();
           } else {
@@ -127,7 +129,7 @@ export function EditableAllocationCell({
         resourceId,
         weekStart,
         allocationPct: clamped,
-        note: (booking?.note ?? "").trim(),
+        note: noteVal.trim(),
       };
 
       startTransition(async () => {
@@ -135,14 +137,6 @@ export function EditableAllocationCell({
           ? await updateBooking(booking.id, payload)
           : await createBooking(payload);
         if (r.ok) {
-          if (process.env.NODE_ENV === "development") {
-            console.debug("[planning] allocation save", {
-              rowId,
-              weekStart,
-              create: !booking,
-              allocationPct: clamped,
-            });
-          }
           router.refresh();
           clearIfStillHere();
         } else {
@@ -157,7 +151,7 @@ export function EditableAllocationCell({
         }
       });
     },
-    [booking, onEditingCellChange, projectId, resetFromProps, resourceId, router, rowId, weekStart],
+    [booking, draftNote, onEditingCellChange, projectId, resetFromProps, resourceId, router, rowId, weekStart],
   );
 
   const commit = useCallback(() => {
@@ -195,6 +189,8 @@ export function EditableAllocationCell({
       ? ({ boxShadow: `inset 3px 0 0 0 ${accentColor}` } as const)
       : undefined;
 
+  const hasNote = booking?.note != null && booking.note.trim().length > 0;
+
   if (!isEditing) {
     return (
       <div
@@ -204,12 +200,15 @@ export function EditableAllocationCell({
           <button
             type="button"
             onClick={() => onEditingCellChange({ rowId, weekId: weekStart })}
-            title="Edit allocation"
-            aria-label={`Edit allocation ${formatAllocationPercent(booking.allocationPct)}`}
-            className="min-w-[3rem] rounded bg-[var(--rm-surface)] px-2.5 py-1.5 text-center text-sm font-medium tabular-nums text-[var(--rm-fg)] transition-colors hover:bg-[var(--rm-surface-elevated)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
+            title={hasNote ? booking.note! : "Edit allocation"}
+            aria-label={`Edit allocation ${formatAllocationPercent(booking.allocationPct)}${hasNote ? ` — ${booking.note}` : ""}`}
+            className="relative min-w-[3rem] rounded bg-[var(--rm-surface)] px-2.5 py-1.5 text-center text-sm font-medium tabular-nums text-[var(--rm-fg)] transition-colors hover:bg-[var(--rm-surface-elevated)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
             style={accentStyle}
           >
             {formatAllocationPercent(booking.allocationPct)}
+            {hasNote && (
+              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-[var(--rm-primary)]" />
+            )}
           </button>
         ) : (
           <button
@@ -243,6 +242,7 @@ export function EditableAllocationCell({
           onKeyDown={onKeyDown}
           onBlur={() => {
             if (skipBlurCommit.current) return;
+            if (showNote) return;
             commit();
           }}
           onFocus={(e) => e.target.select()}
@@ -252,6 +252,29 @@ export function EditableAllocationCell({
           style={accentStyle}
         />
       </div>
+      <button
+        type="button"
+        onClick={() => setShowNote(!showNote)}
+        className="mx-auto text-[10px] leading-tight text-[var(--rm-muted-subtle)] transition-colors hover:text-[var(--rm-muted)]"
+      >
+        {hasNote || draftNote.trim() ? "Edit note" : "Add note"}
+      </button>
+      {showNote && (
+        <textarea
+          value={draftNote}
+          onChange={(e) => setDraftNote(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              setShowNote(false);
+            }
+          }}
+          placeholder="Add a note…"
+          maxLength={200}
+          rows={2}
+          className="mt-0.5 w-full resize-none rounded border border-[var(--rm-border)] bg-[var(--rm-surface)] px-1.5 py-1 text-[11px] leading-snug text-[var(--rm-fg)] outline-none placeholder:text-[var(--rm-muted-subtle)] focus:border-[var(--rm-primary)]/50"
+        />
+      )}
       {error && <p className="text-center text-xs leading-tight text-[var(--rm-danger)]">{error}</p>}
     </div>
   );

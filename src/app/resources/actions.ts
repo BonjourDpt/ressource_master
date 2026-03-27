@@ -63,3 +63,27 @@ export async function deleteResource(id: string) {
     return { ok: false as const, error: { _form: [msg] } };
   }
 }
+
+export async function archiveResource(id: string) {
+  try {
+    await db.resource.update({ where: { id }, data: { status: "ARCHIVED" } });
+    revalidatePath("/resources");
+    revalidatePath("/planning");
+    return { ok: true as const };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Failed to archive resource";
+    return { ok: false as const, error: { _form: [msg] } };
+  }
+}
+
+export async function unarchiveResource(id: string) {
+  try {
+    await db.resource.update({ where: { id }, data: { status: "ACTIVE" } });
+    revalidatePath("/resources");
+    revalidatePath("/planning");
+    return { ok: true as const };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Failed to unarchive resource";
+    return { ok: false as const, error: { _form: [msg] } };
+  }
+}

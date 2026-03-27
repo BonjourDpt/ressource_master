@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { FormField } from "@/components/ui/FormField";
 import { Button } from "@/components/ui/Button";
 import { createProject, updateProject } from "@/app/projects/actions";
@@ -41,6 +42,7 @@ export function ProjectForm({ project, onSuccess, onCancel }: ProjectFormProps) 
         ? await updateProject(project.id, form)
         : await createProject(form);
       if (result.ok) {
+        toast.success(project ? "Project saved" : "Project created");
         onSuccess();
       } else {
         setErrors(result.error as Partial<Record<keyof ProjectFormData | "_form", string[]>>);

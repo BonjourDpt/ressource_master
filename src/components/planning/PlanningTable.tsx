@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
+import Link from "next/link";
 import { toWeekStartKey } from "@/lib/weeks";
 import type {
   PlanningEditingCell,
@@ -8,6 +9,7 @@ import type {
   ProjectModel,
   ResourceModel,
 } from "@/lib/planning-view-model";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PlanningTableBody } from "./PlanningTableBody";
 import { TimelineHeader, type PlanningViewMode } from "./TimelineHeader";
 
@@ -74,9 +76,23 @@ export function PlanningTable({
         />
       </table>
       {groupListEmpty && (
-        <p className="py-12 text-center text-sm text-[var(--rm-muted-subtle)]">
-          No {view === "project" ? "projects" : "resources"} yet.
-        </p>
+        <EmptyState
+          icon="calendar"
+          title={view === "project" ? "No projects yet" : "No resources yet"}
+          description={
+            view === "project"
+              ? "Create projects first, then allocate resources to them."
+              : "Add team members first, then allocate them to projects."
+          }
+          action={
+            <Link
+              href={view === "project" ? "/projects" : "/resources"}
+              className="inline-flex items-center justify-center rounded-lg bg-[var(--rm-primary)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--rm-primary-hover)]"
+            >
+              Go to {view === "project" ? "Projects" : "Resources"}
+            </Link>
+          }
+        />
       )}
     </div>
   );
