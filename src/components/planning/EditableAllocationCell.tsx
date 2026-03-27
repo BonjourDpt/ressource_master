@@ -254,6 +254,7 @@ export function EditableAllocationCell({
       </div>
       <button
         type="button"
+        onMouseDown={(e) => e.preventDefault()}
         onClick={() => setShowNote(!showNote)}
         className="mx-auto text-[10px] leading-tight text-[var(--rm-muted-subtle)] transition-colors hover:text-[var(--rm-muted)]"
       >
@@ -263,15 +264,24 @@ export function EditableAllocationCell({
         <textarea
           value={draftNote}
           onChange={(e) => setDraftNote(e.target.value)}
+          onBlur={() => {
+            if (!draftNote.trim() && !hasNote) setShowNote(false);
+          }}
           onKeyDown={(e) => {
-            if (e.key === "Escape") {
+            if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               setShowNote(false);
+              commit();
+            } else if (e.key === "Escape") {
+              e.preventDefault();
+              setShowNote(false);
+              inputRef.current?.focus();
             }
           }}
           placeholder="Add a note…"
           maxLength={200}
           rows={2}
+          autoFocus
           className="mt-0.5 w-full resize-none rounded border border-[var(--rm-border)] bg-[var(--rm-surface)] px-1.5 py-1 text-[11px] leading-snug text-[var(--rm-fg)] outline-none placeholder:text-[var(--rm-muted-subtle)] focus:border-[var(--rm-primary)]/50"
         />
       )}
