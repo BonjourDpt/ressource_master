@@ -16,11 +16,13 @@ export default async function PlanningPage({ searchParams }: PageProps) {
   const endWeek = addWeeks(startWeek, span);
 
   const [projects, resources, bookings] = await Promise.all([
-    db.project.findMany({ orderBy: { name: "asc" } }),
-    db.resource.findMany({ orderBy: { name: "asc" } }),
+    db.project.findMany({ where: { status: "ACTIVE" }, orderBy: { name: "asc" } }),
+    db.resource.findMany({ where: { status: "ACTIVE" }, orderBy: { name: "asc" } }),
     db.booking.findMany({
       where: {
         weekStart: { gte: startWeek, lt: endWeek },
+        project: { status: "ACTIVE" },
+        resource: { status: "ACTIVE" },
       },
       include: { project: true, resource: true },
     }),
