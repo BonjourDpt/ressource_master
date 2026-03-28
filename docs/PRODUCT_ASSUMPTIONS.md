@@ -4,25 +4,27 @@ Explicit assumptions behind the current product design. Revisit when changing be
 
 ## Resources and projects
 
-- **Resource** — A person (or role) that can be assigned to projects. Represented by name and optional role/team. No notion of capacity or availability beyond the sum of booking percentages per week.
-- **Project** — A piece of work. Has name, optional client, and a color from a fixed palette (for the planning grid). No status workflow beyond existence.
+- **Resource** — A person (or role) that can be assigned to projects. Represented by name, optional role/team, and a weekly capacity in hours (default 37.5h, range 0–168h). Capacity is informational; it does not block bookings.
+- **Project** — A piece of work. Has name, optional client, and a color from a fixed palette (for the planning grid).
+- **Lifecycle status** — Both projects and resources have a status: **ACTIVE** (default) or **ARCHIVED**. Archiving hides items from the planning grid and list defaults, but preserves data and linked bookings for later restoration.
 
 ## Bookings
 
-- **Booking** — One resource assigned to one project for **one week**, with an **allocation percentage** (1–100%).
-- **Unit:** Allocation is always a **percentage** of that week (not hours or days). Interpretation is informal (e.g. “60%” = roughly 3 days).
+- **Booking** — One resource assigned to one project for **one week**, with an **allocation percentage** (1–100%) and an optional **note** (max 200 characters).
+- **Unit:** Allocation is always a **percentage** of that week (not hours or days). Interpretation is informal (e.g. "60%" = roughly 3 days).
 - **Uniqueness:** At most one booking per (resource, project, week). Same resource can have multiple bookings in the same week (different projects).
-- **Over-allocation:** A resource can total more than 100% in a week. The app **allows** it and shows a **warning** (e.g. total % in resource view); it does not block saving.
+- **Over-allocation:** A resource can total more than 100% in a week. The app **allows** it and shows a **warning** (orange/red indicators in the planning view); it does not block saving.
 
 ## Time and weeks
 
-- **Week definition:** **ISO week** — week starts on **Monday**. All “week” values are stored as the Monday of that week (normalized, no time component).
-- **Range:** Planning view shows a configurable number of weeks (default 8; span 4–12 via URL). No fiscal or custom week calendars.
+- **Week definition:** **ISO week** — week starts on **Monday**. All "week" values are stored as the Monday of that week (normalized, no time component).
+- **Range:** Planning view shows a configurable number of weeks (4, 8, or 12 via span selector). Default is 8. No fiscal or custom week calendars.
+- **Today button:** Snaps the view to the current ISO week.
 
 ## Data lifecycle
 
-- **Projects and resources:** **Hard delete.** Deleting a project or resource removes it and all its bookings (DB cascade). There is no archive or soft delete.
-- **Bookings:** **Hard delete** only. No archive.
+- **Projects and resources:** **Soft delete via archiving.** Archiving sets the status to `ARCHIVED`, hiding the item from active views and the planning grid. Archived items can be restored at any time. Permanent deletion is only available on archived items and removes the entity and all its bookings (DB cascade).
+- **Bookings:** **Hard delete** only. No archive. Deleting an allocation (clearing or zeroing the cell) removes the booking permanently.
 
 ## Security and access (v1)
 
@@ -32,5 +34,7 @@ Explicit assumptions behind the current product design. Revisit when changing be
 
 ## UI and scope
 
-- **MVP scope** — Only projects, resources, bookings, and the weekly planning view. No timesheets, approvals, reporting, notifications, or integrations.
+- **MVP scope** — Projects, resources, bookings, weekly planning view, CSV import, and in-app help. No timesheets, approvals, reporting, notifications, or integrations.
 - **Single user / small team** — No real-time collaboration or conflict handling; last write wins.
+- **Dark-first theme** — Custom design system using CSS custom properties. Optimized for dark backgrounds.
+- **Accessibility** — Focus trapping in modals, ARIA attributes, keyboard navigation for allocation cells.

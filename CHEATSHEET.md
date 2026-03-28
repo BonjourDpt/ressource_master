@@ -128,7 +128,13 @@ Existing records are matched **by name** — if a name already exists, the recor
 
 ---
 
-## 9. Visual Indicators at a Glance
+## 9. In-App Help
+
+Click the **?** button in the top-right corner of the header to open this cheatsheet directly inside the app. Press **Escape** or click outside the panel to close it.
+
+---
+
+## 10. Visual Indicators at a Glance
 
 | Indicator | Meaning |
 |-----------|---------|
