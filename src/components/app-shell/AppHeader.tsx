@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cx } from "@/lib/cx";
+import { HelpButton } from "./HelpDialog";
 
 const navItems = [
   { href: "/planning", label: "Planning" },
@@ -46,6 +47,8 @@ export function AppHeader() {
             })}
           </ul>
         </nav>
+
+        <HelpButton />
       </div>
     </header>
   );
