@@ -7,6 +7,15 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
+import {
+  DataTable,
+  DataTableHead,
+  DataTableTh,
+  DataTableRow,
+  DataTableCell,
+} from "@/components/ui/DataTable";
 import { ProjectForm } from "./ProjectForm";
 import {
   archiveProject,
@@ -14,15 +23,14 @@ import {
   unarchiveProject,
 } from "@/app/projects/actions";
 import type { LifecycleStatus, ProjectModel } from "@/lib/planning-view-model";
-import { cx } from "@/lib/cx";
 
 type StatusFilter = LifecycleStatus | "ALL";
 
-const statusTabs: { value: StatusFilter; label: string }[] = [
-  { value: "ACTIVE", label: "Active" },
-  { value: "ARCHIVED", label: "Archived" },
-  { value: "ALL", label: "All" },
-];
+const statusTabs = [
+  { value: "ACTIVE" as StatusFilter, label: "Active" },
+  { value: "ARCHIVED" as StatusFilter, label: "Archived" },
+  { value: "ALL" as StatusFilter, label: "All" },
+] as const;
 
 interface ProjectListProps {
   projects: ProjectModel[];
@@ -106,35 +114,25 @@ export function ProjectList({ projects }: ProjectListProps) {
   const totalActive = projects.filter((p) => (p.status ?? "ACTIVE") === "ACTIVE").length;
 
   return (
-    <>
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold tracking-tight text-[var(--rm-fg)]">Projects</h1>
-        <Button onClick={openCreate}>New project</Button>
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title="Projects"
+        action={<Button onClick={openCreate}>New project</Button>}
+      />
 
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-1">
-          {statusTabs.map((tab) => (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() => setStatusFilter(tab.value)}
-              className={cx(
-                "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                statusFilter === tab.value
-                  ? "bg-[var(--rm-surface-elevated)] text-[var(--rm-fg)]"
-                  : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]",
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <SegmentedTabs
+          tabs={statusTabs}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          ariaLabel="Filter by status"
+        />
         <div className="w-full max-w-xs">
           <Input
             placeholder="Search projects…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            size="compact"
           />
         </div>
       </div>
@@ -151,66 +149,58 @@ export function ProjectList({ projects }: ProjectListProps) {
           No matching projects found.
         </p>
       ) : (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[400px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--rm-border)]">
-                <th className="pb-3 pl-0 font-medium text-[13px] text-[var(--rm-muted)]">Name</th>
-                <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Client</th>
-                <th className="pb-3 text-right font-medium text-[13px] text-[var(--rm-muted)]">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((p) => {
-                const isArchived = p.status === "ARCHIVED";
-                return (
-                  <tr
-                    key={p.id}
-                    className={cx(
-                      "border-b border-[var(--rm-border-subtle)] last:border-0",
-                      isArchived && "opacity-60",
-                    )}
-                  >
-                    <td className="py-3 pl-0 text-[var(--rm-fg)]">
+        <DataTable>
+          <DataTableHead>
+            <DataTableTh>Name</DataTableTh>
+            <DataTableTh>Client</DataTableTh>
+            <DataTableTh align="right">Actions</DataTableTh>
+          </DataTableHead>
+          <tbody>
+            {filtered.map((p) => {
+              const isArchived = p.status === "ARCHIVED";
+              return (
+                <DataTableRow key={p.id} dimmed={isArchived}>
+                  <DataTableCell>
+                    <span className="inline-flex items-center gap-2">
                       <span
-                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        className="inline-block size-2.5 shrink-0 rounded-full"
                         style={{ backgroundColor: p.color ?? "transparent" }}
                       />
-                      <span className="ml-2">{p.name}</span>
+                      <span>{p.name}</span>
                       {isArchived && (
-                        <span className="ml-2 rounded bg-[var(--rm-surface)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--rm-muted-subtle)]">
+                        <span className="rounded bg-[var(--rm-surface)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--rm-muted-subtle)]">
                           Archived
                         </span>
                       )}
-                    </td>
-                    <td className="py-3 text-[var(--rm-muted)]">{p.client ?? "—"}</td>
-                    <td className="py-3 text-right">
-                      {isArchived ? (
-                        <>
-                          <Button variant="ghost" onClick={() => handleUnarchive(p)} disabled={isPending}>
-                            Restore
-                          </Button>
-                          <Button variant="danger" onClick={() => setDeleteTarget(p)}>
-                            Delete
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button variant="ghost" onClick={() => openEdit(p)}>
-                            Edit
-                          </Button>
-                          <Button variant="ghost" onClick={() => setArchiveTarget(p)}>
-                            Archive
-                          </Button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    </span>
+                  </DataTableCell>
+                  <DataTableCell muted>{p.client ?? "—"}</DataTableCell>
+                  <DataTableCell align="right">
+                    {isArchived ? (
+                      <>
+                        <Button variant="ghost" size="compact" onClick={() => handleUnarchive(p)} disabled={isPending}>
+                          Restore
+                        </Button>
+                        <Button variant="danger" size="compact" onClick={() => setDeleteTarget(p)}>
+                          Delete
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button variant="ghost" size="compact" onClick={() => openEdit(p)}>
+                          Edit
+                        </Button>
+                        <Button variant="ghost" size="compact" onClick={() => setArchiveTarget(p)}>
+                          Archive
+                        </Button>
+                      </>
+                    )}
+                  </DataTableCell>
+                </DataTableRow>
+              );
+            })}
+          </tbody>
+        </DataTable>
       )}
 
       <Modal
@@ -245,6 +235,6 @@ export function ProjectList({ projects }: ProjectListProps) {
         confirmLabel="Delete permanently"
         isPending={isPending}
       />
-    </>
+    </div>
   );
 }

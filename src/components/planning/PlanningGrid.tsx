@@ -16,7 +16,7 @@ import {
   type ResourceModel,
 } from "@/lib/planning-view-model";
 import type { PlanningViewMode } from "./TimelineHeader";
-import { cx } from "@/lib/cx";
+import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 
 const SPAN_OPTIONS = [4, 8, 12] as const;
 
@@ -215,41 +215,15 @@ export function PlanningGrid({
         <h1 className="text-xl font-semibold tracking-tight text-[var(--rm-fg)]">Planning</h1>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Segmented view toggle */}
-          <div
-            role="tablist"
-            aria-label="Group by"
-            className="inline-flex h-8 items-center rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] p-0.5"
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={view === "project"}
-              onClick={() => setView("project")}
-              className={cx(
-                "h-7 rounded-md px-3 text-xs font-medium transition-colors",
-                view === "project"
-                  ? "bg-[var(--rm-surface-elevated)] text-[var(--rm-fg)]"
-                  : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]",
-              )}
-            >
-              By project
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={view === "resource"}
-              onClick={() => setView("resource")}
-              className={cx(
-                "h-7 rounded-md px-3 text-xs font-medium transition-colors",
-                view === "resource"
-                  ? "bg-[var(--rm-surface-elevated)] text-[var(--rm-fg)]"
-                  : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]",
-              )}
-            >
-              By resource
-            </button>
-          </div>
+          <SegmentedTabs
+            tabs={[
+              { value: "project" as PlanningViewMode, label: "By project" },
+              { value: "resource" as PlanningViewMode, label: "By resource" },
+            ]}
+            value={view}
+            onChange={setView}
+            ariaLabel="Group by"
+          />
 
           {teams.length > 0 && (
             <select
@@ -284,24 +258,12 @@ export function PlanningGrid({
             {formatWeekLabel(weekRange[0] ?? startWeek)} – {formatWeekLabel(weekRange[span - 1] ?? startWeek)}
           </span>
 
-          {/* Span selector */}
-          <div className="inline-flex h-8 items-center rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] p-0.5">
-            {SPAN_OPTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setSpan(s)}
-                className={cx(
-                  "h-7 rounded-md px-2.5 text-xs font-medium transition-colors",
-                  span === s
-                    ? "bg-[var(--rm-surface-elevated)] text-[var(--rm-fg)]"
-                    : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]",
-                )}
-              >
-                {s}w
-              </button>
-            ))}
-          </div>
+          <SegmentedTabs
+            tabs={SPAN_OPTIONS.map((s) => ({ value: String(s), label: `${s}w` }))}
+            value={String(span)}
+            onChange={(v) => setSpan(Number(v))}
+            ariaLabel="Week span"
+          />
         </div>
       </div>
 

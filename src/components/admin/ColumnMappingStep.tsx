@@ -2,6 +2,13 @@
 
 import { useMemo } from "react";
 import { Button } from "@/components/ui/Button";
+import {
+  DataTable,
+  DataTableHead,
+  DataTableTh,
+  DataTableRow,
+  DataTableCell,
+} from "@/components/ui/DataTable";
 import { cx } from "@/lib/cx";
 import type { AutoMappingEntry, ConfidenceLevel, EntityType } from "@/lib/csv-mapping";
 import { getFieldsForEntity } from "@/lib/csv-mapping";
@@ -67,64 +74,51 @@ export function ColumnMappingStep({
         </p>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-[var(--rm-border)]">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-[var(--rm-border)] bg-[var(--rm-surface)]">
-              <th className="px-4 py-3 text-left text-[13px] font-medium text-[var(--rm-muted)]">
-                CSV column
-              </th>
-              <th className="px-4 py-3 text-left text-[13px] font-medium text-[var(--rm-muted)]">
-                Maps to
-              </th>
-              <th className="px-4 py-3 text-left text-[13px] font-medium text-[var(--rm-muted)]">
-                Confidence
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {mappings.map((m) => (
-              <tr
-                key={m.csvHeader}
-                className="border-b border-[var(--rm-border-subtle)] last:border-0"
-              >
-                <td className="px-4 py-3 font-mono text-xs text-[var(--rm-fg)]">
-                  {m.csvHeader}
-                </td>
-                <td className="px-4 py-3">
-                  <select
-                    value={m.dbField ?? ""}
-                    onChange={(e) =>
-                      onMappingChange(m.csvHeader, e.target.value || null)
-                    }
-                    className="w-full rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] px-3 py-2 text-sm text-[var(--rm-fg)] outline-none transition-colors focus:border-[var(--rm-primary)]"
-                  >
-                    <option value="">(skip)</option>
-                    {dbFields.map((f) => (
-                      <option
-                        key={f}
-                        value={f}
-                        disabled={assignedFields.has(f) && m.dbField !== f}
-                      >
-                        {FIELD_LABELS[f] ?? f}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="px-4 py-3">
-                  {m.confidence ? (
-                    <ConfidenceBadge level={m.confidence} />
-                  ) : (
-                    <span className="text-xs text-[var(--rm-muted-subtle)]">
-                      {m.dbField ? "Manual" : "Skipped"}
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable>
+        <DataTableHead>
+          <DataTableTh>CSV Column</DataTableTh>
+          <DataTableTh>Maps To</DataTableTh>
+          <DataTableTh>Confidence</DataTableTh>
+        </DataTableHead>
+        <tbody>
+          {mappings.map((m) => (
+            <DataTableRow key={m.csvHeader}>
+              <DataTableCell className="font-mono text-xs">
+                {m.csvHeader}
+              </DataTableCell>
+              <DataTableCell>
+                <select
+                  value={m.dbField ?? ""}
+                  onChange={(e) =>
+                    onMappingChange(m.csvHeader, e.target.value || null)
+                  }
+                  className="h-8 w-full rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] px-3 text-xs text-[var(--rm-fg)] outline-none transition-colors focus:border-[var(--rm-primary)]"
+                >
+                  <option value="">(skip)</option>
+                  {dbFields.map((f) => (
+                    <option
+                      key={f}
+                      value={f}
+                      disabled={assignedFields.has(f) && m.dbField !== f}
+                    >
+                      {FIELD_LABELS[f] ?? f}
+                    </option>
+                  ))}
+                </select>
+              </DataTableCell>
+              <DataTableCell>
+                {m.confidence ? (
+                  <ConfidenceBadge level={m.confidence} />
+                ) : (
+                  <span className="text-xs text-[var(--rm-muted-subtle)]">
+                    {m.dbField ? "Manual" : "Skipped"}
+                  </span>
+                )}
+              </DataTableCell>
+            </DataTableRow>
+          ))}
+        </tbody>
+      </DataTable>
 
       {!nameIsMapped && (
         <div className="rounded-lg border border-[var(--rm-danger)]/30 bg-[var(--rm-danger)]/5 px-4 py-3 text-sm text-[var(--rm-danger)]">

@@ -1636,6 +1636,18 @@
   }
 
   @media (hover: hover) {
+    .hover\:bg-\[var\(--rm-surface\)\]\/50:hover {
+      background-color: var(--rm-surface);
+    }
+
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-\[var\(--rm-surface\)\]\/50:hover {
+        background-color: color-mix(in oklab, var(--rm-surface) 50%, transparent);
+      }
+    }
+  }
+
+  @media (hover: hover) {
     .hover\:bg-\[var\(--rm-surface-elevated\)\]:hover {
       background-color: var(--rm-surface-elevated);
     }

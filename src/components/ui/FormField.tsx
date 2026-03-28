@@ -1,9 +1,10 @@
 import { type InputHTMLAttributes, forwardRef } from "react";
-import { Input } from "./Input";
+import { Input, type InputProps } from "./Input";
 
-export interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface FormFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   label: string;
   error?: string;
+  size?: InputProps["size"];
 }
 
 export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(

@@ -7,6 +7,15 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
+import {
+  DataTable,
+  DataTableHead,
+  DataTableTh,
+  DataTableRow,
+  DataTableCell,
+} from "@/components/ui/DataTable";
 import { ResourceForm } from "./ResourceForm";
 import {
   archiveResource,
@@ -14,15 +23,14 @@ import {
   unarchiveResource,
 } from "@/app/resources/actions";
 import type { LifecycleStatus, ResourceModel } from "@/lib/planning-view-model";
-import { cx } from "@/lib/cx";
 
 type StatusFilter = LifecycleStatus | "ALL";
 
-const statusTabs: { value: StatusFilter; label: string }[] = [
-  { value: "ACTIVE", label: "Active" },
-  { value: "ARCHIVED", label: "Archived" },
-  { value: "ALL", label: "All" },
-];
+const statusTabs = [
+  { value: "ACTIVE" as StatusFilter, label: "Active" },
+  { value: "ARCHIVED" as StatusFilter, label: "Archived" },
+  { value: "ALL" as StatusFilter, label: "All" },
+] as const;
 
 interface ResourceListProps {
   resources: ResourceModel[];
@@ -118,35 +126,29 @@ export function ResourceList({ resources }: ResourceListProps) {
 
   const totalActive = resources.filter((r) => (r.status ?? "ACTIVE") === "ACTIVE").length;
 
-  return (
-    <>
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold tracking-tight text-[var(--rm-fg)]">Resources</h1>
-        <Button onClick={openCreate}>New resource</Button>
-      </div>
+  const ctrlBase = "h-8 rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] text-xs transition-colors";
 
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-1">
-          {statusTabs.map((tab) => (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() => setStatusFilter(tab.value)}
-              className={cx(
-                "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                statusFilter === tab.value
-                  ? "bg-[var(--rm-surface-elevated)] text-[var(--rm-fg)]"
-                  : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]",
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
+  return (
+    <div className="space-y-5">
+      <PageHeader
+        title="Resources"
+        action={<Button onClick={openCreate}>New resource</Button>}
+      />
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <SegmentedTabs
+            tabs={statusTabs}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            ariaLabel="Filter by status"
+          />
           {teams.length > 0 && (
             <select
               value={teamFilter}
               onChange={(e) => setTeamFilter(e.target.value)}
-              className="ml-2 rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] px-2 py-1.5 text-xs text-[var(--rm-fg)] outline-none transition-colors focus:border-[var(--rm-primary)]"
+              className={`${ctrlBase} px-3 text-[var(--rm-fg)] outline-none focus:border-[var(--rm-primary)]`}
+              aria-label="Filter by team"
             >
               <option value="ALL">All teams</option>
               {teams.map((t) => (
@@ -160,6 +162,7 @@ export function ResourceList({ resources }: ResourceListProps) {
             placeholder="Search resources…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            size="compact"
           />
         </div>
       </div>
@@ -176,66 +179,58 @@ export function ResourceList({ resources }: ResourceListProps) {
           No matching resources found.
         </p>
       ) : (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[400px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--rm-border)]">
-                <th className="pb-3 pl-0 font-medium text-[13px] text-[var(--rm-muted)]">Name</th>
-                <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Role</th>
-                <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Team</th>
-                <th className="pb-3 font-medium text-[13px] text-[var(--rm-muted)]">Capacity</th>
-                <th className="pb-3 text-right font-medium text-[13px] text-[var(--rm-muted)]">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((r) => {
-                const isArchived = r.status === "ARCHIVED";
-                return (
-                  <tr
-                    key={r.id}
-                    className={cx(
-                      "border-b border-[var(--rm-border-subtle)] last:border-0",
-                      isArchived && "opacity-60",
+        <DataTable>
+          <DataTableHead>
+            <DataTableTh>Name</DataTableTh>
+            <DataTableTh>Role</DataTableTh>
+            <DataTableTh>Team</DataTableTh>
+            <DataTableTh>Capacity</DataTableTh>
+            <DataTableTh align="right">Actions</DataTableTh>
+          </DataTableHead>
+          <tbody>
+            {filtered.map((r) => {
+              const isArchived = r.status === "ARCHIVED";
+              return (
+                <DataTableRow key={r.id} dimmed={isArchived}>
+                  <DataTableCell>
+                    {r.name}
+                    {isArchived && (
+                      <span className="ml-2 rounded bg-[var(--rm-surface)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--rm-muted-subtle)]">
+                        Archived
+                      </span>
                     )}
-                  >
-                    <td className="py-3 pl-0 text-[var(--rm-fg)]">
-                      {r.name}
-                      {isArchived && (
-                        <span className="ml-2 rounded bg-[var(--rm-surface)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--rm-muted-subtle)]">
-                          Archived
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3 text-[var(--rm-muted)]">{r.role ?? "—"}</td>
-                    <td className="py-3 text-[var(--rm-muted)]">{r.team ?? "—"}</td>
-                    <td className="py-3 text-[var(--rm-muted)]">{r.capacity}h</td>
-                    <td className="py-3 text-right">
-                      {isArchived ? (
-                        <>
-                          <Button variant="ghost" onClick={() => handleUnarchive(r)} disabled={isPending}>
-                            Restore
-                          </Button>
-                          <Button variant="danger" onClick={() => setDeleteTarget(r)}>
-                            Delete
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button variant="ghost" onClick={() => openEdit(r)}>
-                            Edit
-                          </Button>
-                          <Button variant="ghost" onClick={() => setArchiveTarget(r)}>
-                            Archive
-                          </Button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                  </DataTableCell>
+                  <DataTableCell muted>{r.role ?? "—"}</DataTableCell>
+                  <DataTableCell muted>{r.team ?? "—"}</DataTableCell>
+                  <DataTableCell muted>
+                    <span className="font-mono tabular-nums">{r.capacity}h</span>
+                  </DataTableCell>
+                  <DataTableCell align="right">
+                    {isArchived ? (
+                      <>
+                        <Button variant="ghost" size="compact" onClick={() => handleUnarchive(r)} disabled={isPending}>
+                          Restore
+                        </Button>
+                        <Button variant="danger" size="compact" onClick={() => setDeleteTarget(r)}>
+                          Delete
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button variant="ghost" size="compact" onClick={() => openEdit(r)}>
+                          Edit
+                        </Button>
+                        <Button variant="ghost" size="compact" onClick={() => setArchiveTarget(r)}>
+                          Archive
+                        </Button>
+                      </>
+                    )}
+                  </DataTableCell>
+                </DataTableRow>
+              );
+            })}
+          </tbody>
+        </DataTable>
       )}
 
       <Modal
@@ -270,6 +265,6 @@ export function ResourceList({ resources }: ResourceListProps) {
         confirmLabel="Delete permanently"
         isPending={isPending}
       />
-    </>
+    </div>
   );
 }

@@ -1,13 +1,12 @@
 import { CsvImportWizard } from "@/components/admin/CsvImportWizard";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function AdminPage() {
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold tracking-tight text-[var(--rm-fg)]">
-        Admin
-      </h1>
+    <div className="space-y-5">
+      <PageHeader title="Admin" />
 
-      <section className="rounded-xl border border-[var(--rm-border)] bg-[var(--rm-surface-elevated)] p-6">
+      <section className="rounded-xl border border-[var(--rm-border)]/40 bg-[var(--rm-surface)] p-6">
         <h2 className="mb-1 text-base font-medium text-[var(--rm-fg)]">
           CSV Import
         </h2>

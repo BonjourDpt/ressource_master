@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import Papa from "papaparse";
 import { Button } from "@/components/ui/Button";
+import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
 import { cx } from "@/lib/cx";
 import type { EntityType } from "@/lib/csv-mapping";
 
@@ -68,29 +69,15 @@ export function CsvUploadStep({
         <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-[var(--rm-muted)]">
           Import type
         </label>
-        <div
-          role="tablist"
-          aria-label="Entity type"
-          className="inline-flex rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] p-1"
-        >
-          {(["resource", "project"] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              role="tab"
-              aria-selected={entityType === t}
-              onClick={() => onEntityTypeChange(t)}
-              className={cx(
-                "rounded-md px-4 py-2 text-sm font-medium transition-colors",
-                entityType === t
-                  ? "bg-[var(--rm-primary)] text-white"
-                  : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]",
-              )}
-            >
-              {t === "resource" ? "Resources" : "Projects"}
-            </button>
-          ))}
-        </div>
+        <SegmentedTabs
+          tabs={[
+            { value: "resource" as EntityType, label: "Resources" },
+            { value: "project" as EntityType, label: "Projects" },
+          ]}
+          value={entityType}
+          onChange={onEntityTypeChange}
+          ariaLabel="Entity type"
+        />
       </div>
 
       {/* Drop zone */}

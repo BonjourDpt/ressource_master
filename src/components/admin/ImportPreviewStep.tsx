@@ -2,6 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import {
+  DataTable,
+  DataTableHead,
+  DataTableTh,
+  DataTableRow,
+  DataTableCell,
+} from "@/components/ui/DataTable";
 import { cx } from "@/lib/cx";
 import type { AutoMappingEntry, EntityType } from "@/lib/csv-mapping";
 import { normalizeStatus, parseDate } from "@/lib/csv-mapping";
@@ -171,45 +178,31 @@ export function ImportPreviewStep({
       </div>
 
       {/* Preview table */}
-      <div className="overflow-x-auto rounded-lg border border-[var(--rm-border)]">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-[var(--rm-border)] bg-[var(--rm-surface)]">
-              <th className="px-4 py-3 text-left text-[13px] font-medium text-[var(--rm-muted)]">
-                Status
-              </th>
+      <DataTable>
+        <DataTableHead>
+          <DataTableTh>Status</DataTableTh>
+          {dbColumns.map((col) => (
+            <DataTableTh key={col}>{FIELD_LABELS[col] ?? col}</DataTableTh>
+          ))}
+        </DataTableHead>
+        <tbody>
+          {visibleRows.map((row, i) => (
+            <DataTableRow
+              key={i}
+              dimmed={row.status === "duplicate"}
+            >
+              <DataTableCell>
+                <StatusBadge status={row.status} />
+              </DataTableCell>
               {dbColumns.map((col) => (
-                <th
-                  key={col}
-                  className="px-4 py-3 text-left text-[13px] font-medium text-[var(--rm-muted)]"
-                >
-                  {FIELD_LABELS[col] ?? col}
-                </th>
+                <DataTableCell key={col}>
+                  {row.mapped[col] || <span className="text-[var(--rm-muted-subtle)]">—</span>}
+                </DataTableCell>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {visibleRows.map((row, i) => (
-              <tr
-                key={i}
-                className={cx(
-                  "border-b border-[var(--rm-border-subtle)] last:border-0",
-                  row.status === "duplicate" && "opacity-40",
-                )}
-              >
-                <td className="px-4 py-3">
-                  <StatusBadge status={row.status} />
-                </td>
-                {dbColumns.map((col) => (
-                  <td key={col} className="px-4 py-3 text-[var(--rm-fg)]">
-                    {row.mapped[col] || <span className="text-[var(--rm-muted-subtle)]">—</span>}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </DataTableRow>
+          ))}
+        </tbody>
+      </DataTable>
 
       {previewRows.length > MAX_PREVIEW && (
         <p className="text-xs text-[var(--rm-muted)]">
