@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { AppShell } from "@/components/app-shell/AppShell";
+import { db } from "@/lib/db";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,17 +20,24 @@ export const metadata: Metadata = {
   description: "Internal resource planning MVP",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [resourceCount, projectCount] = await Promise.all([
+    db.resource.count({ where: { status: "ACTIVE" } }),
+    db.project.count({ where: { status: "ACTIVE" } }),
+  ]);
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppShell>{children}</AppShell>
+        <AppShell resourceCount={resourceCount} projectCount={projectCount}>
+          {children}
+        </AppShell>
         <Toaster
           theme="dark"
           position="bottom-right"

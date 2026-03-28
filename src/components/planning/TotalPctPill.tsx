@@ -24,7 +24,7 @@ export function TotalPctPill({ pct }: { pct: number }) {
 
   return (
     <span
-      className={`text-xs font-medium tabular-nums ${toneClass}`}
+      className={`font-mono text-xs font-medium tabular-nums ${toneClass}`}
       title={`Total allocation: ${pct}%`}
     >
       {pct}%

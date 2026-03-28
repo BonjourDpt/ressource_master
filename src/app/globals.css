@@ -1,24 +1,26 @@
 @import "tailwindcss";
 
-/* Design system: dark-first, minimal, soft contrast */
+/* Design system: Indigo Graphite — dark-first, minimal, soft contrast */
 :root {
   /* Surfaces (opaque, no transparency for content) */
-  --rm-bg: #0d0d0f;
-  --rm-surface: #161618;
-  --rm-surface-elevated: #1c1c1f;
+  --rm-bg: #0e0e10;
+  --rm-surface: #19191c;
+  --rm-surface-elevated: #1f1f23;
+  --rm-surface-highest: #252529;
 
   /* Borders */
   --rm-border: #2a2a2e;
   --rm-border-subtle: #222226;
 
   /* Text */
-  --rm-fg: #fafafa;
-  --rm-muted: #a1a1a6;
+  --rm-fg: #e7e4ea;
+  --rm-muted: #acaaaf;
   --rm-muted-subtle: #6e6e73;
 
   /* Primary (accent) */
   --rm-primary: #6366f1;
   --rm-primary-hover: #818cf8;
+  --rm-primary-text: #c0c1ff;
 
   /* Danger */
   --rm-danger: #ef4444;

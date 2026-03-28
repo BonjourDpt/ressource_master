@@ -18,11 +18,11 @@ type Overload = { wk: string; label: string; pct: number };
 function OverloadHint({ items }: { items: Overload[] }) {
   if (items.length === 0) return null;
   return (
-    <div className="mt-1.5 text-xs leading-relaxed text-[var(--rm-warning)]">
+    <div className="text-[10px] leading-relaxed text-[var(--rm-warning)]">
       {items.map((o, idx) => (
         <span key={o.wk}>
           {idx > 0 ? ", " : null}
-          {o.label}: {formatAllocationPercent(o.pct)}
+          {o.label}: <span className="font-mono">{formatAllocationPercent(o.pct)}</span>
         </span>
       ))}
     </div>
@@ -55,8 +55,8 @@ function SecondaryCellContent({
   );
 }
 
-const rowLine = "border-b border-[var(--rm-border-subtle)]";
-const addRowLine = `${rowLine} h-7 [&>td]:py-0.5 [&>td]:align-middle opacity-[0.72]`;
+const rowLine = "border-b border-[var(--rm-border-subtle)]/60";
+const addRowLine = `${rowLine} h-8 [&>td]:py-1 [&>td]:align-middle`;
 
 export interface PlanningTableBodyProps {
   groups: PlanningMatrixGroup[];
@@ -86,7 +86,7 @@ export function PlanningTableBody({
   return (
     <>
       {groups.map((g, groupIndex) => {
-        const groupTop = groupIndex > 0 ? "border-t border-[var(--rm-border-subtle)]" : "";
+        const groupTop = groupIndex > 0 ? "border-t-2 border-[var(--rm-border)]/30" : "";
         const rowSpan = g.rows.length;
 
         const overloads: Overload[] =
@@ -103,8 +103,8 @@ export function PlanningTableBody({
 
         const resourceTitleBlock =
           g.mode === "resource" ? (
-            <div className="flex flex-col py-0.5">
-              <span className="text-sm font-medium leading-snug text-[var(--rm-fg)]">{g.groupLabel}</span>
+            <div className="flex flex-col gap-0.5 py-0.5">
+              <span className="text-[13px] font-semibold leading-snug text-[var(--rm-fg)]">{g.groupLabel}</span>
               <OverloadHint items={overloads} />
             </div>
           ) : null;
@@ -126,9 +126,9 @@ export function PlanningTableBody({
                   <button
                     type="button"
                     onClick={() => onAddAllocationRow(g.groupId)}
-                    className="text-left text-xs text-[var(--rm-muted)] transition-colors hover:text-[var(--rm-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
+                    className="text-left text-[11px] font-medium text-[var(--rm-muted-subtle)] transition-colors hover:text-[var(--rm-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
                   >
-                    {g.mode === "project" ? "＋ Add resource" : "＋ Add project"}
+                    {g.mode === "project" ? "+ Add resource" : "+ Add project"}
                   </button>
                 ) : row.rowType === "summary" ? (
                   <span className="text-xs font-medium text-[var(--rm-muted)]">Total</span>
@@ -183,16 +183,16 @@ export function PlanningTableBody({
                   {isFirstInGroup && (
                     <td className={stickyBodyFirst} rowSpan={rowSpan}>
                       {g.mode === "project" ? (
-                        <div className="flex flex-col py-0.5">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-col gap-0.5 py-0.5">
+                          <div className="flex items-center gap-2.5">
                             {g.groupColor ? (
                               <span
-                                className="size-2 shrink-0 rounded-full"
+                                className="size-2.5 shrink-0 rounded-full"
                                 style={{ backgroundColor: g.groupColor }}
                                 aria-hidden
                               />
                             ) : null}
-                            <span className="text-sm font-medium leading-snug text-[var(--rm-fg)]">
+                            <span className="text-[13px] font-semibold leading-snug text-[var(--rm-fg)]">
                               {g.groupLabel}
                             </span>
                           </div>

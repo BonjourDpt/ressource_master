@@ -29,8 +29,8 @@ export interface PlanningTableProps {
 }
 
 /** Minimum width per week column when scrolling (readability). */
-const WEEK_COL_MIN_PX = 88;
-const STICKY_COLS_PX = 336;
+const WEEK_COL_MIN_PX = 80;
+const STICKY_COLS_PX = 352;
 
 export function PlanningTable({
   view,
@@ -49,14 +49,14 @@ export function PlanningTable({
   const tableMinPx = STICKY_COLS_PX + weekRange.length * WEEK_COL_MIN_PX;
 
   return (
-    <div className="rm-scroll-x w-full min-w-0 overflow-x-auto">
+    <div className="rm-scroll-x w-full min-w-0 overflow-x-auto rounded-xl border border-[var(--rm-border)]/40">
       <table
         className="w-full min-w-full table-fixed border-collapse text-sm text-[var(--rm-fg)]"
         style={{ minWidth: `max(100%, ${tableMinPx}px)` }}
       >
         <colgroup>
+          <col className="w-48" />
           <col className="w-40" />
-          <col className="w-44" />
           {weekRange.map((w) => (
             <col key={toWeekStartKey(w)} />
           ))}

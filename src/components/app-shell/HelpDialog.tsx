@@ -99,7 +99,7 @@ function HelpContent() {
           <tbody>
             <tr><td className={td}>Colored dot</td><td className={tdMuted}>Project color (by name).</td></tr>
             <tr><td className={td}>Left stripe on cell</td><td className={tdMuted}>Project color in by-resource view.</td></tr>
-            <tr><td className={td}>Small dot (top-right)</td><td className={tdMuted}>Cell has a note — hover to read.</td></tr>
+            <tr><td className={td}>Corner fold (top-right)</td><td className={tdMuted}>Cell has a note — hover to read.</td></tr>
             <tr><td className={td}>Orange text / pill</td><td className={tdMuted}>Resource over-allocated (&gt; 100%).</td></tr>
             <tr><td className={td}>Archived badge</td><td className={tdMuted}>Item hidden from planning.</td></tr>
           </tbody>

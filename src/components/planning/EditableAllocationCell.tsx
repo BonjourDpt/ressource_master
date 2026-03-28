@@ -190,6 +190,15 @@ export function EditableAllocationCell({
       : undefined;
 
   const hasNote = booking?.note != null && booking.note.trim().length > 0;
+  const pct = booking?.allocationPct ?? 0;
+
+  const filledClasses = booking
+    ? pct > 100
+      ? "border border-[var(--rm-danger)]/30 bg-[var(--rm-danger)]/5 text-[var(--rm-danger)]"
+      : pct === 100
+        ? "bg-[var(--rm-primary)]/8 text-[var(--rm-primary-text)]"
+        : "bg-[var(--rm-surface)] text-[var(--rm-muted)]"
+    : "";
 
   if (!isEditing) {
     return (
@@ -201,13 +210,13 @@ export function EditableAllocationCell({
             type="button"
             onClick={() => onEditingCellChange({ rowId, weekId: weekStart })}
             title={hasNote ? booking.note! : "Edit allocation"}
-            aria-label={`Edit allocation ${formatAllocationPercent(booking.allocationPct)}${hasNote ? ` — ${booking.note}` : ""}`}
-            className="relative min-w-[3rem] rounded bg-[var(--rm-surface)] px-2.5 py-1.5 text-center text-sm font-medium tabular-nums text-[var(--rm-fg)] transition-colors hover:bg-[var(--rm-surface-elevated)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
+            aria-label={`Edit allocation ${formatAllocationPercent(pct)}${hasNote ? ` — ${booking.note}` : ""}`}
+            className={`relative min-w-[3rem] rounded-md px-2 py-1.5 text-center font-mono text-xs font-semibold tabular-nums ${filledClasses} overflow-hidden transition-all hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
             style={accentStyle}
           >
-            {formatAllocationPercent(booking.allocationPct)}
+            {formatAllocationPercent(pct)}
             {hasNote && (
-              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-[var(--rm-primary)]" />
+              <span className="absolute right-0 top-0 border-l-[7px] border-t-[7px] border-l-transparent border-t-[var(--rm-primary)]" />
             )}
           </button>
         ) : (
@@ -215,7 +224,7 @@ export function EditableAllocationCell({
             type="button"
             aria-label="Add allocation"
             onClick={() => onEditingCellChange({ rowId, weekId: weekStart })}
-            className="flex min-h-8 w-full max-w-[3.5rem] items-center justify-center rounded text-lg font-light leading-none text-[var(--rm-muted-subtle)] transition-colors hover:bg-[var(--rm-surface)] hover:text-[var(--rm-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
+            className="flex min-h-8 w-full items-center justify-center rounded-md text-sm leading-none text-transparent transition-colors hover:bg-[var(--rm-surface-elevated)]/50 hover:text-[var(--rm-muted-subtle)] focus-visible:outline-none focus-visible:text-[var(--rm-muted-subtle)]"
           >
             +
           </button>
@@ -248,7 +257,7 @@ export function EditableAllocationCell({
           onFocus={(e) => e.target.select()}
           disabled={isPending}
           aria-label="Allocation percent"
-          className="h-8 w-[3.5rem] rounded border border-[var(--rm-primary)]/40 bg-[var(--rm-surface-elevated)] px-1.5 text-center text-sm font-semibold tabular-nums text-[var(--rm-fg)] shadow-[inset_0_0_0_1px_var(--rm-primary)]/15 outline-none ring-1 ring-[var(--rm-primary)]/20 focus:border-[var(--rm-primary)]/60 focus:ring-[var(--rm-primary)]/30"
+          className="h-8 w-14 rounded-md border-2 border-[var(--rm-primary-text)] bg-[var(--rm-surface-highest)] px-1.5 text-center font-mono text-xs font-bold tabular-nums text-[var(--rm-primary-text)] outline-none"
           style={accentStyle}
         />
       </div>
