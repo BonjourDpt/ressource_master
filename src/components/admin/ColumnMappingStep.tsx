@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Button } from "@/components/ui/Button";
+import { ModalFooter } from "@/components/ui/ModalFooter";
 import {
   DataTable,
   DataTableHead,
@@ -9,6 +10,7 @@ import {
   DataTableRow,
   DataTableCell,
 } from "@/components/ui/DataTable";
+import { Select } from "@/components/ui/Select";
 import { cx } from "@/lib/cx";
 import type { AutoMappingEntry, ConfidenceLevel, EntityType } from "@/lib/csv-mapping";
 import { getFieldsForEntity } from "@/lib/csv-mapping";
@@ -87,24 +89,21 @@ export function ColumnMappingStep({
                 {m.csvHeader}
               </DataTableCell>
               <DataTableCell>
-                <select
+                <Select
+                  options={[
+                    { value: "", label: "(skip)" },
+                    ...dbFields.map((f) => ({
+                      value: f,
+                      label: FIELD_LABELS[f] ?? f,
+                      disabled: assignedFields.has(f) && m.dbField !== f,
+                    })),
+                  ]}
                   value={m.dbField ?? ""}
-                  onChange={(e) =>
-                    onMappingChange(m.csvHeader, e.target.value || null)
-                  }
-                  className="h-8 w-full rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] px-3 text-xs text-[var(--rm-fg)] outline-none transition-colors focus:border-[var(--rm-primary)]"
-                >
-                  <option value="">(skip)</option>
-                  {dbFields.map((f) => (
-                    <option
-                      key={f}
-                      value={f}
-                      disabled={assignedFields.has(f) && m.dbField !== f}
-                    >
-                      {FIELD_LABELS[f] ?? f}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => onMappingChange(m.csvHeader, v || null)}
+                  size="default"
+                  placeholder="(skip)"
+                  aria-label={`Map CSV column ${m.csvHeader}`}
+                />
               </DataTableCell>
               <DataTableCell>
                 {m.confidence ? (
@@ -126,14 +125,14 @@ export function ColumnMappingStep({
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-2">
+      <ModalFooter className="mt-8">
         <Button variant="secondary" onClick={onBack}>
           Back
         </Button>
         <Button onClick={onNext} disabled={!nameIsMapped}>
           Preview import
         </Button>
-      </div>
+      </ModalFooter>
     </div>
   );
 }

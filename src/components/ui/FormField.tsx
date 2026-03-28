@@ -3,24 +3,32 @@ import { Input, type InputProps } from "./Input";
 
 export interface FormFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   label: string;
+  hint?: string;
   error?: string;
   size?: InputProps["size"];
 }
 
 export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
-  ({ label, id, error, ...props }, ref) => {
+  ({ label, hint, id, error, ...props }, ref) => {
     const fieldId = id ?? props.name;
+    const describedBy = hint && fieldId ? `${fieldId}-hint` : undefined;
+
     return (
-      <div className="space-y-2">
-        <label
-          htmlFor={fieldId}
-          className="block text-[13px] font-medium text-[var(--rm-muted)]"
-        >
+      <div className="space-y-1.5">
+        <label htmlFor={fieldId} className="block text-sm font-medium text-[var(--rm-fg)]">
           {label}
         </label>
-        <Input ref={ref} id={fieldId} error={error} {...props} />
+        {hint ? (
+          <p
+            id={`${fieldId}-hint`}
+            className="text-xs leading-relaxed text-[var(--rm-muted)]"
+          >
+            {hint}
+          </p>
+        ) : null}
+        <Input ref={ref} id={fieldId} error={error} aria-describedby={describedBy} {...props} />
       </div>
     );
-  }
+  },
 );
 FormField.displayName = "FormField";

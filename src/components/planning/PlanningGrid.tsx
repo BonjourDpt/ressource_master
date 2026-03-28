@@ -17,6 +17,7 @@ import {
 } from "@/lib/planning-view-model";
 import type { PlanningViewMode } from "./TimelineHeader";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
+import { Select } from "@/components/ui/Select";
 
 const SPAN_OPTIONS = [4, 8, 12] as const;
 
@@ -207,6 +208,25 @@ export function PlanningGrid({
   const groupListEmpty = view === "project" ? projects.length === 0 : filteredResources.length === 0;
 
   const ctrlBase = "h-8 rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] text-xs transition-colors";
+
+  const teamSelectOptions = useMemo(
+    () => [
+      { value: "ALL", label: "All teams" },
+      ...teams.map((t) => ({ value: t, label: t })),
+    ],
+    [teams],
+  );
+
+  const addGroupOptions = useMemo(
+    () => [
+      {
+        value: "",
+        label: view === "project" ? "Select a project…" : "Select a resource…",
+      },
+      ...unallocatedEntities.map((e) => ({ value: e.id, label: e.name })),
+    ],
+    [view, unallocatedEntities],
+  );
   const navBtn = "flex h-8 w-8 items-center justify-center rounded-lg text-[var(--rm-muted)] transition-colors hover:bg-[var(--rm-surface-elevated)] hover:text-[var(--rm-fg)]";
 
   return (
@@ -226,17 +246,15 @@ export function PlanningGrid({
           />
 
           {teams.length > 0 && (
-            <select
-              value={teamFilter}
-              onChange={(e) => setTeam(e.target.value)}
-              className={`${ctrlBase} px-3 text-[var(--rm-fg)] outline-none focus:border-[var(--rm-primary)]`}
-              aria-label="Filter by team"
-            >
-              <option value="ALL">All teams</option>
-              {teams.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
+            <div className="w-[11rem] min-w-[9rem]">
+              <Select
+                options={teamSelectOptions}
+                value={teamFilter}
+                onChange={setTeam}
+                size="compact"
+                aria-label="Filter by team"
+              />
+            </div>
           )}
 
           {/* Timeline navigation */}
@@ -283,30 +301,19 @@ export function PlanningGrid({
       />
 
       {unallocatedEntities.length > 0 && (
-        <div className="flex items-center gap-3">
-          <label
-            htmlFor="add-group-select"
-            className="text-xs font-medium text-[var(--rm-muted)]"
-          >
-            + Add allocation
-          </label>
-          <select
-            id="add-group-select"
-            value=""
-            onChange={(e) => {
-              if (e.target.value) handleAddGroup(e.target.value);
-            }}
-            className="h-8 rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] px-3 text-xs text-[var(--rm-fg)] outline-none transition-colors focus:border-[var(--rm-primary)]"
-          >
-            <option value="">
-              {view === "project" ? "Select a project..." : "Select a resource..."}
-            </option>
-            {unallocatedEntities.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.name}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+          <span className="text-xs font-medium text-[var(--rm-muted)]">+ Add allocation</span>
+          <div className="min-w-0 sm:max-w-xs sm:flex-1">
+            <Select
+              options={addGroupOptions}
+              value=""
+              onChange={(v) => {
+                if (v) handleAddGroup(v);
+              }}
+              size="compact"
+              aria-label={view === "project" ? "Add project to planning" : "Add resource to planning"}
+            />
+          </div>
         </div>
       )}
     </div>

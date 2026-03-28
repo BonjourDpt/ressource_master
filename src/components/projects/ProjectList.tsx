@@ -207,6 +207,12 @@ export function ProjectList({ projects }: ProjectListProps) {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editing ? "Edit project" : "New project"}
+        description={
+          editing
+            ? "Update how this project appears in lists and the planning grid."
+            : "Projects appear as rows or groups in planning once you add allocations."
+        }
+        size="md"
       >
         <ProjectForm
           project={editing}

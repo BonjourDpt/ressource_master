@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { ModalFooter } from "@/components/ui/ModalFooter";
 import {
   DataTable,
   DataTableHead,
@@ -210,15 +211,14 @@ export function ImportPreviewStep({
         </p>
       )}
 
-      {/* Actions */}
-      <div className="flex items-center justify-between pt-2">
+      <ModalFooter className="mt-8">
         <Button variant="secondary" onClick={onBack} disabled={importing}>
           Back
         </Button>
         <Button onClick={handleImport} disabled={importing || importCount === 0}>
-          {importing ? "Importing..." : `Import ${importCount} record${importCount !== 1 ? "s" : ""}`}
+          {importing ? "Importing…" : `Import ${importCount} record${importCount !== 1 ? "s" : ""}`}
         </Button>
-      </div>
+      </ModalFooter>
     </div>
   );
 }

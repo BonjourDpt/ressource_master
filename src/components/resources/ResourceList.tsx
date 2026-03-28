@@ -9,6 +9,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
+import { Select } from "@/components/ui/Select";
 import {
   DataTable,
   DataTableHead,
@@ -54,6 +55,14 @@ export function ResourceList({ resources }: ResourceListProps) {
     }
     return [...set].sort();
   }, [resources]);
+
+  const teamSelectOptions = useMemo(
+    () => [
+      { value: "ALL", label: "All teams" },
+      ...teams.map((t) => ({ value: t, label: t })),
+    ],
+    [teams],
+  );
 
   const filtered = useMemo(() => {
     let list = resources;
@@ -126,8 +135,6 @@ export function ResourceList({ resources }: ResourceListProps) {
 
   const totalActive = resources.filter((r) => (r.status ?? "ACTIVE") === "ACTIVE").length;
 
-  const ctrlBase = "h-8 rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] text-xs transition-colors";
-
   return (
     <div className="space-y-5">
       <PageHeader
@@ -144,17 +151,15 @@ export function ResourceList({ resources }: ResourceListProps) {
             ariaLabel="Filter by status"
           />
           {teams.length > 0 && (
-            <select
-              value={teamFilter}
-              onChange={(e) => setTeamFilter(e.target.value)}
-              className={`${ctrlBase} px-3 text-[var(--rm-fg)] outline-none focus:border-[var(--rm-primary)]`}
-              aria-label="Filter by team"
-            >
-              <option value="ALL">All teams</option>
-              {teams.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
+            <div className="w-[11rem] min-w-[9rem]">
+              <Select
+                options={teamSelectOptions}
+                value={teamFilter}
+                onChange={setTeamFilter}
+                size="compact"
+                aria-label="Filter by team"
+              />
+            </div>
           )}
         </div>
         <div className="w-full max-w-xs">
@@ -237,6 +242,12 @@ export function ResourceList({ resources }: ResourceListProps) {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editing ? "Edit resource" : "New resource"}
+        description={
+          editing
+            ? "Adjust details used for filtering and capacity in planning."
+            : "People you can assign to projects. Capacity sets how many hours per week they can be planned."
+        }
+        size="md"
       >
         <ResourceForm
           resource={editing}

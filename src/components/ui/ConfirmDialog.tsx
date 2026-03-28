@@ -1,6 +1,7 @@
 "use client";
 
 import { Modal } from "./Modal";
+import { ModalFooter } from "./ModalFooter";
 import { Button } from "./Button";
 
 interface ConfirmDialogProps {
@@ -26,8 +27,8 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Modal open={open} onClose={onClose} title={title}>
-      <p className="text-sm text-[var(--rm-muted)]">{message}</p>
-      <div className="flex justify-end gap-2 pt-6">
+      <p className="text-sm leading-relaxed text-[var(--rm-muted)]">{message}</p>
+      <ModalFooter>
         <Button
           type="button"
           variant="secondary"
@@ -44,7 +45,7 @@ export function ConfirmDialog({
         >
           {isPending ? "Processing…" : confirmLabel}
         </Button>
-      </div>
+      </ModalFooter>
     </Modal>
   );
 }

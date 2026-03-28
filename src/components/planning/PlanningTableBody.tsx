@@ -1,6 +1,7 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
+import { useMemo, type Dispatch, type SetStateAction } from "react";
+import { Select } from "@/components/ui/Select";
 import { formatWeekLabel, toWeekStartKey } from "@/lib/weeks";
 import { formatAllocationPercent } from "@/lib/planning-format";
 import type {
@@ -83,6 +84,21 @@ export function PlanningTableBody({
   onAddAllocationRow,
   onDraftPairChange,
 }: PlanningTableBodyProps) {
+  const resourcePairOptions = useMemo(
+    () => [
+      { value: "", label: "Resource…" },
+      ...resources.map((r) => ({ value: r.id, label: r.name })),
+    ],
+    [resources],
+  );
+  const projectPairOptions = useMemo(
+    () => [
+      { value: "", label: "Project…" },
+      ...projects.map((p) => ({ value: p.id, label: p.name })),
+    ],
+    [projects],
+  );
+
   return (
     <>
       {groups.map((g, groupIndex) => {
@@ -133,41 +149,29 @@ export function PlanningTableBody({
                 ) : row.rowType === "summary" ? (
                   <span className="text-xs font-medium text-[var(--rm-muted)]">Total</span>
                 ) : pairingIncomplete ? (
-                  <div className="min-w-0">
+                  <div className="min-w-0 max-w-[11rem]">
                     {g.mode === "project" ? (
-                      <select
+                      <Select
+                        options={resourcePairOptions}
                         value={row.resourceId ?? ""}
-                        onChange={(e) => {
-                          const v = e.target.value;
+                        onChange={(v) => {
                           if (v) onDraftPairChange(row.id, v);
                         }}
-                        className="max-w-full rounded border border-[var(--rm-border-subtle)] bg-[var(--rm-surface)] px-1.5 py-1 text-xs text-[var(--rm-fg)] focus:border-[var(--rm-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--rm-primary)]/35"
+                        size="compact"
+                        placeholder="Resource…"
                         aria-label="Resource for new row"
-                      >
-                        <option value="">Resource…</option>
-                        {resources.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            {r.name}
-                          </option>
-                        ))}
-                      </select>
+                      />
                     ) : (
-                      <select
+                      <Select
+                        options={projectPairOptions}
                         value={row.projectId ?? ""}
-                        onChange={(e) => {
-                          const v = e.target.value;
+                        onChange={(v) => {
                           if (v) onDraftPairChange(row.id, v);
                         }}
-                        className="max-w-full rounded border border-[var(--rm-border-subtle)] bg-[var(--rm-surface)] px-1.5 py-1 text-xs text-[var(--rm-fg)] focus:border-[var(--rm-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--rm-primary)]/35"
+                        size="compact"
+                        placeholder="Project…"
                         aria-label="Project for new row"
-                      >
-                        <option value="">Project…</option>
-                        {projects.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </select>
+                      />
                     )}
                   </div>
                 ) : (

@@ -3,11 +3,14 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { FormField } from "@/components/ui/FormField";
+import { FormGroup } from "@/components/ui/FormGroup";
 import { Button } from "@/components/ui/Button";
+import { ModalFooter } from "@/components/ui/ModalFooter";
 import { createProject, updateProject } from "@/app/projects/actions";
 import { PROJECT_COLORS } from "@/lib/validations";
 import type { ProjectFormData } from "@/lib/validations";
 import type { ProjectModel } from "@/lib/planning-view-model";
+import { cx } from "@/lib/cx";
 
 interface ProjectFormProps {
   project?: ProjectModel | null;
@@ -29,7 +32,7 @@ export function ProjectForm({ project, onSuccess, onCancel }: ProjectFormProps) 
           client: project.client ?? "",
           color: isValidColor(project.color) ? project.color : "",
         }
-      : empty
+      : empty,
   );
   const [errors, setErrors] = useState<Partial<Record<keyof ProjectFormData | "_form", string[]>>>({});
   const [isPending, startTransition] = useTransition();
@@ -51,9 +54,12 @@ export function ProjectForm({ project, onSuccess, onCancel }: ProjectFormProps) 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {errors._form && (
-        <p className="rounded-lg bg-[var(--rm-danger)]/10 px-3 py-2 text-sm text-[var(--rm-danger)]">
+        <p
+          className="rounded-lg border border-[var(--rm-danger)]/25 bg-[var(--rm-danger)]/10 px-3 py-2.5 text-sm text-[var(--rm-danger)]"
+          role="alert"
+        >
           {errors._form[0]}
         </p>
       )}
@@ -64,7 +70,7 @@ export function ProjectForm({ project, onSuccess, onCancel }: ProjectFormProps) 
         onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
         onBlur={() => setErrors((e) => ({ ...e, name: undefined }))}
         error={errors.name?.[0]}
-        placeholder="Project name"
+        placeholder="e.g. Website redesign"
         autoFocus
         required
       />
@@ -74,39 +80,42 @@ export function ProjectForm({ project, onSuccess, onCancel }: ProjectFormProps) 
         value={form.client}
         onChange={(e) => setForm((p) => ({ ...p, client: e.target.value }))}
         error={errors.client?.[0]}
-        placeholder="Optional"
+        hint="Optional. Shown on the project list and in planning."
+        placeholder="Company or account name"
       />
-      <div className="space-y-2">
-        <label className="block text-[13px] font-medium text-[var(--rm-muted)]">Color</label>
-        <div className="flex gap-2">
+      <FormGroup
+        label="Color"
+        hint="Used as the project accent in the planning grid."
+        error={errors.color?.[0]}
+      >
+        <div className="flex flex-wrap gap-2 pt-0.5">
           {PROJECT_COLORS.map((hex) => (
             <button
               key={hex}
               type="button"
               onClick={() => setForm((p) => ({ ...p, color: form.color === hex ? "" : hex }))}
-              className={`h-8 w-8 shrink-0 rounded-full border-2 transition-colors ${
+              className={cx(
+                "size-9 shrink-0 rounded-full border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-surface)]",
                 form.color === hex
                   ? "border-[var(--rm-primary)] ring-2 ring-[var(--rm-primary)]/20"
-                  : "border-transparent hover:border-[var(--rm-border)]"
-              }`}
+                  : "border-transparent hover:border-[var(--rm-border)]",
+              )}
               style={{ backgroundColor: hex }}
               title={hex}
               aria-pressed={form.color === hex}
+              aria-label={`Color ${hex}`}
             />
           ))}
         </div>
-        {errors.color?.[0] && (
-          <p className="text-xs text-[var(--rm-danger)]">{errors.color[0]}</p>
-        )}
-      </div>
-      <div className="flex justify-end gap-2 pt-6">
+      </FormGroup>
+      <ModalFooter>
         <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
           Cancel
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving…" : project ? "Save" : "Create"}
+          {isPending ? "Saving…" : project ? "Save changes" : "Create project"}
         </Button>
-      </div>
+      </ModalFooter>
     </form>
   );
 }
