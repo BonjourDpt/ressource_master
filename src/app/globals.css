@@ -2,6 +2,8 @@
 
 /* Design system: Indigo Graphite — dark-first, minimal, soft contrast */
 :root {
+  color-scheme: dark;
+
   /* Surfaces (opaque, no transparency for content) */
   --rm-bg: #0e0e10;
   --rm-surface: #19191c;
@@ -62,4 +64,22 @@ body {
 }
 .rm-scroll-x::-webkit-scrollbar-thumb:hover {
   background: var(--rm-muted-subtle);
+}
+
+/* Number inputs: spinners only on hover/focus; native glyphs stay distinct (no grey filter) */
+.rm-input-number::-webkit-inner-spin-button,
+.rm-input-number::-webkit-outer-spin-button {
+  height: 1.25rem;
+  margin: 0;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+.rm-input-number:hover::-webkit-inner-spin-button,
+.rm-input-number:hover::-webkit-outer-spin-button,
+.rm-input-number:focus::-webkit-inner-spin-button,
+.rm-input-number:focus::-webkit-outer-spin-button {
+  opacity: 1;
+  pointer-events: auto;
 }

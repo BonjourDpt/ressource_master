@@ -12,6 +12,8 @@ interface SegmentedTabsProps<T extends string> {
   value: T;
   onChange: (value: T) => void;
   ariaLabel?: string;
+  /** Use primary tint for the active segment (e.g. planning view toggle). */
+  accent?: boolean;
 }
 
 export function SegmentedTabs<T extends string>({
@@ -19,6 +21,7 @@ export function SegmentedTabs<T extends string>({
   value,
   onChange,
   ariaLabel,
+  accent,
 }: SegmentedTabsProps<T>) {
   return (
     <div
@@ -36,7 +39,9 @@ export function SegmentedTabs<T extends string>({
           className={cx(
             "h-7 rounded-md px-3 text-xs font-medium transition-colors",
             value === tab.value
-              ? "bg-[var(--rm-surface-elevated)] text-[var(--rm-fg)]"
+              ? accent
+                ? "bg-[var(--rm-primary)]/15 text-[var(--rm-primary-text)]"
+                : "bg-[var(--rm-surface-elevated)] text-[var(--rm-fg)]"
               : "text-[var(--rm-muted)] hover:text-[var(--rm-fg)]",
           )}
         >

@@ -18,7 +18,7 @@ export function FormGroup({ label, hint, error, children, className }: FormGroup
       ) : null}
       {children}
       {error ? (
-        <p className="text-xs text-[var(--rm-danger)]" role="alert">
+        <p className="mt-1.5 text-xs text-[var(--rm-danger)]" role="alert">
           {error}
         </p>
       ) : null}

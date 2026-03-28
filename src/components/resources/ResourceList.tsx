@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -47,6 +47,7 @@ export function ResourceList({ resources }: ResourceListProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ACTIVE");
   const [teamFilter, setTeamFilter] = useState<string>("ALL");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const teams = useMemo(() => {
     const set = new Set<string>();
@@ -89,10 +90,36 @@ export function ResourceList({ resources }: ResourceListProps) {
     setModalOpen(true);
   };
 
-  const openEdit = (r: ResourceModel) => {
+  const openEdit = useCallback((r: ResourceModel) => {
     setEditing(r);
     setModalOpen(true);
-  };
+  }, []);
+
+  useEffect(() => {
+    setSelectedId(null);
+  }, [search, statusFilter, teamFilter]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "e" && e.key !== "E" && e.key !== "Escape") return;
+      if (modalOpen || archiveTarget !== null || deleteTarget !== null) return;
+      const t = e.target as HTMLElement | null;
+      if (t?.closest("button, a, [role='tab'], input, textarea, [contenteditable='true']")) return;
+
+      if (e.key === "Escape") {
+        setSelectedId(null);
+        return;
+      }
+
+      if (!selectedId) return;
+      const r = filtered.find((x) => x.id === selectedId);
+      if (!r || r.status === "ARCHIVED") return;
+      e.preventDefault();
+      openEdit(r);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [modalOpen, archiveTarget, deleteTarget, selectedId, filtered, openEdit]);
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
@@ -180,9 +207,26 @@ export function ResourceList({ resources }: ResourceListProps) {
           action={<Button onClick={openCreate}>New resource</Button>}
         />
       ) : filtered.length === 0 ? (
-        <p className="py-12 text-center text-sm text-[var(--rm-muted)]">
-          No matching resources found.
-        </p>
+        <EmptyState
+          compact
+          icon="search"
+          title="No matching resources"
+          description="Try a different search term, team, or status filter."
+          action={
+            search || teamFilter !== "ALL" ? (
+              <Button
+                variant="secondary"
+                size="compact"
+                onClick={() => {
+                  setSearch("");
+                  setTeamFilter("ALL");
+                }}
+              >
+                Clear filters
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
         <DataTable>
           <DataTableHead>
@@ -196,7 +240,12 @@ export function ResourceList({ resources }: ResourceListProps) {
             {filtered.map((r) => {
               const isArchived = r.status === "ARCHIVED";
               return (
-                <DataTableRow key={r.id} dimmed={isArchived}>
+                <DataTableRow
+                  key={r.id}
+                  dimmed={isArchived}
+                  selected={selectedId === r.id}
+                  onClick={() => setSelectedId((id) => (id === r.id ? null : r.id))}
+                >
                   <DataTableCell>
                     {r.name}
                     {isArchived && (
@@ -211,25 +260,27 @@ export function ResourceList({ resources }: ResourceListProps) {
                     <span className="font-mono tabular-nums">{r.capacity}h</span>
                   </DataTableCell>
                   <DataTableCell align="right">
-                    {isArchived ? (
-                      <>
-                        <Button variant="ghost" size="compact" onClick={() => handleUnarchive(r)} disabled={isPending}>
-                          Restore
-                        </Button>
-                        <Button variant="danger" size="compact" onClick={() => setDeleteTarget(r)}>
-                          Delete
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button variant="ghost" size="compact" onClick={() => openEdit(r)}>
-                          Edit
-                        </Button>
-                        <Button variant="ghost" size="compact" onClick={() => setArchiveTarget(r)}>
-                          Archive
-                        </Button>
-                      </>
-                    )}
+                    <span className="inline-flex gap-1" onClick={(e) => e.stopPropagation()}>
+                      {isArchived ? (
+                        <>
+                          <Button variant="ghost-muted" size="compact" onClick={() => handleUnarchive(r)} disabled={isPending}>
+                            Restore
+                          </Button>
+                          <Button variant="danger-ghost" size="compact" onClick={() => setDeleteTarget(r)}>
+                            Delete
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="ghost-muted" size="compact" onClick={() => openEdit(r)}>
+                            Edit
+                          </Button>
+                          <Button variant="ghost-muted" size="compact" onClick={() => setArchiveTarget(r)}>
+                            Archive
+                          </Button>
+                        </>
+                      )}
+                    </span>
                   </DataTableCell>
                 </DataTableRow>
               );

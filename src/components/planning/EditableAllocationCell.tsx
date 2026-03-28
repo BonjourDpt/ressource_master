@@ -60,18 +60,24 @@ export function EditableAllocationCell({
   const [draftNote, setDraftNote] = useState("");
   const [showNote, setShowNote] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hint, setHint] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const resetFromProps = useCallback(() => {
     setDraft(booking ? String(booking.allocationPct) : "");
     setDraftNote(booking?.note ?? "");
     setShowNote(false);
     setError(null);
+    setHint(null);
   }, [booking]);
 
   useEffect(() => {
     if (!isEditing) return;
     resetFromProps();
+    return () => {
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    };
   }, [isEditing, resetFromProps]);
 
   useEffect(() => {
@@ -97,8 +103,12 @@ export function EditableAllocationCell({
       };
 
       if (parsed.kind === "invalid") {
-        resetFromProps();
-        clearIfStillHere();
+        setError("Numbers only");
+        if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+        flashTimerRef.current = setTimeout(() => {
+          resetFromProps();
+          clearIfStillHere();
+        }, 1200);
         return;
       }
 
@@ -123,6 +133,11 @@ export function EditableAllocationCell({
       if (parsed.kind !== "value") return;
       const n = parsed.n;
       const clamped = Math.min(100, Math.max(1, n));
+
+      if (n > 100) {
+        setDraft(String(clamped));
+        setHint("Capped at 100%");
+      }
 
       const payload = {
         projectId,
@@ -223,6 +238,7 @@ export function EditableAllocationCell({
           <button
             type="button"
             aria-label="Add allocation"
+            title="Click to allocate (0% removes)"
             onClick={() => onEditingCellChange({ rowId, weekId: weekStart })}
             className="flex min-h-8 w-full items-center justify-center rounded-md text-sm leading-none text-transparent transition-colors hover:bg-[var(--rm-surface-elevated)]/50 hover:text-[var(--rm-muted-subtle)] focus-visible:outline-none focus-visible:text-[var(--rm-muted-subtle)]"
           >
@@ -294,7 +310,8 @@ export function EditableAllocationCell({
           className="mt-0.5 w-full resize-none rounded border border-[var(--rm-border)] bg-[var(--rm-surface)] px-1.5 py-1 text-[11px] leading-snug text-[var(--rm-fg)] outline-none placeholder:text-[var(--rm-muted-subtle)] focus:border-[var(--rm-primary)]/50"
         />
       )}
-      {error && <p className="text-center text-xs leading-tight text-[var(--rm-danger)]">{error}</p>}
+      {error && <p className="mt-0.5 text-center text-[10px] leading-tight text-[var(--rm-danger)]">{error}</p>}
+      {!error && hint && <p className="mt-0.5 text-center text-[10px] leading-tight text-[var(--rm-muted)]">{hint}</p>}
     </div>
   );
 }

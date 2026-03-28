@@ -210,8 +210,12 @@ export function Select({
         left: coords.left,
         width: coords.width,
         zIndex: 200,
+        // Portaled to document.body: ensure dark surface even if CSS vars fail to inherit
+        backgroundColor: "var(--rm-surface-highest, #252529)",
+        color: "var(--rm-fg, #e7e4ea)",
+        colorScheme: "dark",
       }}
-      className="max-h-60 overflow-auto rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface-highest)] py-1 shadow-[0_4px_16px_rgba(0,0,0,0.25)]"
+      className="max-h-60 overflow-auto rounded-lg border border-[var(--rm-border)] py-1 shadow-[0_4px_16px_rgba(0,0,0,0.25)]"
     >
       {options.map((opt, idx) => {
         const isSelected = opt.value === value;

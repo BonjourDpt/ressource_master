@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -45,6 +45,7 @@ export function ProjectList({ projects }: ProjectListProps) {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ACTIVE");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     let list = projects;
@@ -67,10 +68,36 @@ export function ProjectList({ projects }: ProjectListProps) {
     setModalOpen(true);
   };
 
-  const openEdit = (p: ProjectModel) => {
+  const openEdit = useCallback((p: ProjectModel) => {
     setEditing(p);
     setModalOpen(true);
-  };
+  }, []);
+
+  useEffect(() => {
+    setSelectedId(null);
+  }, [search, statusFilter]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "e" && e.key !== "E" && e.key !== "Escape") return;
+      if (modalOpen || archiveTarget !== null || deleteTarget !== null) return;
+      const t = e.target as HTMLElement | null;
+      if (t?.closest("button, a, [role='tab'], input, textarea, [contenteditable='true']")) return;
+
+      if (e.key === "Escape") {
+        setSelectedId(null);
+        return;
+      }
+
+      if (!selectedId) return;
+      const p = filtered.find((x) => x.id === selectedId);
+      if (!p || p.status === "ARCHIVED") return;
+      e.preventDefault();
+      openEdit(p);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [modalOpen, archiveTarget, deleteTarget, selectedId, filtered, openEdit]);
 
   const confirmDelete = () => {
     if (!deleteTarget) return;
@@ -145,9 +172,19 @@ export function ProjectList({ projects }: ProjectListProps) {
           action={<Button onClick={openCreate}>New project</Button>}
         />
       ) : filtered.length === 0 ? (
-        <p className="py-12 text-center text-sm text-[var(--rm-muted)]">
-          No matching projects found.
-        </p>
+        <EmptyState
+          compact
+          icon="search"
+          title="No matching projects"
+          description="Try a different search term or status filter."
+          action={
+            search ? (
+              <Button variant="secondary" size="compact" onClick={() => setSearch("")}>
+                Clear search
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
         <DataTable>
           <DataTableHead>
@@ -159,7 +196,12 @@ export function ProjectList({ projects }: ProjectListProps) {
             {filtered.map((p) => {
               const isArchived = p.status === "ARCHIVED";
               return (
-                <DataTableRow key={p.id} dimmed={isArchived}>
+                <DataTableRow
+                  key={p.id}
+                  dimmed={isArchived}
+                  selected={selectedId === p.id}
+                  onClick={() => setSelectedId((id) => (id === p.id ? null : p.id))}
+                >
                   <DataTableCell>
                     <span className="inline-flex items-center gap-2">
                       <span
@@ -176,25 +218,27 @@ export function ProjectList({ projects }: ProjectListProps) {
                   </DataTableCell>
                   <DataTableCell muted>{p.client ?? "—"}</DataTableCell>
                   <DataTableCell align="right">
-                    {isArchived ? (
-                      <>
-                        <Button variant="ghost" size="compact" onClick={() => handleUnarchive(p)} disabled={isPending}>
-                          Restore
-                        </Button>
-                        <Button variant="danger" size="compact" onClick={() => setDeleteTarget(p)}>
-                          Delete
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button variant="ghost" size="compact" onClick={() => openEdit(p)}>
-                          Edit
-                        </Button>
-                        <Button variant="ghost" size="compact" onClick={() => setArchiveTarget(p)}>
-                          Archive
-                        </Button>
-                      </>
-                    )}
+                    <span className="inline-flex gap-1" onClick={(e) => e.stopPropagation()}>
+                      {isArchived ? (
+                        <>
+                          <Button variant="ghost-muted" size="compact" onClick={() => handleUnarchive(p)} disabled={isPending}>
+                            Restore
+                          </Button>
+                          <Button variant="danger-ghost" size="compact" onClick={() => setDeleteTarget(p)}>
+                            Delete
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="ghost-muted" size="compact" onClick={() => openEdit(p)}>
+                            Edit
+                          </Button>
+                          <Button variant="ghost-muted" size="compact" onClick={() => setArchiveTarget(p)}>
+                            Archive
+                          </Button>
+                        </>
+                      )}
+                    </span>
                   </DataTableCell>
                 </DataTableRow>
               );

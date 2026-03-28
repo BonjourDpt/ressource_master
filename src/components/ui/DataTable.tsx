@@ -51,14 +51,22 @@ interface DataTableRowProps {
   children: ReactNode;
   dimmed?: boolean;
   className?: string;
+  /** Keyboard / click selection highlight (e.g. before pressing "e" to edit). */
+  selected?: boolean;
+  onClick?: () => void;
 }
 
-export function DataTableRow({ children, dimmed, className }: DataTableRowProps) {
+export function DataTableRow({ children, dimmed, className, selected, onClick }: DataTableRowProps) {
   return (
     <tr
+      onClick={onClick}
       className={cx(
-        "border-b border-[var(--rm-border-subtle)]/60 transition-colors last:border-0 hover:bg-[var(--rm-surface)]/50",
+        "group border-b border-l-2 border-[var(--rm-border-subtle)]/60 border-l-transparent transition-colors last:border-0",
+        !selected && "hover:bg-[var(--rm-surface)]/50",
+        selected &&
+          "border-l-[var(--rm-primary)]/35 bg-[var(--rm-primary)]/6 hover:bg-[var(--rm-primary)]/10",
         dimmed && "opacity-60",
+        onClick && "cursor-pointer",
         className,
       )}
     >

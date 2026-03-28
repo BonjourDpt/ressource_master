@@ -94,6 +94,14 @@ export function PlanningTable({
           }
         />
       )}
+      {!groupListEmpty && groups.length === 0 && (
+        <EmptyState
+          compact
+          icon="search"
+          title="No planning rows"
+          description="No allocations match the current filters. Try adjusting your team or view settings."
+        />
+      )}
     </div>
   );
 }

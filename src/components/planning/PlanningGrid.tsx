@@ -243,6 +243,7 @@ export function PlanningGrid({
             value={view}
             onChange={setView}
             ariaLabel="Group by"
+            accent
           />
 
           {teams.length > 0 && (

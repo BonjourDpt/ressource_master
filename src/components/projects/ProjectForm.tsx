@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { FormField } from "@/components/ui/FormField";
 import { FormGroup } from "@/components/ui/FormGroup";
+import { FormAlert } from "@/components/ui/FormAlert";
 import { Button } from "@/components/ui/Button";
 import { ModalFooter } from "@/components/ui/ModalFooter";
 import { createProject, updateProject } from "@/app/projects/actions";
@@ -55,14 +56,7 @@ export function ProjectForm({ project, onSuccess, onCancel }: ProjectFormProps) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {errors._form && (
-        <p
-          className="rounded-lg border border-[var(--rm-danger)]/25 bg-[var(--rm-danger)]/10 px-3 py-2.5 text-sm text-[var(--rm-danger)]"
-          role="alert"
-        >
-          {errors._form[0]}
-        </p>
-      )}
+      <FormAlert message={errors._form?.[0]} />
       <FormField
         label="Name"
         name="name"
