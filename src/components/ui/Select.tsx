@@ -25,7 +25,13 @@ const optionSize: Record<SelectSize, string> = {
   compact: "px-3 py-1.5 text-xs",
 };
 
-function Chevron({ open }: { open: boolean }) {
+function Chevron({
+  open,
+  placement,
+}: {
+  open: boolean;
+  placement: "bottom" | "top";
+}) {
   return (
     <svg
       width="16"
@@ -38,7 +44,8 @@ function Chevron({ open }: { open: boolean }) {
       strokeLinejoin="round"
       className={cx(
         "shrink-0 text-[var(--rm-muted-subtle)] transition-transform duration-150",
-        open && "rotate-180",
+        open && placement === "bottom" && "rotate-180",
+        open && placement === "top" && "rotate-0",
       )}
       aria-hidden
     >
@@ -80,7 +87,21 @@ export function Select({
   const [highlight, setHighlight] = useState(-1);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+  const [menuLayout, setMenuLayout] = useState<{
+    placement: "bottom" | "top";
+    left: number;
+    width: number;
+    maxHeightPx: number;
+    top: number;
+    bottom: number;
+  }>({
+    placement: "bottom",
+    left: 0,
+    width: 0,
+    maxHeightPx: 240,
+    top: 0,
+    bottom: 0,
+  });
 
   const selected = options.find((o) => o.value === value);
   const displayLabel = selected?.label ?? (value ? value : null);
@@ -93,7 +114,29 @@ export function Select({
     const el = triggerRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    setCoords({ top: r.bottom + 4, left: r.left, width: r.width });
+    const ih = window.innerHeight;
+    const gap = 4;
+    const viewMargin = 8;
+    const prefMax = 240;
+    const minBelow = 140;
+
+    const spaceBelow = ih - r.bottom - gap - viewMargin;
+    const spaceAbove = r.top - gap - viewMargin;
+
+    const placement: "bottom" | "top" =
+      spaceBelow < minBelow && spaceAbove > spaceBelow ? "top" : "bottom";
+
+    const avail = placement === "bottom" ? spaceBelow : spaceAbove;
+    const maxHeightPx = Math.min(prefMax, Math.max(0, avail));
+
+    setMenuLayout({
+      placement,
+      left: r.left,
+      width: r.width,
+      maxHeightPx,
+      top: r.bottom + gap,
+      bottom: ih - r.top + gap,
+    });
   }, []);
 
   useLayoutEffect(() => {
@@ -206,16 +249,19 @@ export function Select({
       role="listbox"
       style={{
         position: "fixed",
-        top: coords.top,
-        left: coords.left,
-        width: coords.width,
+        left: menuLayout.left,
+        width: menuLayout.width,
         zIndex: 200,
+        maxHeight: menuLayout.maxHeightPx,
+        ...(menuLayout.placement === "bottom"
+          ? { top: menuLayout.top, bottom: "auto" as const }
+          : { bottom: menuLayout.bottom, top: "auto" as const }),
         // Portaled to document.body: ensure dark surface even if CSS vars fail to inherit
         backgroundColor: "var(--rm-surface-highest, #252529)",
         color: "var(--rm-fg, #e7e4ea)",
         colorScheme: "dark",
       }}
-      className="max-h-60 overflow-auto rounded-lg border border-[var(--rm-border)] py-1 shadow-[0_4px_16px_rgba(0,0,0,0.25)]"
+      className="overflow-auto rounded-lg border border-[var(--rm-border)] py-1 shadow-[0_4px_16px_rgba(0,0,0,0.25)]"
     >
       {options.map((opt, idx) => {
         const isSelected = opt.value === value;
@@ -281,7 +327,7 @@ export function Select({
         >
           {displayLabel ?? placeholder}
         </span>
-        <Chevron open={open} />
+        <Chevron open={open} placement={menuLayout.placement} />
       </button>
       {typeof document !== "undefined" && menu ? createPortal(menu, document.body) : null}
     </div>

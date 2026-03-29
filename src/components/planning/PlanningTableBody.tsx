@@ -2,6 +2,7 @@
 
 import { useMemo, type Dispatch, type SetStateAction } from "react";
 import { Select } from "@/components/ui/Select";
+import { cx } from "@/lib/cx";
 import { formatWeekLabel, toWeekStartKey } from "@/lib/weeks";
 import { formatAllocationPercent } from "@/lib/planning-format";
 import type {
@@ -59,6 +60,14 @@ function SecondaryCellContent({
 const rowLine = "border-b border-[var(--rm-border-subtle)]/60";
 const addRowLine = `${rowLine} h-8 [&>td]:py-1 [&>td]:align-middle`;
 
+/** Matches DataTableRow selection affordance for By project rows. */
+const projectRowTrInteractive =
+  "group cursor-pointer border-l-2 border-[var(--rm-border-subtle)]/60 border-l-transparent transition-colors";
+const projectRowTrSelected = "border-l-[var(--rm-primary)]/35";
+const projectRowTdSelected = "!bg-[var(--rm-primary)]/6 hover:!bg-[var(--rm-primary)]/10";
+const projectRowStickyTdHover = "group-hover:!bg-[var(--rm-surface-elevated)]/50";
+const projectRowWeekTdHover = "group-hover:!bg-[var(--rm-surface)]/50";
+
 export interface PlanningTableBodyProps {
   groups: PlanningMatrixGroup[];
   weekRange: Date[];
@@ -70,6 +79,8 @@ export interface PlanningTableBodyProps {
   onTabNavigate: (rowId: string, weekId: string, delta: number) => void;
   onAddAllocationRow: (groupId: string) => void;
   onDraftPairChange: (draftRowId: string, pairedEntityId: string) => void;
+  selectedProjectId: string | null;
+  onToggleProjectSelection: (projectId: string) => void;
 }
 
 export function PlanningTableBody({
@@ -83,6 +94,8 @@ export function PlanningTableBody({
   onTabNavigate,
   onAddAllocationRow,
   onDraftPairChange,
+  selectedProjectId,
+  onToggleProjectSelection,
 }: PlanningTableBodyProps) {
   const resourcePairOptions = useMemo(
     () => [
@@ -125,14 +138,44 @@ export function PlanningTableBody({
             </div>
           ) : null;
 
+        const projectRowSelectable = g.mode === "project";
+
         return (
           <tbody key={g.groupId} data-planning-group={g.groupId}>
             {g.rows.map((row, rowIndex) => {
               const isFirstInGroup = rowIndex === 0;
-              const trClass =
+              const rowSelected = projectRowSelectable && selectedProjectId === g.groupId;
+              const baseTr =
                 row.rowType === "add"
                   ? `${addRowLine} ${isFirstInGroup ? groupTop : ""}`.trim()
                   : `${rowLine} ${isFirstInGroup ? groupTop : ""}`.trim();
+              const trClass = cx(
+                baseTr,
+                projectRowSelectable && projectRowTrInteractive,
+                rowSelected && projectRowTrSelected,
+              );
+
+              const stickyFirstTd = cx(
+                stickyBodyFirst,
+                projectRowSelectable && rowSelected && projectRowTdSelected,
+                projectRowSelectable && !rowSelected && projectRowStickyTdHover,
+              );
+              const stickySecondTd = cx(
+                stickyBodySecond,
+                projectRowSelectable && rowSelected && projectRowTdSelected,
+                projectRowSelectable && !rowSelected && projectRowStickyTdHover,
+              );
+              const weekTd = cx(
+                weekBodyCell,
+                projectRowSelectable && rowSelected && projectRowTdSelected,
+                projectRowSelectable && !rowSelected && projectRowWeekTdHover,
+              );
+              const addRowWeekTd = cx(
+                weekBodyCell,
+                "bg-[var(--rm-bg)]",
+                projectRowSelectable && rowSelected && projectRowTdSelected,
+                projectRowSelectable && !rowSelected && projectRowWeekTdHover,
+              );
 
               const pairingIncomplete =
                 row.rowType === "allocation" && (!row.projectId || !row.resourceId);
@@ -141,7 +184,10 @@ export function PlanningTableBody({
                 row.rowType === "add" ? (
                   <button
                     type="button"
-                    onClick={() => onAddAllocationRow(g.groupId)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddAllocationRow(g.groupId);
+                    }}
                     className="text-left text-[11px] font-medium text-[var(--rm-muted-subtle)] transition-colors hover:text-[var(--rm-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rm-bg)]"
                   >
                     {g.mode === "project" ? "+ Add resource" : "+ Add project"}
@@ -149,7 +195,11 @@ export function PlanningTableBody({
                 ) : row.rowType === "summary" ? (
                   <span className="text-xs font-medium text-[var(--rm-muted)]">Total</span>
                 ) : pairingIncomplete ? (
-                  <div className="min-w-0 max-w-[11rem]">
+                  <div
+                    className="min-w-0 max-w-[11rem]"
+                    onClick={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
                     {g.mode === "project" ? (
                       <Select
                         options={resourcePairOptions}
@@ -183,9 +233,19 @@ export function PlanningTableBody({
                 );
 
               return (
-                <tr key={row.id} className={trClass} data-row-type={row.rowType}>
+                <tr
+                  key={row.id}
+                  className={trClass}
+                  data-row-type={row.rowType}
+                  {...(projectRowSelectable
+                    ? {
+                        "aria-selected": rowSelected,
+                        onClick: () => onToggleProjectSelection(g.groupId),
+                      }
+                    : {})}
+                >
                   {isFirstInGroup && (
-                    <td className={stickyBodyFirst} rowSpan={rowSpan}>
+                    <td className={stickyFirstTd} rowSpan={rowSpan}>
                       {g.mode === "project" ? (
                         <div className="flex flex-col gap-0.5 py-0.5">
                           <div className="flex items-center gap-2.5">
@@ -206,10 +266,10 @@ export function PlanningTableBody({
                       )}
                     </td>
                   )}
-                  <td className={stickyBodySecond}>{secondaryCell}</td>
+                  <td className={stickySecondTd}>{secondaryCell}</td>
                   {row.rowType === "allocation" &&
                     row.weeks.map((cell) => (
-                      <td key={cell.weekStart} className={weekBodyCell}>
+                      <td key={cell.weekStart} className={weekTd}>
                         <AllocationCell
                           g={g}
                           row={row}
@@ -224,7 +284,7 @@ export function PlanningTableBody({
                     weekRange.map((w) => {
                       const wk = toWeekStartKey(w);
                       return (
-                        <td key={wk} className={`${weekBodyCell} bg-[var(--rm-bg)]`} aria-hidden />
+                        <td key={wk} className={addRowWeekTd} aria-hidden />
                       );
                     })}
                   {row.rowType === "summary" &&
@@ -232,7 +292,7 @@ export function PlanningTableBody({
                       const wk = toWeekStartKey(w);
                       const total = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
                       return (
-                        <td key={wk} className={weekBodyCell}>
+                        <td key={wk} className={weekTd}>
                           <div className="flex min-h-9 items-center justify-center">
                             <TotalPctPill pct={total} />
                           </div>

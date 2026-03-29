@@ -6,6 +6,11 @@ export const PROJECT_COLORS = [
   "#d97706", // amber
   "#e11d48", // rose
   "#7c3aed", // violet
+  "#0891b2", // cyan
+  "#ea580c", // orange
+  "#c026d3", // fuchsia
+  "#65a30d", // lime
+  "#4f46e5", // indigo
 ] as const;
 
 export const projectSchema = z.object({

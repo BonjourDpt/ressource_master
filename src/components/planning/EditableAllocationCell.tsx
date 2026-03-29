@@ -223,7 +223,10 @@ export function EditableAllocationCell({
         {booking ? (
           <button
             type="button"
-            onClick={() => onEditingCellChange({ rowId, weekId: weekStart })}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditingCellChange({ rowId, weekId: weekStart });
+            }}
             title={hasNote ? booking.note! : "Edit allocation"}
             aria-label={`Edit allocation ${formatAllocationPercent(pct)}${hasNote ? ` — ${booking.note}` : ""}`}
             className={`relative min-w-[3rem] rounded-md px-2 py-1.5 text-center font-mono text-xs font-semibold tabular-nums ${filledClasses} overflow-hidden transition-all hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
@@ -239,7 +242,10 @@ export function EditableAllocationCell({
             type="button"
             aria-label="Add allocation"
             title="Click to allocate (0% removes)"
-            onClick={() => onEditingCellChange({ rowId, weekId: weekStart })}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditingCellChange({ rowId, weekId: weekStart });
+            }}
             className="flex min-h-8 w-full items-center justify-center rounded-md text-sm leading-none text-transparent transition-colors hover:bg-[var(--rm-surface-elevated)]/50 hover:text-[var(--rm-muted-subtle)] focus-visible:outline-none focus-visible:text-[var(--rm-muted-subtle)]"
           >
             +
@@ -252,6 +258,7 @@ export function EditableAllocationCell({
   return (
     <div
       className={`flex min-h-[36px] flex-col items-stretch justify-center gap-1 px-0.5 py-1 ${isPending ? "opacity-60" : ""}`}
+      onPointerDown={(e) => e.stopPropagation()}
     >
       <div className="flex justify-center">
         <input
@@ -280,7 +287,10 @@ export function EditableAllocationCell({
       <button
         type="button"
         onMouseDown={(e) => e.preventDefault()}
-        onClick={() => setShowNote(!showNote)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowNote(!showNote);
+        }}
         className="mx-auto text-[10px] leading-tight text-[var(--rm-muted-subtle)] transition-colors hover:text-[var(--rm-muted)]"
       >
         {hasNote || draftNote.trim() ? "Edit note" : "Add note"}

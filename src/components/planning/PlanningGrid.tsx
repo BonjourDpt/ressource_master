@@ -78,6 +78,7 @@ export function PlanningGrid({
   const [editingCell, setEditingCell] = useState<PlanningEditingCell>(null);
   const [draftLines, setDraftLines] = useState<PlanningDraftAllocationLine[]>([]);
   const [pinnedGroupIds, setPinnedGroupIds] = useState<Set<string>>(new Set());
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   const groups = useMemo(
     () => filterActiveGroups(allGroups, pinnedGroupIds),
@@ -107,7 +108,12 @@ export function PlanningGrid({
     setEditingCell(null);
     setDraftLines([]);
     setPinnedGroupIds(new Set());
+    setSelectedProjectId(null);
   }, [view, startWeek.getTime(), span]);
+
+  const onToggleProjectSelection = useCallback((projectId: string) => {
+    setSelectedProjectId((id) => (id === projectId ? null : projectId));
+  }, []);
 
   useEffect(() => {
     setDraftLines((prev) =>
@@ -299,6 +305,8 @@ export function PlanningGrid({
         onAddAllocationRow={onAddAllocationRow}
         onDraftPairChange={onDraftPairChange}
         groupListEmpty={groupListEmpty}
+        selectedProjectId={selectedProjectId}
+        onToggleProjectSelection={onToggleProjectSelection}
       />
 
       {unallocatedEntities.length > 0 && (

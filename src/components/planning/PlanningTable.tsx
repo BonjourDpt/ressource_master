@@ -26,6 +26,8 @@ export interface PlanningTableProps {
   onAddAllocationRow: (groupId: string) => void;
   onDraftPairChange: (draftRowId: string, pairedEntityId: string) => void;
   groupListEmpty: boolean;
+  selectedProjectId: string | null;
+  onToggleProjectSelection: (projectId: string) => void;
 }
 
 /** Minimum width per week column when scrolling (readability). */
@@ -45,6 +47,8 @@ export function PlanningTable({
   onAddAllocationRow,
   onDraftPairChange,
   groupListEmpty,
+  selectedProjectId,
+  onToggleProjectSelection,
 }: PlanningTableProps) {
   const tableMinPx = STICKY_COLS_PX + weekRange.length * WEEK_COL_MIN_PX;
 
@@ -73,6 +77,8 @@ export function PlanningTable({
           onTabNavigate={onTabNavigate}
           onAddAllocationRow={onAddAllocationRow}
           onDraftPairChange={onDraftPairChange}
+          selectedProjectId={selectedProjectId}
+          onToggleProjectSelection={onToggleProjectSelection}
         />
       </table>
       {groupListEmpty && (

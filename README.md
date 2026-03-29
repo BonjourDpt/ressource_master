@@ -10,10 +10,10 @@ Resource Master answers a simple question: **who is on what project, and when?**
 
 ## Key features
 
-- **Projects** — Create, edit, archive, restore, and delete projects (name, optional client, color from a fixed palette).
+- **Projects** — Create, edit, archive, restore, and delete projects (name, optional client, color from a fixed palette of ten swatches).
 - **Resources** — Create, edit, archive, restore, and delete resources (name, optional role and team, weekly capacity in hours).
 - **Bookings** — Assign a resource to a project for a given week with an allocation percentage (1–100%); create, edit, and delete inline from the planning grid. Attach optional notes to any booking.
-- **Planning view** — Weekly grid with toggle: *By project* or *By resource*. Week navigation with Today button, single/multi-week arrows, and configurable span (4/8/12 weeks). Team filtering. URL-based state for shareable views.
+- **Planning view** — Weekly grid with toggle: *By project* or *By resource*. Week navigation with Today button, single/multi-week arrows, and configurable span (4/8/12 weeks; **12** by default when `span` is not in the URL). Team filtering. URL-based state for shareable views.
 - **Search & filter** — Search by name, client, role, or team on list pages. Filter by status (Active / Archived / All) and by team.
 - **Over-allocation warnings** — Visual indicators when a resource exceeds 100% in a week.
 - **CSV import** — Bulk import projects or resources from CSV/TSV files with automatic column mapping, preview, and upsert-by-name.
@@ -47,6 +47,16 @@ Resource Master answers a simple question: **who is on what project, and when?**
 1. See **[docs/SETUP.md](docs/SETUP.md)** for prerequisites, env, database, and running the app.
 2. After setup: `npm run dev` → open [http://localhost:3000](http://localhost:3000). Root redirects to `/planning`.
 3. Click the **?** button in the header for the built-in cheatsheet, or read [CHEATSHEET.md](CHEATSHEET.md).
+
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [docs/SETUP.md](docs/SETUP.md) | Install, env, migrations, seed, troubleshooting |
+| [CHEATSHEET.md](CHEATSHEET.md) | End-user reference (mirrors in-app help) |
+| [docs/ui-system.md](docs/ui-system.md) | Design tokens, layout, and component conventions |
+| [docs/PRODUCT_ASSUMPTIONS.md](docs/PRODUCT_ASSUMPTIONS.md) | Domain model, weeks, lifecycle, security assumptions |
+| [docs/FUTURE_IMPROVEMENTS.md](docs/FUTURE_IMPROVEMENTS.md) | Backlog ideas post-MVP |
 
 ## Project philosophy
 

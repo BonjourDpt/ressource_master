@@ -5,7 +5,7 @@ Explicit assumptions behind the current product design. Revisit when changing be
 ## Resources and projects
 
 - **Resource** — A person (or role) that can be assigned to projects. Represented by name, optional role/team, and a weekly capacity in hours (default 37.5h, range 0–168h). Capacity is informational; it does not block bookings.
-- **Project** — A piece of work. Has name, optional client, and a color from a fixed palette (for the planning grid).
+- **Project** — A piece of work. Has name, optional client, and a color from a fixed palette of **10** swatches (for the planning grid).
 - **Lifecycle status** — Both projects and resources have a status: **ACTIVE** (default) or **ARCHIVED**. Archiving hides items from the planning grid and list defaults, but preserves data and linked bookings for later restoration.
 
 ## Bookings
@@ -18,7 +18,7 @@ Explicit assumptions behind the current product design. Revisit when changing be
 ## Time and weeks
 
 - **Week definition:** **ISO week** — week starts on **Monday**. All "week" values are stored as the Monday of that week (normalized, no time component).
-- **Range:** Planning view shows a configurable number of weeks (4, 8, or 12 via span selector). Default is 8. No fiscal or custom week calendars.
+- **Range:** Planning view shows a configurable number of weeks (4, 8, or 12 via span selector). If `span` is omitted in the URL, the server default is **12** weeks. No fiscal or custom week calendars.
 - **Today button:** Snaps the view to the current ISO week.
 
 ## Data lifecycle

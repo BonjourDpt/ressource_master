@@ -14,6 +14,11 @@ interface SegmentedTabsProps<T extends string> {
   ariaLabel?: string;
   /** Use primary tint for the active segment (e.g. planning view toggle). */
   accent?: boolean;
+  /**
+   * When set, each tab gets stable ids and aria-controls for paired tabpanels:
+   * id=`${idPrefix}-tab-${value}`, aria-controls=`${idPrefix}-panel-${value}`.
+   */
+  idPrefix?: string;
 }
 
 export function SegmentedTabs<T extends string>({
@@ -22,6 +27,7 @@ export function SegmentedTabs<T extends string>({
   onChange,
   ariaLabel,
   accent,
+  idPrefix,
 }: SegmentedTabsProps<T>) {
   return (
     <div
@@ -34,7 +40,10 @@ export function SegmentedTabs<T extends string>({
           key={tab.value}
           type="button"
           role="tab"
+          id={idPrefix ? `${idPrefix}-tab-${tab.value}` : undefined}
           aria-selected={value === tab.value}
+          aria-controls={idPrefix ? `${idPrefix}-panel-${tab.value}` : undefined}
+          tabIndex={idPrefix ? (value === tab.value ? 0 : -1) : undefined}
           onClick={() => onChange(tab.value)}
           className={cx(
             "h-7 rounded-md px-3 text-xs font-medium transition-colors",

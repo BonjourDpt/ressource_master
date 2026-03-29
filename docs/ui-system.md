@@ -27,10 +27,10 @@ The UI should feel coherent across Planning, Projects, Resources, and Admin.
 ## Layout Rules
 
 ### App Shell
-- Left sidebar: fixed, 64px width
-- Main area: header + page content + status bar
-- Header remains visually consistent across pages
-- Content container should align across all pages
+- **Top header** — Sticky full-width bar with app title, primary nav (Planning, Projects, Resources, Admin), and the in-app **Help** control.
+- **Main area** — Centered content column (`max-w-[1800px]`) with horizontal padding; page content sits in `<main>` with bottom padding so lists clear the status bar.
+- **Status bar** — Fixed footer strip showing live **resource** and **project** counts (mono, subtle).
+- Header and content width should stay aligned so pages feel like one product, not separate templates.
 
 ### Page Structure
 Every major page should follow this order:

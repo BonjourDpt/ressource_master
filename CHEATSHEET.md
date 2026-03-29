@@ -19,7 +19,9 @@ You're planning.
 | Action | How |
 |--------|-----|
 | **Create** | Click **New project** / **New resource** on the respective page. |
-| **Edit** | Click **Edit** on the row → update fields in the modal → **Save**. |
+| **Edit** | Click **Edit** on the row → update fields in the modal → **Save**. Or click the row to select it (highlighted), then press **E** to open the same editor (**active** rows only). |
+| **Row selection** | Click a row to select it. **Esc** clears the selection. |
+| **Keyboard focus** | **E** / **Esc** are ignored when focus is in the search box, on tabs, on buttons/links, or while a modal is open. |
 | **Archive** | Click **Archive** → confirm. Hidden from planning, restorable anytime. |
 | **Restore** | Switch to the **Archived** tab → click **Restore**. |
 | **Delete permanently** | Only available on archived items. Removes all linked allocations. |
@@ -27,7 +29,7 @@ You're planning.
 | **Filter by status** | Tabs: **Active** (default) · **Archived** · **All**. |
 | **Filter by team** | Resources page: dropdown next to status tabs. |
 
-**Project fields:** Name (required), Client, Color (pick from 5 swatches).
+**Project fields:** Name (required), Client, Color (pick from 10 swatches).
 **Resource fields:** Name (required), Role, Team, Capacity in hours/week (0–168).
 
 ---
@@ -92,7 +94,7 @@ All navigation updates the URL, so you can bookmark or share any view.
 
 - While editing a cell, click **Add note** (or **Edit note**) below the input to expand a textarea.
 - Notes are saved together with the allocation when you press Enter or Tab.
-- Cells with a note show a small **dot** in the top-right corner.
+- Cells with a note show a small **corner fold** (triangle) in the top-right of the percentage button.
 - Hover over a filled cell to see the note in a **tooltip**.
 - Max length: 200 characters.
 
@@ -100,12 +102,12 @@ All navigation updates the URL, so you can bookmark or share any view.
 
 ## 7. Shareable URLs
 
-The planning page encodes its full state in the URL:
+The planning page encodes its full state in the URL. If you omit query parameters, the app uses: **`view=project`**, **`span=12`**, **`weekStart`** = current ISO Monday, and **all teams** (no `team` param).
 
 | Parameter | Example | Description |
 |-----------|---------|-------------|
 | `view` | `resource` | `project` (default) or `resource`. |
-| `span` | `8` | Weeks visible: `4`, `8`, or `12` (default). |
+| `span` | `12` | Weeks visible: `4`, `8`, or `12`. If omitted, the app defaults to **12**. |
 | `weekStart` | `2026-03-23` | ISO Monday date for the first visible week. |
 | `team` | `Engineering` | Filter by team name. Omit for all teams. |
 
@@ -130,7 +132,7 @@ Existing records are matched **by name** — if a name already exists, the recor
 
 ## 9. In-App Help
 
-Click the **?** button in the top-right corner of the header to open this cheatsheet directly inside the app. Press **Escape** or click outside the panel to close it.
+Click the **?** button in the top-right corner of the header to open this cheatsheet in a dialog. Press **Escape**, click **×**, or click the dimmed backdrop to close it.
 
 ---
 
@@ -140,7 +142,7 @@ Click the **?** button in the top-right corner of the header to open this cheats
 |-----------|---------|
 | Colored dot next to a project name | Project color (set in project settings). |
 | Left color stripe on a cell (by-resource view) | Which project this allocation belongs to. |
-| Small dot (top-right of a cell) | This cell has a note — hover to read it. |
+| Corner fold (top-right of the % button) | This cell has a note — hover to read it in the tooltip. |
 | Orange warning text under a resource name | Resource is **over-allocated** (> 100%) for those weeks. |
 | Total row pill turns orange/red | Week total exceeds 100% (warning) or 120% (danger). |
 | "Archived" badge on a list row | Item is archived and hidden from planning. |
