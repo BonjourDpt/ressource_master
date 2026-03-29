@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import FocusTrap from "focus-trap-react";
 import { SegmentedTabs, type SegmentedTab } from "@/components/ui/SegmentedTabs";
+import { APP_VERSION_LABEL } from "@/lib/app-version";
 
 type HelpTab = "start" | "planning" | "shortcuts" | "reference";
 
@@ -387,7 +388,7 @@ export function HelpButton() {
                       id={titleId}
                       className="text-lg font-semibold leading-snug tracking-tight text-[var(--rm-fg)]"
                     >
-                      Help · Resource Master
+                      Help · Resource Master · {APP_VERSION_LABEL}
                     </h2>
                     <button
                       type="button"
