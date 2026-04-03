@@ -104,18 +104,22 @@ export function PlanningGrid({
     return order;
   }, [mergedGroups]);
 
+  const startWeekKey = startWeek.getTime();
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- view/week change invalidates transient planning UI */
     setEditingCell(null);
     setDraftLines([]);
     setPinnedGroupIds(new Set());
     setSelectedProjectId(null);
-  }, [view, startWeek.getTime(), span]);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [view, startWeekKey, span]);
 
   const onToggleProjectSelection = useCallback((projectId: string) => {
     setSelectedProjectId((id) => (id === projectId ? null : projectId));
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- prune drafts when server rows change
     setDraftLines((prev) =>
       prev.filter((draft) => {
         const g = groups.find((x) => x.groupId === draft.groupId);
@@ -138,6 +142,7 @@ export function PlanningGrid({
     const rowExists = mergedGroups.some((g) =>
       g.rows.some((r) => r.id === editingCell.rowId),
     );
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- close editor if the row disappeared from data
     if (!rowExists) setEditingCell(null);
   }, [mergedGroups, editingCell]);
 

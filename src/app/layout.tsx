@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   description: "Internal resource planning MVP",
 };
 
+/** Skip prerendering so `next build` does not execute Prisma in this layout. */
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({
   children,
 }: Readonly<{

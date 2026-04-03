@@ -1,0 +1,28 @@
+# Runs the same pipeline as locally: five sequential commands inside the module
+# (npm ci, prisma generate, lint, typecheck, build). Invoke: `dagger call ci check` from repo root.
+#
+# Versioning:
+# - dagger/dagger-for-github@v8.3.0 — pinned GitHub Action release (stable interface).
+# - version: v0.20.3 — pinned Dagger CLI/engine (matches dagger.json engineVersion and @dagger.io/dagger).
+# - actions/checkout@v4 — floating within the v4 major line (GitHub-maintained tag).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dagger/dagger-for-github@v8.3.0
+        with:
+          version: v0.20.3
+          verb: call
+          args: ci check

@@ -74,6 +74,7 @@ export function EditableAllocationCell({
 
   useEffect(() => {
     if (!isEditing) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- entering edit: resync draft fields from props
     resetFromProps();
     return () => {
       if (flashTimerRef.current) clearTimeout(flashTimerRef.current);

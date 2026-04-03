@@ -96,6 +96,7 @@ export function ResourceList({ resources }: ResourceListProps) {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- filters changed; clear selection
     setSelectedId(null);
   }, [search, statusFilter, teamFilter]);
 
