@@ -1,0 +1,11 @@
+{
+  "name": "ressource-master-dagger",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@dagger.io/dagger": "0.20.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}
