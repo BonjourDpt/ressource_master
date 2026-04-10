@@ -22,11 +22,11 @@ Every feature must follow the Red-Green-Refactor cycle:
 
 Before writing any code, **understand the feature thoroughly**.
 
-- Ask clarifying questions about the feature: scope, edge cases, expected inputs/outputs, error scenarios, integration points.
+- Ask clarifying questions about the feature: scope, edge cases, expected inputs/outputs, error scenarios, integration points. use the AskQuestion tool.
 - Keep asking until confident you can write comprehensive tests. Don't rush — unclear requirements lead to bad tests.
 - Summarize your understanding back to the user and get confirmation before proceeding.
 
-Then ask the user:
+Then ask the user with the AskQuestion tool :
 
 ```
 Which model should I use for:
