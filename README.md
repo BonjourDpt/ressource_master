@@ -48,6 +48,18 @@ Resource Master answers a simple question: **who is on what project, and when?**
 2. After setup: `npm run dev` → open [http://localhost:3000](http://localhost:3000). Root redirects to `/planning`.
 3. Click the **?** button in the header for the built-in cheatsheet, or read [CHEATSHEET.md](CHEATSHEET.md).
 
+## Developer setup errors
+
+If something is misconfigured, **`npm run dev` shows an in-browser “Developer setup” page (development only)** with the most likely causes and commands to run. Typical cases:
+
+| What you see | What it usually means |
+|--------------|------------------------|
+| **Prisma Client has not been generated** | Run `npm run prisma:generate`, then restart the dev server. On Windows, stop other Node processes first if `prisma generate` fails with `EPERM` / “operation not permitted” when renaming the query engine. |
+| **Database tables are missing or DATABASE_URL points at the wrong database** | The app is connected to a Postgres instance where the `Project` / `Resource` / `Booking` tables do not exist—often because **`.env` points at a different host or branch** than the database you checked in your provider UI (e.g. Neon *production* vs Supabase, or another Neon branch). Fix `DATABASE_URL`, then run `npm run prisma:migrate` (and optionally `npm run prisma:seed`) against that same database. |
+| **Cannot reach the database** | Wrong URL, paused server (e.g. Neon asleep), or network/VPN issues. Confirm the connection string from your provider’s dashboard. |
+
+Authoritative step-by-step setup, including migrations and seed, remains in **[docs/SETUP.md](docs/SETUP.md)**.
+
 ## Documentation
 
 | Doc | Purpose |

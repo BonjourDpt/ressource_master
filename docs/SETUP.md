@@ -68,6 +68,9 @@ The app will be available at [http://localhost:3000](http://localhost:3000). The
 
 ## Troubleshooting
 
+- **In development, a full-screen “Developer setup” message** — The app could not load the database (missing Prisma client, missing tables, wrong `DATABASE_URL`, or connection failure). Follow the on-screen steps; they mirror the cases below.
 - **"Environment variable not found: DATABASE_URL"** — Ensure `.env` exists in the project root and contains `DATABASE_URL`.
+- **Tables missing even though they exist in your host’s UI** — Your `DATABASE_URL` almost certainly points at a **different** database or branch than the one you opened (e.g. Neon vs Supabase, or another Neon branch). Align `.env` with that exact database, then run migrations if needed.
 - **Prisma migrate fails (e.g. timeout on Neon)** — Retry once; if it persists, check network and DB availability.
 - **Seed fails (e.g. unique constraint)** — Re-running `npm run prisma:seed` is idempotent (upserts). If you changed the seed data and hit conflicts, reset the DB with `npx prisma migrate reset` (drops data, reapplies migrations, runs seed).
+- **`prisma generate` fails on Windows with `EPERM`** — Stop all Node processes (including other `npm run dev` windows), then run `npm run prisma:generate` again.
