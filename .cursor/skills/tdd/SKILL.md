@@ -14,7 +14,8 @@ Every feature must follow the Red-Green-Refactor cycle:
 3. **Review** — present failing tests to the user for approval
 4. **Green** — implement the minimal code to make tests pass
 5. **Refactor & Validate** — clean up, run tests, confirm they all pass
-6. **Summary** — deliver a detailed implementation report
+6. **Documentation Sync** — run the documentation-sync skill to update all affected docs
+7. **Summary** — deliver a detailed implementation report
 
 ---
 
@@ -142,7 +143,21 @@ With all tests green:
 
 ---
 
-## Phase 6: Final Review & Summary
+## Phase 6: Documentation Sync
+
+Before delivering the summary, **run the documentation-sync skill**.
+
+Read and follow `.cursor/skills/documentation-sync/SKILL.md` to:
+- Assess the impact of this feature on existing documentation
+- Update any affected docs (repo docs, in-app user docs, help text, etc.)
+- Remove obsolete copy
+- Report any documentation gaps
+
+Do not proceed to the summary until the documentation-sync check is complete.
+
+---
+
+## Phase 7: Final Review & Summary
 
 ### Test Review
 
