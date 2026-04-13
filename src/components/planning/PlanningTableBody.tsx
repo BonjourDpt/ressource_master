@@ -13,7 +13,7 @@ import type {
   ResourceModel,
 } from "@/lib/planning-view-model";
 import { AllocationCell } from "./AllocationCell";
-import { stickyBodyFirst, stickyBodySecond, weekBodyCell } from "./planningStickyClasses";
+import { stickyBodyFirst, stickyBodySecond, weekBodyCell, weekBodyCellCurrent } from "./planningStickyClasses";
 import { TotalPctPill } from "./TotalPctPill";
 
 type Overload = { wk: string; label: string; pct: number };
@@ -83,6 +83,7 @@ export interface PlanningTableBodyProps {
   selectedProjectId: string | null;
   onToggleProjectSelection: (projectId: string) => void;
   onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
+  currentWeekKey?: string;
 }
 
 export function PlanningTableBody({
@@ -99,6 +100,7 @@ export function PlanningTableBody({
   selectedProjectId,
   onToggleProjectSelection,
   onBookingHistoryCommit,
+  currentWeekKey,
 }: PlanningTableBodyProps) {
   const resourcePairOptions = useMemo(
     () => [
@@ -168,17 +170,21 @@ export function PlanningTableBody({
                 projectRowSelectable && rowSelected && projectRowTdSelected,
                 projectRowSelectable && !rowSelected && projectRowStickyTdHover,
               );
-              const weekTd = cx(
-                weekBodyCell,
-                projectRowSelectable && rowSelected && projectRowTdSelected,
-                projectRowSelectable && !rowSelected && projectRowWeekTdHover,
-              );
-              const addRowWeekTd = cx(
-                weekBodyCell,
-                "bg-[var(--rm-bg)]",
-                projectRowSelectable && rowSelected && projectRowTdSelected,
-                projectRowSelectable && !rowSelected && projectRowWeekTdHover,
-              );
+              const weekTdForKey = (wk: string) =>
+                cx(
+                  weekBodyCell,
+                  currentWeekKey && wk === currentWeekKey && weekBodyCellCurrent,
+                  projectRowSelectable && rowSelected && projectRowTdSelected,
+                  projectRowSelectable && !rowSelected && projectRowWeekTdHover,
+                );
+              const addRowWeekTdForKey = (wk: string) =>
+                cx(
+                  weekBodyCell,
+                  "bg-[var(--rm-bg)]",
+                  currentWeekKey && wk === currentWeekKey && weekBodyCellCurrent,
+                  projectRowSelectable && rowSelected && projectRowTdSelected,
+                  projectRowSelectable && !rowSelected && projectRowWeekTdHover,
+                );
 
               const pairingIncomplete =
                 row.rowType === "allocation" && (!row.projectId || !row.resourceId);
@@ -272,7 +278,7 @@ export function PlanningTableBody({
                   <td className={stickySecondTd}>{secondaryCell}</td>
                   {row.rowType === "allocation" &&
                     row.weeks.map((cell) => (
-                      <td key={cell.weekStart} className={weekTd}>
+                      <td key={cell.weekStart} className={weekTdForKey(cell.weekStart)}>
                         <AllocationCell
                           g={g}
                           row={row}
@@ -288,7 +294,7 @@ export function PlanningTableBody({
                     weekRange.map((w) => {
                       const wk = toWeekStartKey(w);
                       return (
-                        <td key={wk} className={addRowWeekTd} aria-hidden />
+                        <td key={wk} className={addRowWeekTdForKey(wk)} aria-hidden />
                       );
                     })}
                   {row.rowType === "summary" &&
@@ -296,7 +302,7 @@ export function PlanningTableBody({
                       const wk = toWeekStartKey(w);
                       const total = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
                       return (
-                        <td key={wk} className={weekTd}>
+                        <td key={wk} className={weekTdForKey(wk)}>
                           <div className="flex min-h-9 items-center justify-center">
                             <TotalPctPill pct={total} />
                           </div>

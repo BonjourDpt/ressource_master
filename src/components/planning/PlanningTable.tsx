@@ -2,7 +2,7 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import Link from "next/link";
-import { toWeekStartKey } from "@/lib/weeks";
+import { getCurrentWeekKey, toWeekStartKey } from "@/lib/weeks";
 import type { BookingHistoryCommitEvent } from "@/lib/planning-booking-history";
 import type {
   PlanningEditingCell,
@@ -54,6 +54,7 @@ export function PlanningTable({
   onBookingHistoryCommit,
 }: PlanningTableProps) {
   const tableMinPx = STICKY_COLS_PX + weekRange.length * WEEK_COL_MIN_PX;
+  const currentWeekKey = getCurrentWeekKey();
 
   return (
     <div className="rm-scroll-x w-full min-w-0 overflow-x-auto rounded-xl border border-[var(--rm-border)]/40">
@@ -68,7 +69,7 @@ export function PlanningTable({
             <col key={toWeekStartKey(w)} />
           ))}
         </colgroup>
-        <TimelineHeader view={view} weekRange={weekRange} />
+        <TimelineHeader view={view} weekRange={weekRange} currentWeekKey={currentWeekKey} />
         <PlanningTableBody
           groups={groups}
           weekRange={weekRange}
@@ -83,6 +84,7 @@ export function PlanningTable({
           selectedProjectId={selectedProjectId}
           onToggleProjectSelection={onToggleProjectSelection}
           onBookingHistoryCommit={onBookingHistoryCommit}
+          currentWeekKey={currentWeekKey}
         />
       </table>
       {groupListEmpty && (

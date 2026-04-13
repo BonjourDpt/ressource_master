@@ -35,3 +35,13 @@ export function getWeekRange(startWeek: Date, span: number): Date[] {
 export function toWeekStartKey(d: Date): string {
   return getIsoMonday(d).toISOString().slice(0, 10);
 }
+
+/** Returns true if `d` falls in the same ISO week as today. */
+export function isCurrentWeek(d: Date): boolean {
+  return toWeekStartKey(d) === toWeekStartKey(new Date());
+}
+
+/** YYYY-MM-DD key for the Monday of the current week. */
+export function getCurrentWeekKey(): string {
+  return toWeekStartKey(new Date());
+}
