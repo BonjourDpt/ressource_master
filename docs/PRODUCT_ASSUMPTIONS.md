@@ -19,7 +19,7 @@ Explicit assumptions behind the current product design. Revisit when changing be
 
 - **Week definition:** **ISO week** — week starts on **Monday**. All "week" values are stored as the Monday of that week (normalized, no time component).
 - **Range:** Planning view shows a configurable number of weeks (4, 8, or 12 via span selector). If `span` is omitted in the URL, the server default is **12** weeks. No fiscal or custom week calendars.
-- **Today button:** Snaps the view to the current ISO week.
+- **This week button:** Snaps the view to the current ISO week.
 
 ## Data lifecycle
 

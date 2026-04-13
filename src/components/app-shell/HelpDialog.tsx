@@ -195,7 +195,7 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
                 — full span.
               </>,
               <>
-                <strong className="text-[var(--rm-fg)]">Today</strong> — current week.{" "}
+                <strong className="text-[var(--rm-fg)]">This week</strong> — current week.{" "}
                 <strong className="text-[var(--rm-fg)]">4w · 8w · 12w</strong> — visible range.
               </>,
               <>

@@ -420,7 +420,7 @@ export function PlanningGrid({
               onClick={goToToday}
               className={`${ctrlBase} px-3 font-medium text-[var(--rm-fg)] hover:bg-[var(--rm-surface-elevated)]`}
             >
-              Today
+              This week
             </button>
             <button type="button" onClick={() => shiftWeeks(1)} className={navBtn} aria-label="Next week">»</button>
             <button type="button" onClick={() => shiftWeeks(span)} className={navBtn} aria-label={`Next ${span} weeks`} title={`Jump ${span} weeks forward`}>»»</button>

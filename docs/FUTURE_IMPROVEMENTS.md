@@ -23,7 +23,7 @@ Items marked ~~strikethrough~~ have been implemented.
 - ~~**Keyboard shortcuts**~~ — ✅ Enter/Escape/Tab/Shift+Tab for allocation cells; Enter for note save; Escape to close modals.
 - **Bulk actions** — Copy a week's bookings to the next week; duplicate a resource's week.
 - ~~**Clearer over-allocation**~~ — ✅ Orange/red indicators for over-allocation in resource view.
-- ~~**Default week range**~~ — ✅ Today button snaps to current week; span selector (4/8/12) in URL.
+- ~~**Default week range**~~ — ✅ This week button snaps to current week; span selector (4/8/12) in URL.
 - ~~**Toast notifications**~~ — ✅ Replaced alert()/confirm() with Sonner toasts and custom confirmation dialogs.
 - ~~**Empty states**~~ — ✅ Engaging empty state cards with icons and call-to-action links.
 - ~~**In-app help**~~ — ✅ Cheatsheet accessible via ? button in header, rendered as a portal overlay.

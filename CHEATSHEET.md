@@ -56,7 +56,7 @@ Values are integers from **1%** to **100%** per cell. One cell = one resource on
 | **Team filter** | Dropdown (appears when resources have teams). Filters resources and their bookings. |
 | **« / »** | Shift the visible window by **1 week**. |
 | **«« / »»** | Jump by the **full span** (4, 8, or 12 weeks). |
-| **Today** | Snap back to the current week. |
+| **This week** | Snap back to the current week. |
 | **4w · 8w · 12w** | Set how many weeks are visible at once. |
 
 All navigation updates the URL, so you can bookmark or share any view.
