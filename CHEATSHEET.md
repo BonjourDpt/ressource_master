@@ -52,7 +52,8 @@ Values are integers from **1%** to **100%** per cell. One cell = one resource on
 
 | Control | What it does |
 |---------|--------------|
-| **By project / By resource** | Toggle how the grid is grouped. |
+| **Undo / Redo** | Step backward or forward through **saved** allocation changes (create, edit, delete from a cell). Buttons next to the view toggle. Shortcuts: **Ctrl+Z** (undo), **Ctrl+Y** or **Ctrl+Shift+Z** (redo); on Mac use **⌘** instead of **Ctrl**. Disabled when there is nothing to undo or redo. |
+| **By project / By resource** | Toggle how the grid is grouped. **Switching view clears** the undo/redo history for that page. |
 | **Team filter** | Dropdown (appears when resources have teams). Filters resources and their bookings. |
 | **« / »** | Shift the visible window by **1 week**. |
 | **«« / »»** | Jump by the **full span** (4, 8, or 12 weeks). |
@@ -60,6 +61,8 @@ Values are integers from **1%** to **100%** per cell. One cell = one resource on
 | **4w · 8w · 12w** | Set how many weeks are visible at once. |
 
 All navigation updates the URL, so you can bookmark or share any view.
+
+Undo/redo applies to changes **after** they are saved to the server. It does **not** cover unsaved text in an open cell, and the stack is **not** kept after a full page reload — only for the current session in that tab.
 
 ---
 
@@ -81,6 +84,15 @@ All navigation updates the URL, so you can bookmark or share any view.
 | **Enter** | Save allocation + note and close. |
 | **Shift + Enter** | Insert a newline in the note. |
 | **Escape** | Close note area, return focus to % input. |
+
+### Planning (focus not in a field)
+
+Shortcuts apply when you are **not** typing in an input, textarea, select, or rich-text field (same idea as row **E** on list pages).
+
+| Key | Action |
+|-----|--------|
+| **Ctrl+Z** (**⌘+Z** on Mac) | Undo the last **saved** allocation change. |
+| **Ctrl+Y** or **Ctrl+Shift+Z** (**⌘+Y** / **⌘+Shift+Z** on Mac) | Redo. |
 
 ### Modals & dialogs
 

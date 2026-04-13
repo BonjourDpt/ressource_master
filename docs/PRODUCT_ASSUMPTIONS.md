@@ -25,6 +25,7 @@ Explicit assumptions behind the current product design. Revisit when changing be
 
 - **Projects and resources:** **Soft delete via archiving.** Archiving sets the status to `ARCHIVED`, hiding the item from active views and the planning grid. Archived items can be restored at any time. Permanent deletion is only available on archived items and removes the entity and all its bookings (DB cascade).
 - **Bookings:** **Hard delete** only. No archive. Deleting an allocation (clearing or zeroing the cell) removes the booking permanently.
+- **Planning undo/redo:** The planning page keeps an **in-memory** stack of successful allocation **create / update / delete** operations so users can undo or redo via toolbar buttons or keyboard shortcuts. The stack is **not** persisted (full reload clears it). **Switching** between *By project* and *By resource* **clears** the stack. A new saved edit after an undo **discards** any redo branch (standard undo model).
 
 ## Security and access (v1)
 

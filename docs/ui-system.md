@@ -179,6 +179,8 @@ Rules:
 ## Planning-Specific Carryover
 Planning remains the most complex page and acts as the main interaction benchmark.
 
+Its toolbar clusters related controls (undo/redo for saved grid edits, view mode, optional team filter, week navigation, span). New planning affordances should stay visually grouped and aligned with that row rather than floating as one-offs.
+
 Other pages should inherit:
 - spacing discipline
 - control consistency

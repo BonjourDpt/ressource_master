@@ -13,6 +13,7 @@ Resource Master answers a simple question: **who is on what project, and when?**
 - **Projects** — Create, edit, archive, restore, and delete projects (name, optional client, color from a fixed palette of ten swatches).
 - **Resources** — Create, edit, archive, restore, and delete resources (name, optional role and team, weekly capacity in hours).
 - **Bookings** — Assign a resource to a project for a given week with an allocation percentage (1–100%); create, edit, and delete inline from the planning grid. Attach optional notes to any booking.
+- **Planning undo / redo** — After a successful save from the grid, reverse or re-apply the last allocation changes (**Undo** / **Redo** in the planning toolbar, or **Ctrl+Z** / **Ctrl+Y** / **Ctrl+Shift+Z**, and **⌘** equivalents on macOS). History is kept only for the current browser session and is cleared when you switch between *By project* and *By resource*.
 - **Planning view** — Weekly grid with toggle: *By project* or *By resource*. Week navigation with This week button, single/multi-week arrows, and configurable span (4/8/12 weeks; **12** by default when `span` is not in the URL). Team filtering. URL-based state for shareable views.
 - **Search & filter** — Search by name, client, role, or team on list pages. Filter by status (Active / Archived / All) and by team.
 - **Over-allocation warnings** — Visual indicators when a resource exceeds 100% in a week.
@@ -35,7 +36,7 @@ Resource Master answers a simple question: **who is on what project, and when?**
 
 | Screen | Purpose |
 |--------|---------|
-| **Planning** (`/planning`) | Weekly timeline grid. Toggle by project or by resource. Inline editing of allocation percentages. Notes on cells. Team filter, This week button, span selector. |
+| **Planning** (`/planning`) | Weekly timeline grid. Toggle by project or by resource. Inline editing of allocation percentages. Undo/redo for saved allocation changes. Notes on cells. Team filter, This week button, span selector. |
 | **Projects** (`/projects`) | List with search, status filter (Active/Archived/All). Create/edit via modal. Archive/restore/delete with confirmation dialogs. |
 | **Resources** (`/resources`) | List with search, status filter, team filter. Create/edit via modal with capacity field. Archive/restore/delete. |
 | **Admin** (`/admin`) | CSV import wizard: upload, map columns, preview, and import. |

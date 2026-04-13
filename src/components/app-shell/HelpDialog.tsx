@@ -186,6 +186,13 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
           <BulletList
             items={[
               <>
+                <strong className="text-[var(--rm-fg)]">Undo</strong> /{" "}
+                <strong className="text-[var(--rm-fg)]">Redo</strong> — reverse or re-apply the last{" "}
+                <strong className="text-[var(--rm-fg)]">saved</strong> allocation edits (create, change %, clear cell).
+                Session-only; switching <strong className="text-[var(--rm-fg)]">By project</strong> /{" "}
+                <strong className="text-[var(--rm-fg)]">By resource</strong> clears the stack.
+              </>,
+              <>
                 <strong className="text-[var(--rm-fg)]">By project</strong> /{" "}
                 <strong className="text-[var(--rm-fg)]">By resource</strong> — group the grid.
               </>,
@@ -256,6 +263,35 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
                 desc: "New line.",
               },
               { keys: <Kbd>Esc</Kbd>, desc: "Close note, focus % input." },
+            ]}
+          />
+          <ShortcutBlock
+            label="Planning (not typing in a field)"
+            rows={[
+              {
+                keys: (
+                  <>
+                    <Kbd>Ctrl</Kbd>/<Kbd>⌘</Kbd>+<Kbd>Z</Kbd>
+                  </>
+                ),
+                desc: "Undo last saved allocation change.",
+              },
+              {
+                keys: (
+                  <>
+                    <Kbd>Ctrl</Kbd>/<Kbd>⌘</Kbd>+<Kbd>Y</Kbd>
+                  </>
+                ),
+                desc: "Redo.",
+              },
+              {
+                keys: (
+                  <>
+                    <Kbd>Ctrl</Kbd>/<Kbd>⌘</Kbd>+<Kbd>Shift</Kbd>+<Kbd>Z</Kbd>
+                  </>
+                ),
+                desc: "Redo (alternate).",
+              },
             ]}
           />
           <ShortcutBlock
