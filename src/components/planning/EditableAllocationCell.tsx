@@ -12,7 +12,9 @@ import {
 import { useRouter } from "next/navigation";
 import { createBooking, deleteBooking, updateBooking } from "@/app/planning/actions";
 import { formatAllocationPercent } from "@/lib/planning-format";
+import type { BookingHistoryCommitEvent } from "@/lib/planning-booking-history";
 import type { BookingWithRelations, PlanningEditingCell } from "@/lib/planning-view-model";
+import type { BookingFormData } from "@/lib/validations";
 
 type ParsedInput =
   | { kind: "empty" }
@@ -39,6 +41,8 @@ export interface EditableAllocationCellProps {
   onTabNavigate: (rowId: string, weekId: string, delta: number) => void;
   /** Project accent stripe (by-resource project rows) */
   accentColor?: string | null;
+  /** Record server-backed allocation changes for undo/redo (planning grid). */
+  onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
 }
 
 export function EditableAllocationCell({
@@ -51,6 +55,7 @@ export function EditableAllocationCell({
   onEditingCellChange,
   onTabNavigate,
   accentColor,
+  onBookingHistoryCommit,
 }: EditableAllocationCellProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -117,9 +122,17 @@ export function EditableAllocationCell({
           clearIfStillHere();
           return;
         }
+        const restorePayload: BookingFormData = {
+          projectId,
+          resourceId,
+          weekStart,
+          allocationPct: booking.allocationPct,
+          note: booking.note?.trim() ?? "",
+        };
         startTransition(async () => {
           const r = await deleteBooking(booking.id);
           if (r.ok) {
+            onBookingHistoryCommit?.({ type: "delete", payload: restorePayload });
             router.refresh();
             clearIfStillHere();
           } else {
@@ -139,7 +152,7 @@ export function EditableAllocationCell({
         setHint("Capped at 100%");
       }
 
-      const payload = {
+      const payload: BookingFormData = {
         projectId,
         resourceId,
         weekStart,
@@ -148,10 +161,44 @@ export function EditableAllocationCell({
       };
 
       startTransition(async () => {
-        const r = booking
-          ? await updateBooking(booking.id, payload)
-          : await createBooking(payload);
+        if (booking) {
+          const r = await updateBooking(booking.id, payload);
+          if (r.ok) {
+            const before: BookingFormData = {
+              projectId: booking.projectId,
+              resourceId: booking.resourceId,
+              weekStart,
+              allocationPct: booking.allocationPct,
+              note: booking.note?.trim() ?? "",
+            };
+            onBookingHistoryCommit?.({
+              type: "update",
+              bookingId: booking.id,
+              before,
+              after: payload,
+            });
+            router.refresh();
+            clearIfStillHere();
+          } else {
+            const err = r.error;
+            const msg =
+              ("_form" in err ? err._form?.[0] : undefined) ??
+              ("allocationPct" in err ? err.allocationPct?.[0] : undefined) ??
+              ("projectId" in err ? err.projectId?.[0] : undefined) ??
+              ("resourceId" in err ? err.resourceId?.[0] : undefined) ??
+              "Save failed";
+            setError(msg);
+          }
+          return;
+        }
+
+        const r = await createBooking(payload);
         if (r.ok) {
+          onBookingHistoryCommit?.({
+            type: "create",
+            bookingId: r.bookingId,
+            payload,
+          });
           router.refresh();
           clearIfStillHere();
         } else {
@@ -166,7 +213,18 @@ export function EditableAllocationCell({
         }
       });
     },
-    [booking, draftNote, onEditingCellChange, projectId, resetFromProps, resourceId, router, rowId, weekStart],
+    [
+      booking,
+      draftNote,
+      onBookingHistoryCommit,
+      onEditingCellChange,
+      projectId,
+      resetFromProps,
+      resourceId,
+      router,
+      rowId,
+      weekStart,
+    ],
   );
 
   const commit = useCallback(() => {

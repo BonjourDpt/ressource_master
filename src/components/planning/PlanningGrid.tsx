@@ -1,7 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { createBooking, deleteBooking, updateBooking } from "@/app/planning/actions";
+import {
+  bookingHistoryCanRedo,
+  bookingHistoryCanUndo,
+  bookingHistoryEmpty,
+  commitEventToHistoryEntry,
+  executeBookingHistoryRedo,
+  executeBookingHistoryUndo,
+  pushBookingHistoryCommit,
+  stacksAfterRedo,
+  stacksAfterUndo,
+  type BookingHistoryApi,
+  type BookingHistoryCommitEvent,
+} from "@/lib/planning-booking-history";
 import { PlanningTable } from "./PlanningTable";
 import { addWeeks, formatWeekLabel, getIsoMonday, getWeekRange, toWeekStartKey } from "@/lib/weeks";
 import {
@@ -36,6 +51,34 @@ function newDraftId(): string {
   return `draft:${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function firstFieldError(errors: Record<string, string[] | undefined>): string {
+  if (errors._form?.[0]) return errors._form[0];
+  for (const v of Object.values(errors)) {
+    if (v?.[0]) return v[0];
+  }
+  return "Request failed";
+}
+
+function createBookingHistoryApi(): BookingHistoryApi {
+  return {
+    create: async (data) => {
+      const r = await createBooking(data);
+      if (r.ok) return { ok: true, bookingId: r.bookingId };
+      return { ok: false, error: firstFieldError(r.error as Record<string, string[] | undefined>) };
+    },
+    update: async (id, data) => {
+      const r = await updateBooking(id, data);
+      if (r.ok) return { ok: true };
+      return { ok: false, error: firstFieldError(r.error as Record<string, string[] | undefined>) };
+    },
+    delete: async (id) => {
+      const r = await deleteBooking(id);
+      if (r.ok) return { ok: true };
+      return { ok: false, error: firstFieldError(r.error as Record<string, string[] | undefined>) };
+    },
+  };
+}
+
 export function PlanningGrid({
   projects,
   resources,
@@ -48,6 +91,7 @@ export function PlanningGrid({
   const view = (searchParams.get("view") as PlanningViewMode) || "project";
   const teamFilter = searchParams.get("team") ?? "ALL";
   const weekRange = useMemo(() => getWeekRange(startWeek, span), [startWeek, span]);
+  const startWeekMs = startWeek.getTime();
 
   const teams = useMemo(() => {
     const set = new Set<string>();
@@ -79,6 +123,83 @@ export function PlanningGrid({
   const [draftLines, setDraftLines] = useState<PlanningDraftAllocationLine[]>([]);
   const [pinnedGroupIds, setPinnedGroupIds] = useState<Set<string>>(new Set());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [bookingHist, setBookingHist] = useState(bookingHistoryEmpty);
+  const bookingHistRef = useRef(bookingHist);
+  bookingHistRef.current = bookingHist;
+  const historyBusyRef = useRef(false);
+  const [historyBusy, setHistoryBusy] = useState(false);
+  const bookingHistoryApi = useMemo(() => createBookingHistoryApi(), []);
+
+  useEffect(() => {
+    const empty = bookingHistoryEmpty();
+    setBookingHist(empty);
+    bookingHistRef.current = empty;
+  }, [view]);
+
+  const onBookingHistoryCommit = useCallback((ev: BookingHistoryCommitEvent) => {
+    setBookingHist((s) => pushBookingHistoryCommit(s, commitEventToHistoryEntry(ev)));
+  }, []);
+
+  const runBookingUndo = useCallback(async () => {
+    if (historyBusyRef.current) return;
+    const { stacks, entry } = stacksAfterUndo(bookingHistRef.current);
+    if (!entry) return;
+    historyBusyRef.current = true;
+    setHistoryBusy(true);
+    try {
+      const ok = await executeBookingHistoryUndo(entry, bookingHistoryApi);
+      if (ok) {
+        setBookingHist(stacks);
+        bookingHistRef.current = stacks;
+        router.refresh();
+      } else {
+        toast.error("Undo failed");
+      }
+    } finally {
+      historyBusyRef.current = false;
+      setHistoryBusy(false);
+    }
+  }, [bookingHistoryApi, router]);
+
+  const runBookingRedo = useCallback(async () => {
+    if (historyBusyRef.current) return;
+    const { stacks, entry } = stacksAfterRedo(bookingHistRef.current);
+    if (!entry) return;
+    historyBusyRef.current = true;
+    setHistoryBusy(true);
+    try {
+      const ok = await executeBookingHistoryRedo(entry, bookingHistoryApi);
+      if (ok) {
+        setBookingHist(stacks);
+        bookingHistRef.current = stacks;
+        router.refresh();
+      } else {
+        toast.error("Redo failed");
+      }
+    } finally {
+      historyBusyRef.current = false;
+      setHistoryBusy(false);
+    }
+  }, [bookingHistoryApi, router]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const t = e.target;
+      if (t instanceof HTMLElement && t.closest("input, textarea, select, [contenteditable=true]")) {
+        return;
+      }
+      if (e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        void runBookingUndo();
+      } else if (e.key === "y" || (e.key === "z" && e.shiftKey)) {
+        e.preventDefault();
+        void runBookingRedo();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [runBookingRedo, runBookingUndo]);
 
   const groups = useMemo(
     () => filterActiveGroups(allGroups, pinnedGroupIds),
@@ -109,7 +230,7 @@ export function PlanningGrid({
     setDraftLines([]);
     setPinnedGroupIds(new Set());
     setSelectedProjectId(null);
-  }, [view, startWeek.getTime(), span]);
+  }, [view, startWeekMs, span]);
 
   const onToggleProjectSelection = useCallback((projectId: string) => {
     setSelectedProjectId((id) => (id === projectId ? null : projectId));
@@ -214,6 +335,9 @@ export function PlanningGrid({
   const groupListEmpty = view === "project" ? projects.length === 0 : filteredResources.length === 0;
 
   const ctrlBase = "h-8 rounded-lg border border-[var(--rm-border)] bg-[var(--rm-surface)] text-xs transition-colors";
+  const canHistUndo = bookingHistoryCanUndo(bookingHist);
+  const canHistRedo = bookingHistoryCanRedo(bookingHist);
+  const histBtn = `${ctrlBase} px-2.5 font-medium text-[var(--rm-fg)] hover:bg-[var(--rm-surface-elevated)] disabled:pointer-events-none disabled:opacity-40`;
 
   const teamSelectOptions = useMemo(
     () => [
@@ -241,6 +365,29 @@ export function PlanningGrid({
         <h1 className="text-xl font-semibold tracking-tight text-[var(--rm-fg)]">Planning</h1>
 
         <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              className={histBtn}
+              onClick={() => void runBookingUndo()}
+              disabled={!canHistUndo || historyBusy}
+              aria-label="Undo last allocation change"
+              title="Undo (Ctrl+Z)"
+            >
+              Undo
+            </button>
+            <button
+              type="button"
+              className={histBtn}
+              onClick={() => void runBookingRedo()}
+              disabled={!canHistRedo || historyBusy}
+              aria-label="Redo allocation change"
+              title="Redo (Ctrl+Y)"
+            >
+              Redo
+            </button>
+          </div>
+
           <SegmentedTabs
             tabs={[
               { value: "project" as PlanningViewMode, label: "By project" },
@@ -307,6 +454,7 @@ export function PlanningGrid({
         groupListEmpty={groupListEmpty}
         selectedProjectId={selectedProjectId}
         onToggleProjectSelection={onToggleProjectSelection}
+        onBookingHistoryCommit={onBookingHistoryCommit}
       />
 
       {unallocatedEntities.length > 0 && (

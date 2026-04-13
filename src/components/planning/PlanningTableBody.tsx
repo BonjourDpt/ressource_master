@@ -5,6 +5,7 @@ import { Select } from "@/components/ui/Select";
 import { cx } from "@/lib/cx";
 import { formatWeekLabel, toWeekStartKey } from "@/lib/weeks";
 import { formatAllocationPercent } from "@/lib/planning-format";
+import type { BookingHistoryCommitEvent } from "@/lib/planning-booking-history";
 import type {
   PlanningEditingCell,
   PlanningMatrixGroup,
@@ -81,6 +82,7 @@ export interface PlanningTableBodyProps {
   onDraftPairChange: (draftRowId: string, pairedEntityId: string) => void;
   selectedProjectId: string | null;
   onToggleProjectSelection: (projectId: string) => void;
+  onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
 }
 
 export function PlanningTableBody({
@@ -96,6 +98,7 @@ export function PlanningTableBody({
   onDraftPairChange,
   selectedProjectId,
   onToggleProjectSelection,
+  onBookingHistoryCommit,
 }: PlanningTableBodyProps) {
   const resourcePairOptions = useMemo(
     () => [
@@ -277,6 +280,7 @@ export function PlanningTableBody({
                           editingCell={editingCell}
                           onEditingCellChange={onEditingCellChange}
                           onTabNavigate={onTabNavigate}
+                          onBookingHistoryCommit={onBookingHistoryCommit}
                         />
                       </td>
                     ))}

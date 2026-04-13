@@ -3,6 +3,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import Link from "next/link";
 import { toWeekStartKey } from "@/lib/weeks";
+import type { BookingHistoryCommitEvent } from "@/lib/planning-booking-history";
 import type {
   PlanningEditingCell,
   PlanningMatrixGroup,
@@ -28,6 +29,7 @@ export interface PlanningTableProps {
   groupListEmpty: boolean;
   selectedProjectId: string | null;
   onToggleProjectSelection: (projectId: string) => void;
+  onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
 }
 
 /** Minimum width per week column when scrolling (readability). */
@@ -49,6 +51,7 @@ export function PlanningTable({
   groupListEmpty,
   selectedProjectId,
   onToggleProjectSelection,
+  onBookingHistoryCommit,
 }: PlanningTableProps) {
   const tableMinPx = STICKY_COLS_PX + weekRange.length * WEEK_COL_MIN_PX;
 
@@ -79,6 +82,7 @@ export function PlanningTable({
           onDraftPairChange={onDraftPairChange}
           selectedProjectId={selectedProjectId}
           onToggleProjectSelection={onToggleProjectSelection}
+          onBookingHistoryCommit={onBookingHistoryCommit}
         />
       </table>
       {groupListEmpty && (
