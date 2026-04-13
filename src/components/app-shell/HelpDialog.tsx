@@ -175,8 +175,9 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
               <>
                 Notes: in edit mode use <strong className="text-[var(--rm-fg)]">Add note</strong> /{" "}
                 <strong className="text-[var(--rm-fg)]">Edit note</strong>. Saved with the cell on <Kbd>Enter</Kbd> or{" "}
-                <Kbd>Tab</Kbd> on the % field. Max <strong className="text-[var(--rm-fg)]">200</strong> characters; hover a
-                cell with a note to read it.
+                <Kbd>Tab</Kbd> on the % field. Max <strong className="text-[var(--rm-fg)]">200</strong> characters. On the
+                grid, a short <strong className="text-[var(--rm-fg)]">preview</strong> appears under the % (truncated); hover
+                the cell for the full note in a tooltip.
               </>,
               <>
                 <strong className="text-[var(--rm-fg)]">Highlight a row</strong> — click a row to mark it (by-project:
@@ -220,7 +221,10 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
           <BulletList
             items={[
               <>Dot / left stripe — project color (name vs by-resource view).</>,
-              <>Corner fold — saved note on the cell.</>,
+              <>
+                Corner fold — saved note on the cell; the button shows a bordered note layout with a preview line under the
+                %.
+              </>,
               <>
                 Indigo top border + accent label on a week column —{" "}
                 <strong className="text-[var(--rm-fg)]">current week</strong>.

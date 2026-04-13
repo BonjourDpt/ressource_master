@@ -107,8 +107,8 @@ Shortcuts apply when you are **not** typing in an input, textarea, select, or ri
 
 - While editing a cell, click **Add note** (or **Edit note**) below the input to expand a textarea.
 - Notes are saved together with the allocation when you press Enter or Tab.
-- Cells with a note show a small **corner fold** (triangle) in the top-right of the percentage button.
-- Hover over a filled cell to see the note in a **tooltip**.
+- Cells with a note use a **note layout** on the button: percentage on top, a **truncated preview** of the note underneath (long notes end with …), and a **corner fold** (triangle) in the top-right.
+- Hover over the cell to see the **full** note in a **tooltip**.
 - Max length: 200 characters.
 
 ---
@@ -155,7 +155,7 @@ Click the **?** button in the top-right corner of the header to open this cheats
 |-----------|---------|
 | Colored dot next to a project name | Project color (set in project settings). |
 | Left color stripe on a cell (by-resource view) | Which project this allocation belongs to. |
-| Corner fold (top-right of the % button) | This cell has a note — hover to read it in the tooltip. |
+| Corner fold + note preview (under the %) | This cell has a note — preview is truncated; hover for the full text in the tooltip. |
 | Orange warning text under a resource name | Resource is **over-allocated** (> 100%) for those weeks. |
 | Total row pill turns orange/red | Week total exceeds 100% (warning) or 120% (danger). |
 | Indigo top border + accent label on a week header | That column is the **current week**. |

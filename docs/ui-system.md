@@ -176,6 +176,17 @@ Rules:
 
 ---
 
+## Planning Cell Conventions
+
+### Allocation cells with notes (`EditableAllocationCell`)
+- **Read-only, no note**: single centered allocation `%` label; standard background/text tokens.
+- **Read-only, with note**: the button gains the `note-cell` class and switches to a stacked layout — allocation `%` on top, a truncated note preview (`text-[9px]`, `--rm-muted-subtle`) underneath, a corner-fold triangle indicator (`border-t-[var(--rm-primary)]`) in the top-right.
+- **Border treatment for note cells**: use `ring-1 ring-inset ring-[var(--rm-primary)]/35` instead of a `border` property. This keeps the styling layout-neutral (ring is rendered as `box-shadow`) so row heights stay identical whether or not a cell has a note.
+- **Note preview truncation**: handled by `truncateNotePreview()` (`src/lib/planning-note-utils.ts`), hard-capped at 25 characters + `…`.
+- **Editing state**: unchanged from base design; note indicator and border treatment are only on the read-only button.
+
+---
+
 ## Planning-Specific Carryover
 Planning remains the most complex page and acts as the main interaction benchmark.
 

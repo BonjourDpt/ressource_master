@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import { createBooking, deleteBooking, updateBooking } from "@/app/planning/actions";
 import { formatAllocationPercent } from "@/lib/planning-format";
+import { truncateNotePreview } from "@/lib/planning-note-utils";
 import type { BookingHistoryCommitEvent } from "@/lib/planning-booking-history";
 import type { BookingWithRelations, PlanningEditingCell } from "@/lib/planning-view-model";
 import type { BookingFormData } from "@/lib/validations";
@@ -279,22 +280,45 @@ export function EditableAllocationCell({
         className={`flex min-h-[36px] items-center justify-center ${isPending ? "opacity-60" : ""}`}
       >
         {booking ? (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditingCellChange({ rowId, weekId: weekStart });
-            }}
-            title={hasNote ? booking.note! : "Edit allocation"}
-            aria-label={`Edit allocation ${formatAllocationPercent(pct)}${hasNote ? ` — ${booking.note}` : ""}`}
-            className={`relative min-w-[3rem] rounded-md px-2 py-1.5 text-center font-mono text-xs font-semibold tabular-nums ${filledClasses} overflow-hidden transition-all hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
-            style={accentStyle}
-          >
-            {formatAllocationPercent(pct)}
-            {hasNote && (
-              <span className="absolute right-0 top-0 border-l-[7px] border-t-[7px] border-l-transparent border-t-[var(--rm-primary)]" />
-            )}
-          </button>
+          hasNote ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditingCellChange({ rowId, weekId: weekStart });
+              }}
+              title={booking.note!}
+              aria-label={`Edit allocation ${formatAllocationPercent(pct)} — ${booking.note}`}
+              className={`note-cell relative flex min-w-[3rem] flex-col items-center justify-center gap-0 rounded-md px-2 pb-1 pt-1.5 text-center font-mono text-xs font-semibold tabular-nums ring-1 ring-inset ring-[var(--rm-primary)]/35 ${filledClasses} overflow-hidden transition-all hover:brightness-110 hover:ring-[var(--rm-primary)]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
+              style={accentStyle}
+            >
+              <span className="leading-tight">{formatAllocationPercent(pct)}</span>
+              <span
+                data-testid="note-preview"
+                className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-sans text-[9px] font-normal leading-tight text-[var(--rm-muted-subtle)]"
+              >
+                {truncateNotePreview(booking.note!)}
+              </span>
+              <span
+                data-testid="note-indicator"
+                className="absolute right-0 top-0 border-l-[9px] border-t-[9px] border-l-transparent border-t-[var(--rm-primary)]"
+              />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditingCellChange({ rowId, weekId: weekStart });
+              }}
+              title="Edit allocation"
+              aria-label={`Edit allocation ${formatAllocationPercent(pct)}`}
+              className={`relative min-w-[3rem] rounded-md px-2 py-1.5 text-center font-mono text-xs font-semibold tabular-nums ${filledClasses} overflow-hidden transition-all hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
+              style={accentStyle}
+            >
+              {formatAllocationPercent(pct)}
+            </button>
+          )
         ) : (
           <button
             type="button"
