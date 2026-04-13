@@ -40,8 +40,6 @@ export interface EditableAllocationCellProps {
   isEditing: boolean;
   onEditingCellChange: Dispatch<SetStateAction<PlanningEditingCell>>;
   onTabNavigate: (rowId: string, weekId: string, delta: number) => void;
-  /** Project accent stripe (by-resource project rows) */
-  accentColor?: string | null;
   /** Record server-backed allocation changes for undo/redo (planning grid). */
   onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
 }
@@ -55,7 +53,6 @@ export function EditableAllocationCell({
   isEditing,
   onEditingCellChange,
   onTabNavigate,
-  accentColor,
   onBookingHistoryCommit,
 }: EditableAllocationCellProps) {
   const router = useRouter();
@@ -258,11 +255,6 @@ export function EditableAllocationCell({
     }
   };
 
-  const accentStyle =
-    accentColor != null
-      ? ({ boxShadow: `inset 3px 0 0 0 ${accentColor}` } as const)
-      : undefined;
-
   const hasNote = booking?.note != null && booking.note.trim().length > 0;
   const pct = booking?.allocationPct ?? 0;
 
@@ -290,7 +282,6 @@ export function EditableAllocationCell({
               title={booking.note!}
               aria-label={`Edit allocation ${formatAllocationPercent(pct)} — ${booking.note}`}
               className={`note-cell relative flex min-w-[3rem] flex-col items-center justify-center gap-0 rounded-md px-2 pb-1 pt-1.5 text-center font-mono text-xs font-semibold tabular-nums ring-1 ring-inset ring-[var(--rm-danger)]/40 ${filledClasses} overflow-hidden transition-all hover:brightness-110 hover:ring-[var(--rm-danger)]/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
-              style={accentStyle}
             >
               <span className="leading-tight">{formatAllocationPercent(pct)}</span>
               <span
@@ -314,7 +305,6 @@ export function EditableAllocationCell({
               title="Edit allocation"
               aria-label={`Edit allocation ${formatAllocationPercent(pct)}`}
               className={`relative min-w-[3rem] rounded-md px-2 py-1.5 text-center font-mono text-xs font-semibold tabular-nums ${filledClasses} overflow-hidden transition-all hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
-              style={accentStyle}
             >
               {formatAllocationPercent(pct)}
             </button>
@@ -363,7 +353,6 @@ export function EditableAllocationCell({
           disabled={isPending}
           aria-label="Allocation percent"
           className="h-8 w-14 rounded-md border-2 border-[var(--rm-primary-text)] bg-[var(--rm-surface-highest)] px-1.5 text-center font-mono text-xs font-bold tabular-nums text-[var(--rm-primary-text)] outline-none"
-          style={accentStyle}
         />
       </div>
       <button

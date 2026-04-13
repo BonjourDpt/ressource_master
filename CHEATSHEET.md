@@ -154,7 +154,6 @@ Click the **?** button in the top-right corner of the header to open this cheats
 | Indicator | Meaning |
 |-----------|---------|
 | Colored dot next to a project name | Project color (set in project settings). |
-| Left color stripe on a cell (by-resource view) | Which project this allocation belongs to. |
 | Corner fold + note preview (under the %) | This cell has a note — preview is truncated; hover for the full text in the tooltip. |
 | Orange warning text under a resource name | Resource is **over-allocated** (> 100%) for those weeks. |
 | Total row pill turns orange/red | Week total exceeds 100% (warning) or 120% (danger). |

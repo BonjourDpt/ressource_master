@@ -41,9 +41,6 @@ export function AllocationCell({
     return <div className="min-h-9" aria-hidden />;
   }
 
-  const accentColor =
-    g.mode === "resource" ? row.secondaryColor ?? null : null;
-
   const isEditing =
     editingCell?.rowId === row.id && editingCell?.weekId === cell.weekStart;
 
@@ -57,7 +54,6 @@ export function AllocationCell({
       isEditing={isEditing}
       onEditingCellChange={onEditingCellChange}
       onTabNavigate={onTabNavigate}
-      accentColor={accentColor}
       onBookingHistoryCommit={onBookingHistoryCommit}
     />
   );
