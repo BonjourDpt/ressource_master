@@ -64,6 +64,7 @@ Authoritative step-by-step setup, including migrations and seed, remains in **[d
 
 | Doc | Purpose |
 |-----|---------|
+| [.cursor/skills/](.cursor/skills/) | Cursor agent skills (workflows for contributors; each skill is a `SKILL.md` folder) |
 | [docs/SETUP.md](docs/SETUP.md) | Install, env, migrations, seed, troubleshooting |
 | [CHEATSHEET.md](CHEATSHEET.md) | End-user reference (mirrors in-app help) |
 | [docs/ui-system.md](docs/ui-system.md) | Design tokens, layout, and component conventions |
