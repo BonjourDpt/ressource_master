@@ -126,7 +126,7 @@ export function PlanningTableBody({
     <>
       {groups.map((g, groupIndex) => {
         const groupTop = groupIndex > 0 ? "border-t-2 border-[var(--rm-border)]/30" : "";
-        const rowSpan = g.rows.length;
+        const rowSpan = g.mode === "resource" ? g.rows.length - 1 : g.rows.length;
 
         const overloads: Overload[] =
           g.mode === "resource"
@@ -158,8 +158,10 @@ export function PlanningTableBody({
               const rowSelected = projectRowSelectable && selectedProjectId === g.groupId;
               const resourceRowSelectable = resourceRowMode && isResourceRowSelectable(row);
               const resourceRowSelected = resourceRowSelectable && selectedResourceRowId === row.id;
-              const baseTr =
-                row.rowType === "add"
+              const isSummaryRow = resourceRowMode && row.rowType === "summary";
+              const baseTr = isSummaryRow
+                ? "border-t-2 border-[var(--rm-border)]/50 h-8 [&>td]:py-1 [&>td]:align-middle"
+                : row.rowType === "add"
                   ? `${addRowLine} ${isFirstInGroup ? groupTop : ""}`.trim()
                   : `${rowLine} ${isFirstInGroup ? groupTop : ""}`.trim();
               const trClass = cx(
@@ -179,6 +181,7 @@ export function PlanningTableBody({
               );
               const stickySecondTd = cx(
                 stickyBodySecond,
+                isSummaryRow && "bg-[var(--rm-surface-elevated)]",
                 projectRowSelectable && rowSelected && projectRowTdSelected,
                 projectRowSelectable && !rowSelected && projectRowStickyTdHover,
                 resourceRowSelectable && resourceRowSelected && projectRowTdSelected,
@@ -201,6 +204,12 @@ export function PlanningTableBody({
                   projectRowSelectable && rowSelected && projectRowTdSelected,
                   projectRowSelectable && !rowSelected && projectRowWeekTdHover,
                 );
+              const summaryWeekTdForKey = (wk: string) =>
+                cx(
+                  weekBodyCell,
+                  "bg-[var(--rm-surface-elevated)]",
+                  currentWeekKey && wk === currentWeekKey && weekBodyCellCurrent,
+                );
 
               const pairingIncomplete =
                 row.rowType === "allocation" && (!row.projectId || !row.resourceId);
@@ -218,7 +227,7 @@ export function PlanningTableBody({
                     {g.mode === "project" ? "+ Add resource" : "+ Add project"}
                   </button>
                 ) : row.rowType === "summary" ? (
-                  <span className="text-xs font-medium text-[var(--rm-muted)]">Total</span>
+                  <span className="text-xs font-semibold text-[var(--rm-muted)]">Total allocation</span>
                 ) : pairingIncomplete ? (
                   <div
                     className="min-w-0 max-w-[11rem]"
@@ -274,9 +283,12 @@ export function PlanningTableBody({
                         }
                       : {})}
                 >
-                  {isFirstInGroup && (
-                    <td className={stickyFirstTd} rowSpan={rowSpan}>
-                      {g.mode === "project" ? (
+                  {(isFirstInGroup || isSummaryRow) && (
+                    <td
+                      className={isSummaryRow ? cx(stickyBodyFirst, "bg-[var(--rm-surface-elevated)]") : stickyFirstTd}
+                      rowSpan={isFirstInGroup ? rowSpan : undefined}
+                    >
+                      {isSummaryRow ? null : g.mode === "project" ? (
                         <div className="flex flex-col gap-0.5 py-0.5">
                           <div className="flex items-center gap-2.5">
                             {g.groupColor ? (
@@ -323,7 +335,7 @@ export function PlanningTableBody({
                       const wk = toWeekStartKey(w);
                       const total = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
                       return (
-                        <td key={wk} className={weekTdForKey(wk)}>
+                        <td key={wk} className={summaryWeekTdForKey(wk)}>
                           <div className="flex min-h-9 items-center justify-center">
                             <TotalPctPill pct={total} />
                           </div>

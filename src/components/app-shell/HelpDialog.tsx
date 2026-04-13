@@ -222,6 +222,12 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
             items={[
               <>Dot / left stripe — project color (name vs by-resource view).</>,
               <>
+                <strong className="text-[var(--rm-fg)]">By resource</strong> —{" "}
+                <strong className="text-[var(--rm-fg)]">Total allocation</strong> closes each resource block (summed % per
+                week) in a shaded band with a stronger top border; the name stays in the column above, not repeated on
+                that row.
+              </>,
+              <>
                 Corner fold — saved note on the cell; the button shows a bordered note layout with a preview line under the
                 %.
               </>,

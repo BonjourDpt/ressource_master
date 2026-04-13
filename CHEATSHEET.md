@@ -158,7 +158,8 @@ Click the **?** button in the top-right corner of the header to open this cheats
 | Colored dot next to a project name | Project color (set in project settings). |
 | Corner fold + note preview (under the %) | This cell has a note — preview is truncated; hover for the full text in the tooltip. |
 | Orange warning text under a resource name | Resource is **over-allocated** (> 100%) for those weeks. |
-| Total row pill turns orange/red | Week total exceeds 100% (warning) or 120% (danger). |
+| **By resource:** **Total allocation** band (bottom of each resource) | Summed allocation % per week for that resource; shaded band with a stronger top border so it reads as a section closer (not another project row). The resource name stays in the sticky column above — it is not repeated in that band. |
+| Total allocation pill turns orange/red | When the weekly sum exceeds 100% (warning) or 120% (danger). |
 | Indigo top border + accent label on a week header | That column is the **current week**. |
 | "Archived" badge on a list row | Item is archived and hidden from planning. |
 | Reduced opacity row | Archived item in the list view. |
