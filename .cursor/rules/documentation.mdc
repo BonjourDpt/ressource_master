@@ -1,0 +1,17 @@
+---
+description: Require documentation-sync before completing tasks that touch app code, data layer, repo docs, scripts, or CI
+globs: src/**,prisma/**,docs/**,README.md,.github/**,scripts/**
+alwaysApply: false
+---
+
+# Documentation sync (mandatory for scoped changes)
+
+When this rule applies (matched paths above), treat **documentation as part of the deliverable**.
+
+1. **Attach or follow** the project skill **`documentation-sync`**: read and apply [`.cursor/skills/documentation-sync/SKILL.md`](../skills/documentation-sync/SKILL.md) for the full workflow, project doc map, checklist, and output template.
+
+2. **Before marking the task done**, run the skill’s **closing checklist** (repo docs, in-app help in `HelpDialog.tsx`, `CHEATSHEET.md` alignment, obsolete copy removal, naming consistency).
+
+3. **Finish** with the skill’s expected summary: documentation impact (yes/no + why), impacted paths, actions performed (updated/created/removed), remaining gaps, and intentionally unchanged docs with justification.
+
+If a change is purely internal and does not alter user-visible behavior, setup, APIs, schema, or documented assumptions, still state that explicitly using the skill’s template (no silent skips).
