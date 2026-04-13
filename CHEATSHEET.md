@@ -47,6 +47,8 @@ You're planning.
 
 Values are integers from **1%** to **100%** per cell. One cell = one resource on one project for one week.
 
+The **date header row** (week columns) stays pinned at the top of the screen as you scroll down through a long grid — you always know which week each column belongs to.
+
 ---
 
 ## 4. Planning Grid — Navigation

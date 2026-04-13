@@ -176,6 +176,21 @@ Rules:
 
 ---
 
+## Planning Table Layout
+
+### Split-header pattern (`PlanningTable`)
+
+The planning grid splits into two sibling containers so the date header row is persistent during window-level vertical scroll:
+
+1. **Sticky header div** — `sticky top-14 overflow-hidden` (positioned below the `h-14` app nav). Contains a `<table>` with only `<thead>`. Horizontal scroll position is kept in sync with the body via a `scrollLeft` mirror on `onScroll`.
+2. **Scroll body div** — `overflow-x-auto` (standard horizontal scroll). Contains a `<table>` with only `<tbody>`. Fires `onScroll` to update the header div's `scrollLeft`.
+
+Both tables share identical `<colgroup>` definitions and the same `minWidth` style so column widths stay aligned. The first two columns (`sticky left-0` / `sticky left-48`) remain pinned within each container independently.
+
+**Why not a single `overflow-x-auto` wrapper?** Setting `overflow-x: auto` on a parent creates a CSS scroll container for *both* axes. Any `position: sticky; top: …` inside it becomes sticky relative to that container, not the window — so the header scrolls away when the page scrolls down. The split pattern avoids this constraint entirely.
+
+---
+
 ## Planning Cell Conventions
 
 ### Allocation cells with notes (`EditableAllocationCell`)

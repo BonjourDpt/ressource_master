@@ -230,6 +230,10 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
                 <strong className="text-[var(--rm-fg)]">current week</strong>.
               </>,
               <>
+                <strong className="text-[var(--rm-fg)]">Date header</strong> — the week columns row stays{" "}
+                pinned at the top of the viewport while scrolling down; week labels are always visible.
+              </>,
+              <>
                 Orange / red totals — week over <strong className="text-[var(--rm-fg)]">100%</strong> (warning) or{" "}
                 <strong className="text-[var(--rm-fg)]">120%</strong> (stronger).
               </>,
