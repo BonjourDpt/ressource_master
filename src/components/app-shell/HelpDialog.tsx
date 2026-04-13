@@ -218,6 +218,10 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
               <>Dot / left stripe — project color (name vs by-resource view).</>,
               <>Corner fold — saved note on the cell.</>,
               <>
+                Indigo top border + accent label on a week column —{" "}
+                <strong className="text-[var(--rm-fg)]">current week</strong>.
+              </>,
+              <>
                 Orange / red totals — week over <strong className="text-[var(--rm-fg)]">100%</strong> (warning) or{" "}
                 <strong className="text-[var(--rm-fg)]">120%</strong> (stronger).
               </>,

@@ -157,5 +157,6 @@ Click the **?** button in the top-right corner of the header to open this cheats
 | Corner fold (top-right of the % button) | This cell has a note — hover to read it in the tooltip. |
 | Orange warning text under a resource name | Resource is **over-allocated** (> 100%) for those weeks. |
 | Total row pill turns orange/red | Week total exceeds 100% (warning) or 120% (danger). |
+| Indigo top border + accent label on a week header | That column is the **current week**. |
 | "Archived" badge on a list row | Item is archived and hidden from planning. |
 | Reduced opacity row | Archived item in the list view. |
