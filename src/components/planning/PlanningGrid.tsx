@@ -123,6 +123,7 @@ export function PlanningGrid({
   const [draftLines, setDraftLines] = useState<PlanningDraftAllocationLine[]>([]);
   const [pinnedGroupIds, setPinnedGroupIds] = useState<Set<string>>(new Set());
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [selectedResourceRowId, setSelectedResourceRowId] = useState<string | null>(null);
   const [bookingHist, setBookingHist] = useState(bookingHistoryEmpty);
   const bookingHistRef = useRef(bookingHist);
   bookingHistRef.current = bookingHist;
@@ -230,10 +231,15 @@ export function PlanningGrid({
     setDraftLines([]);
     setPinnedGroupIds(new Set());
     setSelectedProjectId(null);
+    setSelectedResourceRowId(null);
   }, [view, startWeekMs, span]);
 
   const onToggleProjectSelection = useCallback((projectId: string) => {
     setSelectedProjectId((id) => (id === projectId ? null : projectId));
+  }, []);
+
+  const onToggleResourceRowSelection = useCallback((rowId: string) => {
+    setSelectedResourceRowId((id) => (id === rowId ? null : rowId));
   }, []);
 
   useEffect(() => {
@@ -454,6 +460,8 @@ export function PlanningGrid({
         groupListEmpty={groupListEmpty}
         selectedProjectId={selectedProjectId}
         onToggleProjectSelection={onToggleProjectSelection}
+        selectedResourceRowId={selectedResourceRowId}
+        onToggleResourceRowSelection={onToggleResourceRowSelection}
         onBookingHistoryCommit={onBookingHistoryCommit}
       />
 

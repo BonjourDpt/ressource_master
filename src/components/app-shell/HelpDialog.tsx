@@ -178,6 +178,10 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
                 <Kbd>Tab</Kbd> on the % field. Max <strong className="text-[var(--rm-fg)]">200</strong> characters; hover a
                 cell with a note to read it.
               </>,
+              <>
+                <strong className="text-[var(--rm-fg)]">Highlight a row</strong> — click a row to mark it (by-project:
+                whole group; by-resource: individual allocation row). Click again to clear.
+              </>,
             ]}
           />
         </Section>

@@ -43,6 +43,7 @@ You're planning.
 | **Assign a new resource to a project** | Click **+ Add resource** (by-project view) or **+ Add project** (by-resource view) inside a group. Pick from the dropdown, then type a percentage. |
 | **Bring in an unallocated project/resource** | Use the **+ Add allocation** dropdown at the bottom of the grid. |
 | **Delete an allocation** | Edit the cell → clear the value (or type 0) → press Enter. |
+| **Highlight a row** | **By project:** click any row in a project group to highlight the whole group; click again to clear. **By resource:** click an allocation row to highlight it; click again to clear. |
 
 Values are integers from **1%** to **100%** per cell. One cell = one resource on one project for one week.
 

@@ -15,6 +15,7 @@ import type {
 import { AllocationCell } from "./AllocationCell";
 import { stickyBodyFirst, stickyBodySecond, weekBodyCell, weekBodyCellCurrent } from "./planningStickyClasses";
 import { TotalPctPill } from "./TotalPctPill";
+import { isResourceRowSelectable } from "@/lib/planning-resource-selection";
 
 type Overload = { wk: string; label: string; pct: number };
 
@@ -82,6 +83,8 @@ export interface PlanningTableBodyProps {
   onDraftPairChange: (draftRowId: string, pairedEntityId: string) => void;
   selectedProjectId: string | null;
   onToggleProjectSelection: (projectId: string) => void;
+  selectedResourceRowId: string | null;
+  onToggleResourceRowSelection: (rowId: string) => void;
   onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
   currentWeekKey?: string;
 }
@@ -99,6 +102,8 @@ export function PlanningTableBody({
   onDraftPairChange,
   selectedProjectId,
   onToggleProjectSelection,
+  selectedResourceRowId,
+  onToggleResourceRowSelection,
   onBookingHistoryCommit,
   currentWeekKey,
 }: PlanningTableBodyProps) {
@@ -144,12 +149,15 @@ export function PlanningTableBody({
           ) : null;
 
         const projectRowSelectable = g.mode === "project";
+        const resourceRowMode = g.mode === "resource";
 
         return (
           <tbody key={g.groupId} data-planning-group={g.groupId}>
             {g.rows.map((row, rowIndex) => {
               const isFirstInGroup = rowIndex === 0;
               const rowSelected = projectRowSelectable && selectedProjectId === g.groupId;
+              const resourceRowSelectable = resourceRowMode && isResourceRowSelectable(row);
+              const resourceRowSelected = resourceRowSelectable && selectedResourceRowId === row.id;
               const baseTr =
                 row.rowType === "add"
                   ? `${addRowLine} ${isFirstInGroup ? groupTop : ""}`.trim()
@@ -158,17 +166,23 @@ export function PlanningTableBody({
                 baseTr,
                 projectRowSelectable && projectRowTrInteractive,
                 rowSelected && projectRowTrSelected,
+                resourceRowSelectable && projectRowTrInteractive,
+                resourceRowSelected && projectRowTrSelected,
               );
 
               const stickyFirstTd = cx(
                 stickyBodyFirst,
                 projectRowSelectable && rowSelected && projectRowTdSelected,
                 projectRowSelectable && !rowSelected && projectRowStickyTdHover,
+                resourceRowSelectable && resourceRowSelected && projectRowTdSelected,
+                resourceRowSelectable && !resourceRowSelected && projectRowStickyTdHover,
               );
               const stickySecondTd = cx(
                 stickyBodySecond,
                 projectRowSelectable && rowSelected && projectRowTdSelected,
                 projectRowSelectable && !rowSelected && projectRowStickyTdHover,
+                resourceRowSelectable && resourceRowSelected && projectRowTdSelected,
+                resourceRowSelectable && !resourceRowSelected && projectRowStickyTdHover,
               );
               const weekTdForKey = (wk: string) =>
                 cx(
@@ -176,6 +190,8 @@ export function PlanningTableBody({
                   currentWeekKey && wk === currentWeekKey && weekBodyCellCurrent,
                   projectRowSelectable && rowSelected && projectRowTdSelected,
                   projectRowSelectable && !rowSelected && projectRowWeekTdHover,
+                  resourceRowSelectable && resourceRowSelected && projectRowTdSelected,
+                  resourceRowSelectable && !resourceRowSelected && projectRowWeekTdHover,
                 );
               const addRowWeekTdForKey = (wk: string) =>
                 cx(
@@ -251,7 +267,12 @@ export function PlanningTableBody({
                         "aria-selected": rowSelected,
                         onClick: () => onToggleProjectSelection(g.groupId),
                       }
-                    : {})}
+                    : resourceRowSelectable
+                      ? {
+                          "aria-selected": resourceRowSelected,
+                          onClick: () => onToggleResourceRowSelection(row.id),
+                        }
+                      : {})}
                 >
                   {isFirstInGroup && (
                     <td className={stickyFirstTd} rowSpan={rowSpan}>

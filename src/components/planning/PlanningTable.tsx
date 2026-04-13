@@ -29,6 +29,8 @@ export interface PlanningTableProps {
   groupListEmpty: boolean;
   selectedProjectId: string | null;
   onToggleProjectSelection: (projectId: string) => void;
+  selectedResourceRowId: string | null;
+  onToggleResourceRowSelection: (rowId: string) => void;
   onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
 }
 
@@ -51,6 +53,8 @@ export function PlanningTable({
   groupListEmpty,
   selectedProjectId,
   onToggleProjectSelection,
+  selectedResourceRowId,
+  onToggleResourceRowSelection,
   onBookingHistoryCommit,
 }: PlanningTableProps) {
   const tableMinPx = STICKY_COLS_PX + weekRange.length * WEEK_COL_MIN_PX;
@@ -83,6 +87,8 @@ export function PlanningTable({
           onDraftPairChange={onDraftPairChange}
           selectedProjectId={selectedProjectId}
           onToggleProjectSelection={onToggleProjectSelection}
+          selectedResourceRowId={selectedResourceRowId}
+          onToggleResourceRowSelection={onToggleResourceRowSelection}
           onBookingHistoryCommit={onBookingHistoryCommit}
           currentWeekKey={currentWeekKey}
         />
