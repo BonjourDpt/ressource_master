@@ -289,7 +289,7 @@ export function EditableAllocationCell({
               }}
               title={booking.note!}
               aria-label={`Edit allocation ${formatAllocationPercent(pct)} — ${booking.note}`}
-              className={`note-cell relative flex min-w-[3rem] flex-col items-center justify-center gap-0 rounded-md px-2 pb-1 pt-1.5 text-center font-mono text-xs font-semibold tabular-nums ring-1 ring-inset ring-[var(--rm-primary)]/35 ${filledClasses} overflow-hidden transition-all hover:brightness-110 hover:ring-[var(--rm-primary)]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
+              className={`note-cell relative flex min-w-[3rem] flex-col items-center justify-center gap-0 rounded-md px-2 pb-1 pt-1.5 text-center font-mono text-xs font-semibold tabular-nums ring-1 ring-inset ring-[var(--rm-danger)]/40 ${filledClasses} overflow-hidden transition-all hover:brightness-110 hover:ring-[var(--rm-danger)]/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
               style={accentStyle}
             >
               <span className="leading-tight">{formatAllocationPercent(pct)}</span>
@@ -301,7 +301,7 @@ export function EditableAllocationCell({
               </span>
               <span
                 data-testid="note-indicator"
-                className="absolute right-0 top-0 border-l-[9px] border-t-[9px] border-l-transparent border-t-[var(--rm-primary)]"
+                className="absolute right-0 top-0 border-l-[9px] border-t-[9px] border-l-transparent border-t-[var(--rm-danger)]"
               />
             </button>
           ) : (
