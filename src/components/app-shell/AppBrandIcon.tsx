@@ -1,7 +1,10 @@
 import type { CSSProperties, HTMLAttributes } from "react";
 import { cx } from "@/lib/cx";
 
-const MASK: CSSProperties = {
+/** CSSType does not yet include `-webkit-mask-source-type`. */
+type MaskStyle = CSSProperties & { WebkitMaskSourceType?: string };
+
+const MASK: MaskStyle = {
   maskImage: "url(/app-brand-icon.png)",
   WebkitMaskImage: "url(/app-brand-icon.png)",
   maskSize: "contain",
