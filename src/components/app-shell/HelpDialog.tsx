@@ -447,7 +447,7 @@ export function HelpButton() {
                       id={titleId}
                       className="text-lg font-semibold leading-snug tracking-tight text-[var(--rm-fg)]"
                     >
-                      Help · Resource Master · {APP_VERSION_LABEL}
+                      Help · RESOURCE PLANNER · {APP_VERSION_LABEL}
                     </h2>
                     <button
                       type="button"

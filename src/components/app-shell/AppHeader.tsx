@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cx } from "@/lib/cx";
+import { AppBrandIcon } from "./AppBrandIcon";
 import { HelpButton } from "./HelpDialog";
 
 const navItems = [
@@ -18,10 +19,12 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--rm-border-subtle)]/20 bg-[var(--rm-bg)]">
       <div className="mx-auto flex h-14 max-w-[1800px] items-center gap-8 px-4 sm:px-5">
-        <div className="flex shrink-0 items-baseline gap-2">
-          <span className="text-sm font-bold tracking-tighter text-[var(--rm-primary-text)]">
-            Resource Master
-          </span>
+        <div className="flex shrink-0 items-center gap-2.5 text-[var(--rm-primary-text)] text-sm font-bold uppercase tracking-tighter leading-[1.08]">
+          <AppBrandIcon className="aspect-square h-[2.16em] w-[2.16em] shrink-0" />
+          <div className="inline-flex min-w-0 flex-col items-stretch text-center">
+            <span>Resource</span>
+            <span>Planner</span>
+          </div>
         </div>
 
         <nav aria-label="Main" className="min-w-0 flex-1">

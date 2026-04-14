@@ -1,6 +1,6 @@
-# Resource Master — Cheatsheet
+# RESOURCE PLANNER — Cheatsheet
 
-Resource Master is a weekly capacity planning tool where you assign **resources** (people) to **projects** with percentage allocations per week.
+**RESOURCE PLANNER** is a weekly capacity planning tool where you assign **resources** (people) to **projects** with percentage allocations per week.
 
 ---
 

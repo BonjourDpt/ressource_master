@@ -3,7 +3,7 @@ name: documentation-sync
 description: Runs a mandatory documentation impact check for every product change, updates repo docs and in-app user docs to match behavior, proposes a semver bump from Conventional Commits–style impact (with explicit user confirmation), removes obsolete copy, and reports gaps. Use when implementing or changing features, UI, APIs, schema, env, scripts, settings, navigation, labels, help text, or removing functionality — and before marking any such task complete.
 ---
 
-# Documentation sync (Resource Master)
+# Documentation sync (RESOURCE PLANNER)
 
 Treat documentation as **part of the same deliverable** as code. Do not mark a task complete until this flow is executed and any required doc updates are applied (or explicitly deferred with a tracked TODO list).
 

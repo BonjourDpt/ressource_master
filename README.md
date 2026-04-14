@@ -1,10 +1,10 @@
-# Resource Master
+# RESOURCE PLANNER
 
 Internal web app to visualize and manage resource allocation across projects on a weekly basis.
 
 ## Overview
 
-Resource Master answers a simple question: **who is on what project, and when?** It provides a weekly timeline (by project or by resource), CRUD for projects, resources, and bookings, and a minimalist dark UI suited for internal planning.
+**RESOURCE PLANNER** answers a simple question: **who is on what project, and when?** It provides a weekly timeline (by project or by resource), CRUD for projects, resources, and bookings, and a minimalist dark UI suited for internal planning.
 
 **Why it exists:** Lightweight alternative to heavy PPM tools for teams that need quick visibility and editing of who is assigned to which project each week — without timesheets, approvals, or permissions.
 

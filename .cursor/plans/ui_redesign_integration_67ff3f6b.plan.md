@@ -1,6 +1,6 @@
 ---
 name: UI Redesign Integration
-overview: "Integrate the Indigo Graphite design system into the existing Resource Master app: update design tokens, add a compact sidebar for Admin/Settings, restyle the header, refine planning table cell states, and add a minimal bottom status bar -- all without breaking the existing data-driven architecture."
+overview: "Integrate the Indigo Graphite design system into the existing RESOURCE PLANNER app: update design tokens, add a compact sidebar for Admin/Settings, restyle the header, refine planning table cell states, and add a minimal bottom status bar -- all without breaking the existing data-driven architecture."
 todos:
   - id: tokens
     content: Update design tokens in globals.css (colors, add --rm-primary-text, --rm-surface-highest)
@@ -116,7 +116,7 @@ export function AppSidebar() {
 Changes:
 
 - Remove "Admin" from `navItems` array (moved to sidebar)
-- Brand name: keep "Resource Master" but style with `text-[var(--rm-primary-text)]` and `tracking-tighter font-bold`
+- Brand name: **RESOURCE** / **PLANNER** (two lines, uppercase) with brand mark; style with `text-[var(--rm-primary-text)]` and `tracking-tighter font-bold`
 - Active link indicator: use `border-[var(--rm-primary-text)]` underline instead of `border-[var(--rm-fg)]`
 - Adjust left padding to account for sidebar width (`ml-16`)
 - Keep `HelpButton` in the right side

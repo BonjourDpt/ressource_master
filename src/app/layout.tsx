@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Resource Master",
+  title: "RESOURCE PLANNER",
   description: "Internal resource planning MVP",
 };
 
