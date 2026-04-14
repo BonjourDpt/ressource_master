@@ -187,6 +187,8 @@ The planning grid splits into two sibling containers so the date header row is p
 
 Both tables share identical `<colgroup>` definitions and the same `minWidth` style so column widths stay aligned. The first two columns (`sticky left-0` / `sticky left-48`) remain pinned within each container independently.
 
+Both `<table>` elements use **`border-separate` with `border-spacing: 0`** instead of `border-collapse: collapse`. Collapsed borders interact poorly with `position: sticky` on `<th>` in several engines, so the Project/Resource header cells would scroll horizontally out of view while the synced week row moved — separate borders keep label headers pinned like the body’s sticky label columns.
+
 **Why not a single `overflow-x-auto` wrapper?** Setting `overflow-x: auto` on a parent creates a CSS scroll container for *both* axes. Any `position: sticky; top: …` inside it becomes sticky relative to that container, not the window — so the header scrolls away when the page scrolls down. The split pattern avoids this constraint entirely.
 
 ### By-resource summary band (`PlanningTableBody`)

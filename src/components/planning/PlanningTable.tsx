@@ -90,7 +90,7 @@ export function PlanningTable({
         className="sticky top-14 z-20 overflow-hidden rounded-t-xl border border-b-0 border-[var(--rm-border)]/40"
       >
         <table
-          className="w-full min-w-full table-fixed border-collapse text-sm text-[var(--rm-fg)]"
+          className="w-full min-w-full table-fixed border-separate border-spacing-0 text-sm text-[var(--rm-fg)]"
           style={tableStyle}
         >
           {colgroup}
@@ -105,7 +105,7 @@ export function PlanningTable({
         onScroll={syncScroll}
       >
         <table
-          className="w-full min-w-full table-fixed border-collapse text-sm text-[var(--rm-fg)]"
+          className="w-full min-w-full table-fixed border-separate border-spacing-0 text-sm text-[var(--rm-fg)]"
           style={tableStyle}
         >
           {colgroup}

@@ -165,4 +165,22 @@ describe("PlanningTable — persistent sticky header structure", () => {
     expect(stickyHeader?.textContent).toContain("Resource");
     expect(stickyHeader?.textContent).toContain("Project");
   });
+
+  /**
+   * `border-collapse: collapse` prevents reliable `position: sticky` on the
+   * first two `<th>` cells when the header table is scrolled horizontally via
+   * `scrollLeft` sync — label headers scroll away while week cells move.
+   * `border-separate` + zero spacing restores horizontal stickiness for
+   * Project/Resource headers (both view modes), matching body label columns.
+   */
+  it("uses border-separate on both header and body tables so label column th can sticky-pin horizontally", () => {
+    const { container } = render(<PlanningTable {...makeProps()} />);
+    const tables = container.querySelectorAll("table");
+    expect(tables).toHaveLength(2);
+    for (const table of tables) {
+      expect(table).toHaveClass("border-separate");
+      expect(table).toHaveClass("border-spacing-0");
+      expect(table).not.toHaveClass("border-collapse");
+    }
+  });
 });
