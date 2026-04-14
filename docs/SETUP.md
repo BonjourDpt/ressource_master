@@ -1,6 +1,6 @@
 # Local setup
 
-Step-by-step instructions to run Resource Master locally.
+Step-by-step instructions to run RESOURCE PLANNER locally.
 
 ## Prerequisites
 

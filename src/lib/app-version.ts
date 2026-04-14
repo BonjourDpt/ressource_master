@@ -1,5 +1,5 @@
 /**
- * Shown in the Help dialog title. Bump when you tag a release; optional later:
- * generate at build time from `git describe` or package.json via env.
+ * Shown in the Help dialog title. Keep in sync with `package.json` `"version"`
+ * (prefer `v` + semver). Optional later: generate at build time from env.
  */
-export const APP_VERSION_LABEL = "v3.2";
+export const APP_VERSION_LABEL = "v0.1.1";

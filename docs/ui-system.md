@@ -1,7 +1,7 @@
-# Resource Master UI System v1
+# RESOURCE PLANNER UI System v1
 
 ## Intent
-Resource Master should feel like a premium internal planning product:
+RESOURCE PLANNER should feel like a premium internal planning product:
 calm, precise, dark, readable, structured, restrained.
 
 The UI should not feel like:
@@ -27,7 +27,7 @@ The UI should feel coherent across Planning, Projects, Resources, and Admin.
 ## Layout Rules
 
 ### App Shell
-- **Top header** — Sticky full-width bar with app title, primary nav (Planning, Projects, Resources, Admin), and the in-app **Help** control.
+- **Top header** — Sticky full-width bar with brand mark (`public/app-brand-icon.png`, luminance-masked and filled with `currentColor` / primary text for white-on-dark artwork), two-line app title (**RESOURCE** / **PLANNER**), primary nav (Planning, Projects, Resources, Admin), and the in-app **Help** control.
 - **Main area** — Centered content column (`max-w-[1800px]`) with horizontal padding; page content sits in `<main>` with bottom padding so lists clear the status bar.
 - **Status bar** — Fixed footer strip showing live **resource** and **project** counts (mono, subtle).
 - Header and content width should stay aligned so pages feel like one product, not separate templates.
