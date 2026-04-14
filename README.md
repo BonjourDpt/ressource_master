@@ -31,6 +31,7 @@ Resource Master answers a simple question: **who is on what project, and when?**
 - **UI libraries:** Sonner (toasts), focus-trap-react (modal accessibility)
 - **CSV:** PapaParse
 - **Date logic:** Custom ISO-week utilities (`lib/weeks.ts`)
+- **Tests:** Vitest 4 (`npm test`, `npm run test:watch`); see [docs/SETUP.md](docs/SETUP.md) for Node version requirements.
 
 ## Screens
 

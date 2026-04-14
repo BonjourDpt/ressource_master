@@ -4,7 +4,7 @@ Step-by-step instructions to run Resource Master locally.
 
 ## Prerequisites
 
-- **Node.js** 18+ (20+ recommended). Check: `node -v`
+- **Node.js** **20**, **22**, or **24+** (LTS 20.x or 22.x is fine). Vitest 4 and other dev tooling in this repo do not support Node 18. Check: `node -v`
 - **npm** (or yarn/pnpm). Check: `npm -v`
 - **PostgreSQL** — either:
   - Local Postgres (e.g. [PostgreSQL downloads](https://www.postgresql.org/download/)), or
@@ -61,7 +61,15 @@ npm run dev
 
 The app will be available at [http://localhost:3000](http://localhost:3000). The root path redirects to `/planning`.
 
-## 5. Verify
+## 5. Run tests (optional)
+
+```bash
+npm test
+```
+
+Runs the Vitest suite once (`vitest run`). Use `npm run test:watch` for watch mode during development.
+
+## 6. Verify
 
 - Open [http://localhost:3000/planning](http://localhost:3000/planning) — you should see the planning grid and sample data.
 - Visit `/projects` and `/resources` to manage entities.
@@ -74,3 +82,4 @@ The app will be available at [http://localhost:3000](http://localhost:3000). The
 - **Prisma migrate fails (e.g. timeout on Neon)** — Retry once; if it persists, check network and DB availability.
 - **Seed fails (e.g. unique constraint)** — Re-running `npm run prisma:seed` is idempotent (upserts). If you changed the seed data and hit conflicts, reset the DB with `npx prisma migrate reset` (drops data, reapplies migrations, runs seed).
 - **`prisma generate` fails on Windows with `EPERM`** — Stop all Node processes (including other `npm run dev` windows), then run `npm run prisma:generate` again.
+- **`npm test` fails with an engine / unsupported Node error** — Upgrade Node to **20**, **22**, or **24+** (see Prerequisites).
