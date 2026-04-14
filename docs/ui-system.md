@@ -180,9 +180,9 @@ Rules:
 
 ### Split-header pattern (`PlanningTable`)
 
-The planning grid splits into two sibling containers so the date header row is persistent during window-level vertical scroll:
+The planning grid splits into two sibling containers so the full planning header row (name columns plus week dates) stays persistent during window-level vertical scroll:
 
-1. **Sticky header div** — `sticky top-14 overflow-hidden` (positioned below the `h-14` app nav). Contains a `<table>` with only `<thead>`. Horizontal scroll position is kept in sync with the body via a `scrollLeft` mirror on `onScroll`.
+1. **Sticky header div** — `sticky top-14 z-30 overflow-hidden` (positioned below the `h-14` app nav; **`z-30` is required** so the whole thead paints above the body’s sticky label columns, which use `z-[21]` / `z-[20]` — otherwise Project/Resource header text is covered during vertical page scroll). Contains a `<table>` with only `<thead>`. Horizontal scroll position is kept in sync with the body via a `scrollLeft` mirror on `onScroll`.
 2. **Scroll body div** — `overflow-x-auto` (standard horizontal scroll). Contains a `<table>` with only `<tbody>`. Fires `onScroll` to update the header div's `scrollLeft`.
 
 Both tables share identical `<colgroup>` definitions and the same `minWidth` style so column widths stay aligned. The first two columns (`sticky left-0` / `sticky left-48`) remain pinned within each container independently.

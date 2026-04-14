@@ -236,8 +236,9 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
                 <strong className="text-[var(--rm-fg)]">current week</strong>.
               </>,
               <>
-                <strong className="text-[var(--rm-fg)]">Date header</strong> — the week columns row stays{" "}
-                pinned at the top of the viewport while scrolling down; week labels are always visible.
+                <strong className="text-[var(--rm-fg)]">Planning header</strong> — the full top row (Project/Resource
+                columns and week dates) stays pinned below the main nav while you scroll down. When you scroll the grid
+                sideways, those column titles stay aligned with the sticky first columns.
               </>,
               <>
                 Orange / red totals — week over <strong className="text-[var(--rm-fg)]">100%</strong> (warning) or{" "}

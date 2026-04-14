@@ -142,6 +142,18 @@ describe("PlanningTable — persistent sticky header structure", () => {
     expect(stickyHeader).toHaveClass("overflow-hidden");
   });
 
+  /**
+   * Body label `<td>` cells use `z-[21]` / `z-[20]` (`planningStickyClasses`).
+   * If the sticky header band stacks below that (`z-20`), those body cells paint
+   * over the Project/Resource `<th>` text during vertical page scroll while
+   * week headers still read clearly — the band must sit above the body labels.
+   */
+  it("sticky header container z-index is above body sticky label columns so label headers stay visible when scrolling vertically", () => {
+    const { container } = render(<PlanningTable {...makeProps()} />);
+    const stickyHeader = container.querySelector(".sticky.top-14");
+    expect(stickyHeader).toHaveClass("z-30");
+  });
+
   it("renders week date labels inside the sticky header", () => {
     const { container } = render(<PlanningTable {...makeProps()} />);
     const stickyHeader = container.querySelector(".sticky.top-14");

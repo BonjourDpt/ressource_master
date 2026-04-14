@@ -87,7 +87,7 @@ export function PlanningTable({
           Horizontal position is kept in sync with the body via JS scrollLeft. */}
       <div
         ref={headerScrollRef}
-        className="sticky top-14 z-20 overflow-hidden rounded-t-xl border border-b-0 border-[var(--rm-border)]/40"
+        className="sticky top-14 z-30 overflow-hidden rounded-t-xl border border-b-0 border-[var(--rm-border)]/40"
       >
         <table
           className="w-full min-w-full table-fixed border-separate border-spacing-0 text-sm text-[var(--rm-fg)]"
