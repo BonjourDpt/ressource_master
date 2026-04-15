@@ -146,6 +146,15 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
             </li>
           </ol>
         </Section>
+        <Section title="Appearance">
+          <p className="text-[var(--rm-muted)]">
+            In the header (next to <strong className="text-[var(--rm-fg)]">?</strong>), use the icon-only control:{" "}
+            <strong className="text-[var(--rm-fg)]">sun</strong> while the app is in dark mode switches to{" "}
+            <strong className="text-[var(--rm-fg)]">light</strong>; <strong className="text-[var(--rm-fg)]">moon</strong>{" "}
+            while in light mode switches back to <strong className="text-[var(--rm-fg)]">dark</strong>. Your choice is
+            remembered in this browser.
+          </p>
+        </Section>
         <Tip>
           Row shortcuts on Projects and Resources are ignored while search, tabs, buttons, or another dialog is
           focused.
@@ -424,7 +433,7 @@ export function HelpButton() {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
             onClick={(e) => e.target === overlayRef.current && close()}
           >
-            <div className="absolute inset-0 bg-black/55" aria-hidden onClick={close} />
+            <div className="absolute inset-0 bg-[var(--rm-scrim)]" aria-hidden onClick={close} />
             <FocusTrap
               focusTrapOptions={{
                 escapeDeactivates: false,
@@ -438,7 +447,7 @@ export function HelpButton() {
                 aria-modal="true"
                 aria-labelledby={titleId}
                 tabIndex={-1}
-                className="relative flex max-h-[min(85vh,720px)] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[var(--rm-border)]/90 bg-[var(--rm-surface)] shadow-[0_4px_24px_rgba(0,0,0,0.22)] outline-none"
+                className="relative flex max-h-[min(85vh,720px)] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[var(--rm-border)]/90 bg-[var(--rm-surface)] shadow-[var(--rm-shadow-elevated)] outline-none"
                 onClick={(e) => e.stopPropagation()}
               >
                 <header className="shrink-0 border-b border-[var(--rm-border-subtle)]/70 px-6 pb-4 pt-5">

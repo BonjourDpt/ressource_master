@@ -261,7 +261,7 @@ export function Select({
         color: "var(--rm-fg, #e7e4ea)",
         colorScheme: "dark",
       }}
-      className="overflow-auto rounded-lg border border-[var(--rm-border)] py-1 shadow-[0_4px_16px_rgba(0,0,0,0.25)]"
+      className="overflow-auto rounded-lg border border-[var(--rm-border)] py-1 shadow-[var(--rm-shadow-dropdown)]"
     >
       {options.map((opt, idx) => {
         const isSelected = opt.value === value;

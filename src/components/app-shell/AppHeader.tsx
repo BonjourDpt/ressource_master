@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cx } from "@/lib/cx";
 import { AppBrandIcon } from "./AppBrandIcon";
 import { HelpButton } from "./HelpDialog";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navItems = [
   { href: "/planning", label: "Planning" },
@@ -52,7 +53,10 @@ export function AppHeader() {
           </ul>
         </nav>
 
-        <HelpButton />
+        <div className="flex shrink-0 items-center gap-1">
+          <ThemeToggle />
+          <HelpButton />
+        </div>
       </div>
     </header>
   );

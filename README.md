@@ -4,7 +4,7 @@ Internal web app to visualize and manage resource allocation across projects on 
 
 ## Overview
 
-**RESOURCE PLANNER** answers a simple question: **who is on what project, and when?** It provides a weekly timeline (by project or by resource), CRUD for projects, resources, and bookings, and a minimalist dark UI suited for internal planning.
+**RESOURCE PLANNER** answers a simple question: **who is on what project, and when?** It provides a weekly timeline (by project or by resource), CRUD for projects, resources, and bookings, and a minimalist dark-first UI (with optional **light** appearance) suited for internal planning.
 
 **Why it exists:** Lightweight alternative to heavy PPM tools for teams that need quick visibility and editing of who is assigned to which project each week — without timesheets, approvals, or permissions.
 
@@ -18,6 +18,7 @@ Internal web app to visualize and manage resource allocation across projects on 
 - **Search & filter** — Search by name, client, role, or team on list pages. Filter by status (Active / Archived / All) and by team.
 - **Over-allocation warnings** — Visual indicators when a resource exceeds 100% in a week.
 - **CSV import** — Bulk import projects or resources from CSV/TSV files with automatic column mapping, preview, and upsert-by-name.
+- **Appearance** — Header control (sun / moon icons) toggles **dark** vs **light** theme; preference is stored in the browser.
 - **In-app help** — Cheatsheet accessible via the **?** button in the header, covering all features and keyboard shortcuts.
 - **Toast notifications** — Non-blocking success/error feedback for all actions via Sonner.
 - **No auth (v1)** — No login or permissions; internal use only.
@@ -25,7 +26,7 @@ Internal web app to visualize and manage resource allocation across projects on 
 ## Tech stack
 
 - **Framework:** Next.js 16 (App Router) + React 19 + TypeScript
-- **Styling:** Tailwind CSS v4, custom dark-first design system (CSS variables), Geist font
+- **Styling:** Tailwind CSS v4, Indigo Graphite design tokens (`--rm-*` CSS variables, dark default + `html[data-theme="light"]` overrides), Geist font
 - **Data:** Prisma ORM, PostgreSQL
 - **Validation:** Zod
 - **UI libraries:** Sonner (toasts), focus-trap-react (modal accessibility)

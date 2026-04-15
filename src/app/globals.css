@@ -30,6 +30,40 @@
 
   /* Warning (e.g. over-allocation) */
   --rm-warning: #f59e0b;
+
+  /* Overlays / elevation */
+  --rm-scrim: rgb(0 0 0 / 0.55);
+  --rm-shadow-elevated: 0 4px 24px rgb(0 0 0 / 0.22);
+  --rm-shadow-dropdown: 0 4px 16px rgb(0 0 0 / 0.25);
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+
+  --rm-bg: #f4f4f5;
+  --rm-surface: #ffffff;
+  --rm-surface-elevated: #ececee;
+  --rm-surface-highest: #e4e4e7;
+
+  --rm-border: #d4d4d8;
+  --rm-border-subtle: #e4e4e7;
+
+  --rm-fg: #18181b;
+  --rm-muted: #52525b;
+  --rm-muted-subtle: #71717a;
+
+  --rm-primary: #4f46e5;
+  --rm-primary-hover: #4338ca;
+  --rm-primary-text: #4338ca;
+
+  --rm-danger: #dc2626;
+  --rm-danger-hover: #b91c1c;
+
+  --rm-warning: #d97706;
+
+  --rm-scrim: rgb(15 23 42 / 0.35);
+  --rm-shadow-elevated: 0 4px 24px rgb(15 23 42 / 0.12);
+  --rm-shadow-dropdown: 0 4px 16px rgb(15 23 42 / 0.1);
 }
 
 @theme inline {
