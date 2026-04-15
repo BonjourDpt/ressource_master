@@ -130,8 +130,10 @@ function makeProps(overrides: Partial<PlanningTableBodyProps> = {}): PlanningTab
       ["r1:2026-04-06", 50],
       ["r1:2026-04-13", 80],
     ]),
-    projects: [{ id: "p1", name: "Alpha", color: null, status: "ACTIVE" }],
-    resources: [{ id: "r1", name: "Alice", status: "ACTIVE" }],
+    projects: [{ id: "p1", name: "Alpha", color: null, client: null, status: "ACTIVE" }],
+    resources: [
+      { id: "r1", name: "Alice", role: null, team: null, capacity: 37.5, status: "ACTIVE" },
+    ],
     editingCell: null,
     onEditingCellChange: vi.fn(),
     onTabNavigate: vi.fn(),

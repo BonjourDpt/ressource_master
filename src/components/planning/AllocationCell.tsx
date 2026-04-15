@@ -21,7 +21,6 @@ export interface AllocationCellProps {
 }
 
 export function AllocationCell({
-  g,
   row,
   cell,
   editingCell,

@@ -77,7 +77,9 @@ export function EditableAllocationCell({
 
   useEffect(() => {
     if (!isEditing) return;
-    resetFromProps();
+    queueMicrotask(() => {
+      resetFromProps();
+    });
     return () => {
       if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
     };

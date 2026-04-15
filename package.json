@@ -6,12 +6,15 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "check": "npm run prisma:generate && npm run typecheck && npm run lint && npm run build",
+    "check:watch": "npm run check && npm run test"
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",

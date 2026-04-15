@@ -1,5 +1,4 @@
 import { Select, type SelectProps } from "./Select";
-import { cx } from "@/lib/cx";
 
 export interface SelectFieldProps extends Omit<SelectProps, "error"> {
   label: string;

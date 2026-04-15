@@ -10,7 +10,7 @@
  * - The allocation percent remains the primary readable text
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { EditableAllocationCell } from "./EditableAllocationCell";
 import type { BookingWithRelations } from "@/lib/planning-view-model";
