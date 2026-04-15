@@ -55,7 +55,10 @@ export function ThemeToggle() {
       const next: ThemeMode = prev === "dark" ? "light" : "dark";
       writeThemeToStorage(localStorage, next);
       applyThemeToDocument(next);
-      window.dispatchEvent(new CustomEvent("rm-theme-change", { detail: next }));
+      // Defer so listeners (e.g. AppToaster) do not setState during this update.
+      queueMicrotask(() => {
+        window.dispatchEvent(new CustomEvent("rm-theme-change", { detail: next }));
+      });
       return next;
     });
   }, []);
