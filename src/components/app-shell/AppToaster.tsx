@@ -14,9 +14,7 @@ export function AppToaster() {
 
     const onThemeChange = (e: Event) => {
       const detail = (e as CustomEvent<ThemeMode>).detail;
-      if (detail === "light" || detail === "dark") {
-        queueMicrotask(() => setTheme(detail));
-      }
+      if (detail === "light" || detail === "dark") setTheme(detail);
     };
     window.addEventListener("rm-theme-change", onThemeChange);
     return () => window.removeEventListener("rm-theme-change", onThemeChange);
