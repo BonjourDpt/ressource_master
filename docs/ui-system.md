@@ -2,7 +2,7 @@
 
 ## Intent
 RESOURCE PLANNER should feel like a premium internal planning product:
-calm, precise, readable, structured, restrained — in **dark** (default) or **light** appearance.
+calm, precise, dark, readable, structured, restrained.
 
 The UI should not feel like:
 - a default admin template
@@ -27,7 +27,7 @@ The UI should feel coherent across Planning, Projects, Resources, and Admin.
 ## Layout Rules
 
 ### App Shell
-- **Top header** — Sticky full-width bar with brand mark (`public/app-brand-icon.png`, luminance-masked and filled with `currentColor` / primary text for white-on-dark artwork), two-line app title (**RESOURCE** / **PLANNER**), primary nav (Planning, Projects, Resources, Admin), **appearance** control (icon-only: sun while dark, moon while light — switches `data-theme` on `<html>`), and the in-app **Help** control.
+- **Top header** — Sticky full-width bar with brand mark (`public/app-brand-icon.png`, luminance-masked and filled with `currentColor` / primary text for white-on-dark artwork), two-line app title (**RESOURCE** / **PLANNER**), primary nav (Planning, Projects, Resources, Admin), and the in-app **Help** control.
 - **Main area** — Centered content column (`max-w-[1800px]`) with horizontal padding; page content sits in `<main>` with bottom padding so lists clear the status bar.
 - **Status bar** — Fixed footer strip showing live **resource** and **project** counts (mono, subtle).
 - Header and content width should stay aligned so pages feel like one product, not separate templates.
@@ -73,15 +73,10 @@ Do not use mono as a decorative font.
 
 ## Color System
 
-Use **Indigo Graphite** semantic tokens in [`src/app/globals.css`](../src/app/globals.css) as the source of truth.
-
-- **Default (dark):** `:root` defines `--rm-*` variables and `color-scheme: dark`.
-- **Light mode:** `html[data-theme="light"]` overrides the same `--rm-*` names; `color-scheme: light`.
-- **Persistence:** `localStorage` key `rm-theme` stores `"dark"` or `"light"`. A small `beforeInteractive` script applies the stored theme before paint to avoid a flash.
-- **Overlays:** `--rm-scrim` (modal/side-panel/help backdrop) and elevation shadows `--rm-shadow-elevated`, `--rm-shadow-dropdown` are theme-aware.
+Use existing Indigo Graphite tokens as the source of truth.
 
 ### Visual hierarchy
-- Background: calm, flat (dark graphite or light gray)
+- Background: calm, dark, flat
 - Surfaces: slightly lifted from background
 - Borders: subtle, never loud
 - Primary accent: reserved and meaningful

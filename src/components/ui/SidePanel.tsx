@@ -30,7 +30,7 @@ export function SidePanel({ open, onClose, title, children }: SidePanelProps) {
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-[var(--rm-scrim)]"
+        className="fixed inset-0 z-40 bg-black/60"
         onClick={onClose}
         aria-hidden="true"
       />

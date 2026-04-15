@@ -12,10 +12,6 @@
 
 You're planning.
 
-### Appearance (dark / light)
-
-In the header, next to **?**: click the **sun** (while the app is dark) to switch to **light** mode, or the **moon** (while light) to return to **dark**. Your choice is saved in this browser (`localStorage`).
-
 ---
 
 ## 2. Projects & Resources

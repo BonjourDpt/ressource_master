@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
+import { Toaster } from "sonner";
 import "./globals.css";
 import { AppShell } from "@/components/app-shell/AppShell";
-import { AppToaster } from "@/components/app-shell/AppToaster";
-import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme";
 import { DeveloperSetupError } from "@/components/developer-setup-error";
 import { parseDeveloperDbSetupFailure } from "@/lib/developer-db-setup";
 import { db } from "@/lib/db";
@@ -41,13 +39,10 @@ export default async function RootLayout({
     const failure = parseDeveloperDbSetupFailure(err);
     if (failure && process.env.NODE_ENV === "development") {
       return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang="en">
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
-            <Script id="rm-theme-bootstrap" strategy="beforeInteractive">
-              {THEME_BOOTSTRAP_SCRIPT}
-            </Script>
             <DeveloperSetupError failure={failure} />
           </body>
         </html>
@@ -55,7 +50,7 @@ export default async function RootLayout({
     }
     if (failure && process.env.NODE_ENV === "production") {
       return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang="en">
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             style={{
@@ -67,9 +62,6 @@ export default async function RootLayout({
               textAlign: "center",
             }}
           >
-            <Script id="rm-theme-bootstrap" strategy="beforeInteractive">
-              {THEME_BOOTSTRAP_SCRIPT}
-            </Script>
             <p style={{ margin: 0, color: "var(--rm-muted)", maxWidth: "28rem" }}>
               The application could not connect to the database. Ensure DATABASE_URL is
               correct and migrations have been applied. See server logs and docs/SETUP.md
@@ -83,15 +75,24 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Script id="rm-theme-bootstrap" strategy="beforeInteractive">
-          {THEME_BOOTSTRAP_SCRIPT}
-        </Script>
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <AppShell resourceCount={resourceCount} projectCount={projectCount}>
           {children}
         </AppShell>
-        <AppToaster />
+        <Toaster
+          theme="dark"
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: "var(--rm-surface-elevated)",
+              border: "1px solid var(--rm-border)",
+              color: "var(--rm-fg)",
+            },
+          }}
+        />
       </body>
     </html>
   );

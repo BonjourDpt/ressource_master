@@ -27,7 +27,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         type={type}
         {...props}
         className={cx(
-          "w-full rounded-lg border bg-[var(--rm-surface)] text-[var(--rm-fg)] outline-none transition-colors placeholder:text-[var(--rm-muted-subtle)] focus:ring-2 focus:ring-[var(--rm-primary)]/25 focus:ring-offset-0",
+          "w-full rounded-lg border bg-[var(--rm-surface)] text-[var(--rm-fg)] outline-none transition-colors [color-scheme:dark] placeholder:text-[var(--rm-muted-subtle)] focus:ring-2 focus:ring-[var(--rm-primary)]/25 focus:ring-offset-0",
           sizeClasses[size],
           error
             ? "border-[var(--rm-danger)] focus:border-[var(--rm-danger)]"

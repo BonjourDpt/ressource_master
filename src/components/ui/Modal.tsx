@@ -70,7 +70,7 @@ export function Modal({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
       onClick={(e) => e.target === overlayRef.current && onClose()}
     >
-      <div className="absolute inset-0 bg-[var(--rm-scrim)]" aria-hidden onClick={onClose} />
+      <div className="absolute inset-0 bg-black/55" aria-hidden onClick={onClose} />
       <FocusTrap
         focusTrapOptions={{
           escapeDeactivates: false,
@@ -85,7 +85,7 @@ export function Modal({
           aria-labelledby={titleId}
           aria-describedby={description ? descriptionId : undefined}
           tabIndex={-1}
-          className={`relative flex max-h-[min(90vh,800px)] w-full flex-col overflow-hidden rounded-xl border border-[var(--rm-border)]/90 bg-[var(--rm-surface)] shadow-[var(--rm-shadow-elevated)] outline-none ${sizeClass[size]}`}
+          className={`relative flex max-h-[min(90vh,800px)] w-full flex-col overflow-hidden rounded-xl border border-[var(--rm-border)]/90 bg-[var(--rm-surface)] shadow-[0_4px_24px_rgba(0,0,0,0.22)] outline-none ${sizeClass[size]}`}
           onClick={(e) => e.stopPropagation()}
         >
           <header className="shrink-0 border-b border-[var(--rm-border-subtle)]/70 px-6 pb-4 pt-5">
