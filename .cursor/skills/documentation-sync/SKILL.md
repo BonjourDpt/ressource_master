@@ -26,6 +26,7 @@ Run **automatically** when the task touches any of:
 - `README.md` — overview, features, screens, quick start pointers
 - `CHEATSHEET.md` — end-user reference (should stay aligned with in-app help)
 - `docs/SETUP.md` — install, env, DB, migrations, troubleshooting
+- `docs/DEVELOPER_GUARDRAILS.md` — quality gates (local checks, CI/hooks when added), pre/post-main validation inventory
 - `docs/ui-system.md` — layout, tokens, component conventions
 - `docs/PRODUCT_ASSUMPTIONS.md` — domain model, lifecycle, assumptions
 - `docs/FUTURE_IMPROVEMENTS.md` — backlog (only if a planned item is implemented or invalidated)
