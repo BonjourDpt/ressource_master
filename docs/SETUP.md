@@ -83,3 +83,7 @@ Runs the Vitest suite once (`vitest run`). Use `npm run test:watch` for watch mo
 - **Seed fails (e.g. unique constraint)** — Re-running `npm run prisma:seed` is idempotent (upserts). If you changed the seed data and hit conflicts, reset the DB with `npx prisma migrate reset` (drops data, reapplies migrations, runs seed).
 - **`prisma generate` fails on Windows with `EPERM`** — Stop all Node processes (including other `npm run dev` windows), then run `npm run prisma:generate` again.
 - **`npm test` fails with an engine / unsupported Node error** — Upgrade Node to **20**, **22**, or **24+** (see Prerequisites).
+
+## CI and deploy (maintainers)
+
+Pushes to **`main`** run **[`.github/workflows/ci-deploy.yml`](../.github/workflows/ci-deploy.yml)** on GitHub Actions: **`build`** (ephemeral Postgres in CI, same steps as a full check + `next build`) then **`deploy`**, which `POST`s to the repository secret **`DEPLOY_WEBHOOK_URL`** when that secret is set (skipped otherwise, e.g. on forks). Details and changelog: **[docs/DEVELOPER_GUARDRAILS.md](DEVELOPER_GUARDRAILS.md)**.

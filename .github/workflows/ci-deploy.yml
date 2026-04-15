@@ -45,3 +45,14 @@ jobs:
       - run: npm run lint
 
       - run: npm run build
+
+  deploy:
+    needs: build
+    if: secrets.DEPLOY_WEBHOOK_URL != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deployment
+        env:
+          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        run: |
+          curl -fsS -X POST "$DEPLOY_WEBHOOK_URL"

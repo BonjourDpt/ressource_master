@@ -20,7 +20,7 @@ Hooks are installed for contributors who run `npm install` (the `prepare` script
 
 | Workflow | When it runs | What it runs |
 |----------|----------------|--------------|
-| [**CI**](../.github/workflows/ci.yml) | Every **push** to **`main`** | Ephemeral Postgres 16 (`services.postgres`), job `DATABASE_URL` (no DB secrets), `npm ci`, `prisma generate`, `prisma migrate deploy`, `typecheck`, `lint`, `next build`. Node version follows [`.nvmrc`](../.nvmrc). |
+| [**CI**](../.github/workflows/ci-deploy.yml) | Every **push** to **`main`** | Job **`build`**: ephemeral Postgres 16 (`services.postgres`), job `DATABASE_URL` (no DB secrets), `npm ci`, `prisma generate`, `prisma migrate deploy`, `typecheck`, `lint`, `next build`. Node version follows [`.nvmrc`](../.nvmrc). Job **`deploy`** (after `build`): `POST` to the Actions secret `DEPLOY_WEBHOOK_URL` to trigger your host webhook; **skipped** if that secret is unset (e.g. forks). |
 
 ### Recommended local command sequence
 
@@ -65,7 +65,7 @@ These guide humans and agents; they are **not** enforced by `npm` or git:
 
 Use this subsection as a checklist when you add infrastructure. **Today:**
 
-- **No CI on pull requests** — [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on pushes to **`main`** only, not on every PR (add a `pull_request` trigger if you want that).
+- **No CI on pull requests** — [`.github/workflows/ci-deploy.yml`](../.github/workflows/ci-deploy.yml) runs on pushes to **`main`** only, not on every PR (add a `pull_request` trigger if you want that).
 - **No required-status documentation** — Branch protection, required reviewers, and merge queues live in your Git host; document them here when you set them up.
 
 When you add an item, move it to the tables above and leave a one-line note under **Changelog** at the bottom of this file.
@@ -102,6 +102,9 @@ When you add an item, move it to the tables above and leave a one-line note unde
 | 2026-04-15 | Initial inventory: local `check` / `check:watch`, ESLint, TS strict, Vitest, layout DB probe, Cursor doc/TDD skills; noted missing CI and git hooks. |
 | 2026-04-15 | Husky **pre-push** runs `npm run check` (Prisma generate, typecheck, lint, build); `prepare` script installs hooks on `npm install`. |
 | 2026-04-15 | GitHub Actions **CI** on push to `main`: ephemeral Postgres, `prisma generate`, `migrate deploy`, typecheck, lint, build; Node from `.nvmrc`. |
+| 2026-04-15 | CI **`deploy` job**: after successful `build`, `POST` to `DEPLOY_WEBHOOK_URL`; job skipped when secret is empty. |
+| 2026-04-15 | CI workflow path: [`.github/workflows/ci-deploy.yml`](../.github/workflows/ci-deploy.yml) (was `ci.yml`). |
+| 2026-04-15 | README, SETUP, FUTURE_IMPROVEMENTS: point to `ci-deploy.yml`, deploy webhook, and maintainer-oriented CI summary. |
 
 ---
 

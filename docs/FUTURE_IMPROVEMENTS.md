@@ -45,7 +45,7 @@ Items marked ~~strikethrough~~ have been implemented.
 
 - **Larger datasets** — If projects/resources grow a lot: paginate or virtualize the planning grid rows; keep week range bounded.
 - **Concurrent edits** — If multiple people edit at once: optional optimistic updates and clear "last updated" or conflict messaging; no need for full CRDTs for MVP.
-- **Deployment** — Document or automate deploy to a single internal host (e.g. Vercel, Docker, or internal VM) with env-based `DATABASE_URL`.
+- ~~**Deployment**~~ — ✅ Push to `main` runs [`ci-deploy.yml`](../.github/workflows/ci-deploy.yml): after a green build, a **`deploy`** job `POST`s to the `DEPLOY_WEBHOOK_URL` Actions secret when set (see [DEVELOPER_GUARDRAILS.md](DEVELOPER_GUARDRAILS.md)). **Still open:** operator runbook for the host (env, `DATABASE_URL`, backups) beyond the webhook.
 - **Backups** — Rely on managed Postgres backups; optional: scheduled export job for bookings.
 
 ---
