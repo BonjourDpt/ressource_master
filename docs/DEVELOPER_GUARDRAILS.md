@@ -16,6 +16,12 @@ These are the checks and conventions that exist **in this repository today**. A 
 
 Hooks are installed for contributors who run `npm install` (the `prepare` script runs `husky`). No commit-time hook is enabled by default; run `npm test` or `npm run check:watch` in your workflow when you need tests before sharing work.
 
+### GitHub Actions
+
+| Workflow | When it runs | What it runs |
+|----------|----------------|--------------|
+| [**CI**](../.github/workflows/ci.yml) | Every **push** to **`main`** | Ephemeral Postgres 16 (`services.postgres`), job `DATABASE_URL` (no DB secrets), `npm ci`, `prisma generate`, `prisma migrate deploy`, `typecheck`, `lint`, `next build`. Node version follows [`.nvmrc`](../.nvmrc). |
+
 ### Recommended local command sequence
 
 | Command | What it validates |
@@ -59,7 +65,7 @@ These guide humans and agents; they are **not** enforced by `npm` or git:
 
 Use this subsection as a checklist when you add infrastructure. **Today:**
 
-- **No CI workflows** — There is no `.github/workflows` (or other) pipeline that runs on PRs or `main`.
+- **No CI on pull requests** — [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on pushes to **`main`** only, not on every PR (add a `pull_request` trigger if you want that).
 - **No required-status documentation** — Branch protection, required reviewers, and merge queues live in your Git host; document them here when you set them up.
 
 When you add an item, move it to the tables above and leave a one-line note under **Changelog** at the bottom of this file.
@@ -95,6 +101,7 @@ When you add an item, move it to the tables above and leave a one-line note unde
 |------|--------|
 | 2026-04-15 | Initial inventory: local `check` / `check:watch`, ESLint, TS strict, Vitest, layout DB probe, Cursor doc/TDD skills; noted missing CI and git hooks. |
 | 2026-04-15 | Husky **pre-push** runs `npm run check` (Prisma generate, typecheck, lint, build); `prepare` script installs hooks on `npm install`. |
+| 2026-04-15 | GitHub Actions **CI** on push to `main`: ephemeral Postgres, `prisma generate`, `migrate deploy`, typecheck, lint, build; Node from `.nvmrc`. |
 
 ---
 
