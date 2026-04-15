@@ -6,7 +6,15 @@ This document is a **living inventory** of how the project validates changes **b
 
 ## Before changes reach `main`
 
-These are the checks and conventions that exist **in this repository today**. Nothing here runs automatically on `git push` unless your hosting or Git org adds it (see [Not in the repo yet](#not-in-the-repo-yet)).
+These are the checks and conventions that exist **in this repository today**. A **pre-push** hook also runs `npm run check` locally (see [Git hooks (Husky)](#git-hooks-husky)).
+
+### Git hooks (Husky)
+
+| Hook | What runs |
+|------|-----------|
+| **pre-push** ([`.husky/pre-push`](../.husky/pre-push)) | `npm run check` — Prisma `generate`, `typecheck`, `lint`, and `next build`. Push is blocked if any step fails. |
+
+Hooks are installed for contributors who run `npm install` (the `prepare` script runs `husky`). No commit-time hook is enabled by default; run `npm test` or `npm run check:watch` in your workflow when you need tests before sharing work.
 
 ### Recommended local command sequence
 
@@ -52,7 +60,6 @@ These guide humans and agents; they are **not** enforced by `npm` or git:
 Use this subsection as a checklist when you add infrastructure. **Today:**
 
 - **No CI workflows** — There is no `.github/workflows` (or other) pipeline that runs on PRs or `main`.
-- **No git hooks** — No Husky, `lint-staged`, or pre-push scripts in the repo.
 - **No required-status documentation** — Branch protection, required reviewers, and merge queues live in your Git host; document them here when you set them up.
 
 When you add an item, move it to the tables above and leave a one-line note under **Changelog** at the bottom of this file.
@@ -87,6 +94,7 @@ When you add an item, move it to the tables above and leave a one-line note unde
 | Date | Change |
 |------|--------|
 | 2026-04-15 | Initial inventory: local `check` / `check:watch`, ESLint, TS strict, Vitest, layout DB probe, Cursor doc/TDD skills; noted missing CI and git hooks. |
+| 2026-04-15 | Husky **pre-push** runs `npm run check` (Prisma generate, typecheck, lint, build); `prepare` script installs hooks on `npm install`. |
 
 ---
 
