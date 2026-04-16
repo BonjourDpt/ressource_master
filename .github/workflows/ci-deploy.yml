@@ -72,16 +72,21 @@ jobs:
             echo "DEPLOY_HEALTH_CHECK_URL not set; skipping health verification (set it to your public GET /api/health URL)"
             exit 0
           fi
+
           max_attempts=30
           delay_sec=10
+
           for i in $(seq 1 "$max_attempts"); do
-            code=$(curl -sS -o /tmp/health.json -w "%{http_code}" "$DEPLOY_HEALTH_CHECK_URL")
+            code=$(curl -sS --max-time 5 -o /tmp/health.json -w "%{http_code}" "$DEPLOY_HEALTH_CHECK_URL" || echo "000")
             if [ "$code" = "200" ]; then
               echo "Health check passed (HTTP 200, attempt $i/$max_attempts)"
               exit 0
-            fi
-            echo "Health check returned HTTP $code (attempt $i/$max_attempts), retrying in ${delay_sec}s..."
+            fi            echo "Health check returned HTTP $code (attempt $i/$max_attempts), retrying in ${delay_sec}s..."
             sleep "$delay_sec"
           done
+
           echo "Health check did not return HTTP 200 after $max_attempts attempts"
+          echo "Final response body:"
+          cat /tmp/health.json || true
+          rm -f /tmp/health.json         
           exit 1
