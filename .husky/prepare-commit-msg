@@ -1,7 +1,14 @@
 #!/usr/bin/env sh
 # Append Assisted-by before the editor opens (and for -m / -F), unless already present.
-# Override for AI-assisted commits: ASSISTED_BY='Cursor:YourModel' git commit ...
-# Default when unset: human-only
+#
+# Value resolution (first match wins):
+#   1) Env ASSISTED_BY (non-empty) for this commit only
+#   2) Git config ressource.assistedBy (repo: git config …; or --global)
+#   3) Cursor:unspecified  (generic IDE/assistant trailer — zero config)
+#
+# Human-only commits: git config ressource.assistedBy human-only
+#   (session), or edit the line in the commit message, or unset for default.
+# More specific AI label: git config ressource.assistedBy "Cursor:Composer-2"
 #
 # Args: $1 = path to commit message file, $2 = source (message|template|merge|squash|commit)
 
@@ -28,9 +35,13 @@ if grep -qiE '^Assisted-by:[[:space:]]*[^[:space:]]' "$msg_file"; then
   exit 0
 fi
 
-value="${ASSISTED_BY:-human-only}"
-if [ -z "$value" ]; then
-  value="human-only"
+if [ -n "${ASSISTED_BY+x}" ] && [ -n "$ASSISTED_BY" ]; then
+  value="$ASSISTED_BY"
+else
+  value=$(git config --get ressource.assistedBy 2>/dev/null) || true
+  if [ -z "$value" ]; then
+    value="Cursor:unspecified"
+  fi
 fi
 
 printf '\nAssisted-by: %s\n' "$value" >> "$msg_file"

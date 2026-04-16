@@ -33,6 +33,10 @@ Explicit assumptions behind the current product design. Revisit when changing be
 - **No permissions** — No roles, no per-user or per-entity access control. Anyone with access to the app can change any data.
 - **Internal use** — Access control is assumed to be handled outside the app (e.g. network, VPN, deployment environment).
 
+## Development process
+
+- **AI-assisted engineering** — Work on this product and repository has used **AI coding assistants from project inception** (e.g. Cursor), with humans responsible for intent, review, and merges. See [`AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md) for commit-level `Assisted-by` policy and the project-wide historical note.
+
 ## UI and scope
 
 - **MVP scope** — Projects, resources, bookings, weekly planning view, CSV import, and in-app help. No timesheets, approvals, reporting, notifications, or integrations.

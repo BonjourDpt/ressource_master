@@ -2,6 +2,13 @@
 
 This repository follows practices aligned with the Linux kernel’s guidance for AI coding assistants ([`Documentation/process/coding-assistants.rst`](https://github.com/torvalds/linux/blob/master/Documentation/process/coding-assistants.rst)), adapted for **RESOURCE PLANNER** (not GPL-specific; this repo does not yet declare a `LICENSE` file—compliance with any future license remains your responsibility).
 
+## Project-wide note (historical)
+
+**Maintainer position:** Development of **RESOURCE PLANNER** in this repository has been **carried out with AI coding assistance (e.g. Cursor and similar tools) from the project’s inception onward**, together with human direction, review, and responsibility for what ships. That is the default story for **the codebase as a whole**.
+
+- **Per-commit `Assisted-by` lines** add finer-grained traceability when present; they were not required for the full history before this policy existed, so **older commits may lack that trailer** even though AI assistance was already in use.
+- This section does **not** rewrite past Git history; it documents how the project characterizes its development for readers, partners, and subsidy dossiers (see [`DEV_LOG.md`](DEV_LOG.md) and [`PRODUCT_ASSUMPTIONS.md`](PRODUCT_ASSUMPTIONS.md) — development process).
+
 ## Why
 
 - **Traceability** — Funding and audit contexts (see [`DEV_LOG.md`](DEV_LOG.md)) benefit from clear records of what changed and how work was produced.
@@ -42,18 +49,40 @@ You may use `Assisted-by: none` with the same meaning if you prefer.
 
 ### Auto-append (`prepare-commit-msg`)
 
-Husky runs **[`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg)** before your editor opens (and for `git commit -m` / `-F`). If the message file does **not** already contain a non-empty `Assisted-by:` line, the hook **appends**:
+Husky runs **[`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg)** before your editor opens (and for `git commit -m` / `-F`). If the message file does **not** already contain a non-empty `Assisted-by:` line, the hook **appends** a trailer using this order:
+
+1. Non-empty env **`ASSISTED_BY`** (this commit only), else  
+2. **`git config ressource.assistedBy`** if set, else  
+3. **`Cursor:unspecified`** — a **generic** assisted-by line so you do **not** need to type anything for routine work.
+
+Example with zero configuration:
 
 ```text
-Assisted-by: human-only
+Assisted-by: Cursor:unspecified
 ```
 
-**AI-assisted commit (override the default):** set **`ASSISTED_BY`** for that command only (value is whatever goes after `Assisted-by: `):
+**Human-only commit (no AI / no Cursor assistance for that change):** set a session value or edit the line once in the message:
+
+```bash
+git config ressource.assistedBy human-only
+# …commits…
+git config --unset ressource.assistedBy   # back to default Cursor:unspecified
+```
+
+Or change `Assisted-by:` to `human-only` in the editor before saving.
+
+**More specific label (optional):** if you want the model name in history, set e.g. `git config ressource.assistedBy "Cursor:Composer-2"` until you unset it.
+
+Use **`--global`** on `git config` if you want the same `ressource.assistedBy` in every repo on this machine (per-repo config overrides global when both apply).
+
+**One-off override (single commit):** **`ASSISTED_BY`** wins over config:
 
 - **bash / sh:** `ASSISTED_BY='Cursor:Composer-2' git commit`
 - **PowerShell:** `$env:ASSISTED_BY='Cursor:Composer-2'; git commit`
 
-If **`ASSISTED_BY`** is empty, the hook still uses `human-only`. Do not put newlines in **`ASSISTED_BY`**.
+Do not put newlines in **`ASSISTED_BY`** or in **`ressource.assistedBy`**.
+
+**Accuracy note:** The default **`Cursor:unspecified`** assumes typical Cursor/IDE-assisted workflow. For a commit you truly did without such tooling, prefer **`human-only`** (config or edit) so the log stays honest.
 
 The hook **does not** append when:
 

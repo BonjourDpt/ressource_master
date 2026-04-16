@@ -14,7 +14,7 @@ These are the checks and conventions that exist **in this repository today**. A 
 | Hook                                                     | What runs                                                                                                                                                                                                                                                                 |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **pre-push** (`[.husky/pre-push](../.husky/pre-push)`)   | `npm run check:prepush` — Prisma `generate`, `typecheck`, and `lint` (no `next build`). Push is blocked if any step fails; **`next build`** still runs on **[CI-deploy](../.github/workflows/ci-deploy.yml)** for pushes to `main`.                                       |
-| **prepare-commit-msg** (`[.husky/prepare-commit-msg](../.husky/prepare-commit-msg)`) | **Auto-appends** `Assisted-by: human-only` when the message has no `Assisted-by:` line yet (skips merge and `Merge ` / `Revert ` first lines). Override with env **`ASSISTED_BY`** for AI-assisted commits (see [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md)). |
+| **prepare-commit-msg** (`[.husky/prepare-commit-msg](../.husky/prepare-commit-msg)`) | **Auto-appends** `Assisted-by` when missing: env **`ASSISTED_BY`**, else **`git config ressource.assistedBy`**, else **`Cursor:unspecified`** (skips merge and `Merge ` / `Revert ` first lines). See [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md). |
 | **commit-msg** (`[.husky/commit-msg](../.husky/commit-msg)`) | Runs [`scripts/check-assisted-by.mjs`](../scripts/check-assisted-by.mjs) in **warn-only** mode: reminds you if the commit message lacks a non-empty `Assisted-by:` trailer (see [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md)). Does **not** block the commit locally. |
 
 
@@ -146,7 +146,7 @@ When you add an item, move it to the tables above and leave a one-line note unde
 | 2026-04-16 | **`notify-failure`**: `actions: read`; best-effort Jobs API for failed **step** + job log link; fallback **full** SHA, branch, failed job heuristic, run URL. |
 | 2026-04-16 | **Env alignment:** Node **22** in `package.json` `engines` and `.nvmrc`; [SETUP.md](SETUP.md) documents **`npm ci`**, application vs CI secrets, and **`DATABASE_URL`** at build vs runtime; [`.env.example`](../.env.example) lists required and reserved keys. |
 | 2026-04-16 | **AI-assisted contributions:** [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md), Husky **`commit-msg`** (warn), CI **`build`** strict `Assisted-by` check ([`scripts/check-assisted-by.mjs`](../scripts/check-assisted-by.mjs)), Cursor rule `ai-assisted-contributions.mdc`; documentation-sync owns ongoing updates. |
-| 2026-04-16 | Husky **`prepare-commit-msg`**: auto-append `Assisted-by` (default `human-only`, override **`ASSISTED_BY`**); see [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md). |
+| 2026-04-16 | Husky **`prepare-commit-msg`**: auto-append `Assisted-by` (**`ASSISTED_BY`** → **`git config ressource.assistedBy`** → **`Cursor:unspecified`**); see [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md). |
 
 
 ---

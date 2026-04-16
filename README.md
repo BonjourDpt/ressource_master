@@ -64,7 +64,9 @@ Authoritative step-by-step setup, including migrations and seed, remains in **[d
 
 ## Contributing and AI assistance
 
-Commits must include a non-empty **`Assisted-by:`** line. **Husky** auto-appends `Assisted-by: human-only` via **`prepare-commit-msg`** unless you already added one; for AI-assisted work set **`ASSISTED_BY`** for that commit (see **[docs/AI_ASSISTED_CONTRIBUTIONS.md](docs/AI_ASSISTED_CONTRIBUTIONS.md)**). **CI on `main`** still enforces the rule on the pushed commit. Policy aligns with the Linux kernel’s [coding-assistants](https://github.com/torvalds/linux/blob/master/Documentation/process/coding-assistants.rst) guidance.
+**Project stance:** Development here has used **AI coding assistance from the start**, alongside human ownership; see **[docs/AI_ASSISTED_CONTRIBUTIONS.md](docs/AI_ASSISTED_CONTRIBUTIONS.md)** for the full historical note and [`docs/PRODUCT_ASSUMPTIONS.md`](docs/PRODUCT_ASSUMPTIONS.md) (development process).
+
+Commits must include a non-empty **`Assisted-by:`** line. **Husky** **`prepare-commit-msg`** fills it in using **`ASSISTED_BY`** (one commit), then **`git config ressource.assistedBy`**, then by default **`Cursor:unspecified`** so you do not need to type the line. **CI on `main`** enforces the rule on the pushed commit. Policy aligns with the Linux kernel’s [coding-assistants](https://github.com/torvalds/linux/blob/master/Documentation/process/coding-assistants.rst) guidance.
 
 ## Documentation
 

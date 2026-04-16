@@ -131,7 +131,7 @@ Copy and use mentally or literally:
 - [ ] **CHEATSHEET.md** — Matches Help dialog and actual UI labels/workflows?
 - [ ] **docs/SETUP.md** — Env vars, commands, migrations, troubleshooting still valid?
 - [ ] **docs/DEVELOPER_GUARDRAILS.md** — Hooks, CI, and script inventory still match `.husky/`, `.github/workflows/`, and `package.json` scripts?
-- [ ] **docs/AI_ASSISTED_CONTRIBUTIONS.md** — Matches `scripts/check-assisted-by.mjs`, Husky `prepare-commit-msg` / `commit-msg`, **`ASSISTED_BY`** override, and CI `Assisted-by` step (skip rules, strict vs warn, bypass policy)?
+- [ ] **docs/AI_ASSISTED_CONTRIBUTIONS.md** — Matches `scripts/check-assisted-by.mjs`, Husky `prepare-commit-msg` / `commit-msg`, **`ASSISTED_BY`** / **`git config ressource.assistedBy`**, and CI `Assisted-by` step (skip rules, strict vs warn, bypass policy)?
 - [ ] **docs/ui-system.md** — New/changed layout or component patterns documented if they establish precedent?
 - [ ] **docs/PRODUCT_ASSUMPTIONS.md** — Domain or security assumptions changed?
 - [ ] **HelpDialog.tsx** — Tabs/sections reflect current product behavior and shortcuts?

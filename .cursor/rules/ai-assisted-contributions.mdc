@@ -22,6 +22,6 @@ Follow [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](../../docs/AI_ASSISTED_CONTRIBUTION
 
 4. Optional trailers may list **specialized** tools (not basic git/editor/compiler), matching project docs.
 
-**Git auto-append:** This repo’s Husky **`prepare-commit-msg`** hook appends `Assisted-by: human-only` when missing. Tell the user they can set **`ASSISTED_BY='Cursor:…'`** (shell) or **`$env:ASSISTED_BY='Cursor:…'`** (PowerShell) for that commit when they chose **B**. Details: [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](../../docs/AI_ASSISTED_CONTRIBUTIONS.md).
+**Git auto-append:** Husky **`prepare-commit-msg`** picks: non-empty **`ASSISTED_BY`** → **`git config ressource.assistedBy`** → default **`Cursor:unspecified`** (no typing). For **A** (human-only), tell the user: **`git config ressource.assistedBy human-only`** for a session, or edit the line; **`git config --unset ressource.assistedBy`** restores the default. Details: [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](../../docs/AI_ASSISTED_CONTRIBUTIONS.md).
 
 When editing **policy** here or in `docs/AI_ASSISTED_CONTRIBUTIONS.md`, Husky, or CI for this check, run the **documentation-sync** skill so the checklist and [`docs/DEVELOPER_GUARDRAILS.md`](../../docs/DEVELOPER_GUARDRAILS.md) stay accurate.

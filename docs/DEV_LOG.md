@@ -8,6 +8,37 @@
 
 **Order:** **newest first**. Each new `###` entry goes **directly under this paragraph**, **before** any older entry (and **before** the optional `<!-- AGENT TEMPLATE -->` block at the end of the file).
 
+### 2026-04-16 — Docs: project-wide AI assistance since inception (maintainer note)
+
+- **Date (UTC or local):** 2026-04-16
+- **Operational summary:** Documented maintainer position that **RESOURCE PLANNER** development has used **AI coding assistance from project inception**, with human review; clarified that older commits may lack `Assisted-by` trailers; no Git history rewrite. Updated [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md), [`docs/PRODUCT_ASSUMPTIONS.md`](PRODUCT_ASSUMPTIONS.md), [`README.md`](../README.md).
+- **Technical problem / uncertainty:** Per-commit trailers vs global narrative for subsidy/readers.
+- **Work performed:** [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md) — **Project-wide note (historical)**; [`docs/PRODUCT_ASSUMPTIONS.md`](PRODUCT_ASSUMPTIONS.md) — **Development process**; [`README.md`](../README.md) — contributing blurb
+- **Result / status:** Doc updates locally.
+- **Links / traceability:** `*(to complete)*`
+
+### 2026-04-16 — Default Assisted-by trailer: Cursor:unspecified (human-only via config)
+
+- **Date (UTC or local):** 2026-04-16
+- **Operational summary:** Changed **`prepare-commit-msg`** fallback from **`human-only`** to **`Cursor:unspecified`** so contributors need not type a line; human-only work uses **`git config ressource.assistedBy human-only`** or editing the message; docs/README/guardrails/rule updated.
+- **Technical problem / uncertainty:** Default encodes “typical Cursor workflow”; accuracy for rare human-only commits relies on config or edit.
+- **Work performed:**
+  - [`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg)
+  - [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md), [`docs/DEVELOPER_GUARDRAILS.md`](DEVELOPER_GUARDRAILS.md), [`README.md`](../README.md), [`.cursor/rules/ai-assisted-contributions.mdc`](../.cursor/rules/ai-assisted-contributions.mdc)
+- **Result / status:** Implemented locally.
+- **Links / traceability:** `*(to complete)*`
+
+### 2026-04-16 — Assisted-by: git config ressource.assistedBy for session default
+
+- **Date (UTC or local):** 2026-04-16
+- **Operational summary:** Extended **`prepare-commit-msg`** resolution order: **`ASSISTED_BY`** → **`git config ressource.assistedBy`** → **`human-only`**; documented that full auto-detection of AI use is impossible; session **`git config`** as semi-automatic workflow.
+- **Technical problem / uncertainty:** Accuracy still requires human toggling session config or env.
+- **Work performed:**
+  - [`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg) — config fallback
+  - [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md), [`docs/DEVELOPER_GUARDRAILS.md`](DEVELOPER_GUARDRAILS.md), [`.cursor/rules/ai-assisted-contributions.mdc`](../.cursor/rules/ai-assisted-contributions.mdc)
+- **Result / status:** Implemented locally.
+- **Links / traceability:** `*(to complete)*`
+
 ### 2026-04-16 — Husky prepare-commit-msg: auto-append Assisted-by (ASSISTED_BY override)
 
 - **Date (UTC or local):** 2026-04-16
