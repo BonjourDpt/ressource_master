@@ -86,4 +86,4 @@ Runs the Vitest suite once (`vitest run`). Use `npm run test:watch` for watch mo
 
 ## CI and deploy (maintainers)
 
-Pushes to **`main`** run **[`.github/workflows/ci-deploy.yml`](../.github/workflows/ci-deploy.yml)** on GitHub Actions: **`build`** (ephemeral Postgres in CI, same steps as a full check + `next build`) then **`deploy`**, which `POST`s to the repository secret **`DEPLOY_WEBHOOK_URL`** when that secret is set (skipped otherwise, e.g. on forks). Details and changelog: **[docs/DEVELOPER_GUARDRAILS.md](DEVELOPER_GUARDRAILS.md)**.
+Pushes to **`main`** run **[`.github/workflows/ci-deploy.yml`](../.github/workflows/ci-deploy.yml)** on GitHub Actions (GitHub-hosted **`ubuntu-latest`**): **`build`** (ephemeral Postgres in CI, same steps as a full check + `next build`) then **`deploy`**. The deploy job always runs after a green build; it **`POST`s** the repository secret **`DEPLOY_WEBHOOK_URL`** only when that secret is set—otherwise the workflow succeeds without calling the webhook (e.g. forks). Details and changelog: **[docs/DEVELOPER_GUARDRAILS.md](DEVELOPER_GUARDRAILS.md)**.
