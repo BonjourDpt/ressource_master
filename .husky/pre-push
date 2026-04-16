@@ -1,3 +1,14 @@
 #!/usr/bin/env sh
 echo "Running pre-push checks (generate, typecheck, lint; full build runs on CI)..."
-npm run check:prepush || exit 1
+if npm run check:prepush; then
+  echo "Pre-push checks passed — continuing with push."
+  exit 0
+fi
+
+echo "" >&2
+echo "================================================================" >&2
+echo "  PUSH BLOCKED: pre-push checks failed (see npm output above)." >&2
+echo "  Reproduce locally: npm run check:prepush" >&2
+echo "  Git will report: error: failed to push some refs ..." >&2
+echo "================================================================" >&2
+exit 1

@@ -18,6 +18,8 @@ These are the checks and conventions that exist **in this repository today**. A 
 
 Hooks are installed for contributors who run `npm install` (the `prepare` script runs `husky`). No commit-time hook is enabled by default; run `npm test` or `npm run check:watch` in your workflow when you need tests before sharing work.
 
+When a push is blocked, the hook prints **`PUSH BLOCKED`** to **stderr** after the failing command. Git then shows `error: failed to push some refs to '…'` (non-zero exit) even though the problem is local checks, not the remote—scroll up for `eslint` / `tsc` / Prisma errors, or run `npm run check:prepush` to reproduce.
+
 ### GitHub Actions
 
 Both the `**build`** and `**deploy`** jobs use the GitHub-hosted `**ubuntu-latest**` runner.
@@ -127,6 +129,7 @@ When you add an item, move it to the tables above and leave a one-line note unde
 | 2026-04-15 | README, SETUP, FUTURE_IMPROVEMENTS: point to `ci-deploy.yml`, deploy webhook, and maintainer-oriented CI summary.                                    |
 | 2026-04-16 | **`GET /api/health`**: liveness + DB readiness; CI deploy may poll `DEPLOY_HEALTH_CHECK_URL` after webhook (retries).                                |
 | 2026-04-16 | Husky **pre-push** runs `npm run check:prepush` (generate, typecheck, lint only); full `next build` remains on CI for `main`.                         |
+| 2026-04-16 | Pre-push hook prints **`PUSH BLOCKED`** on failure and a success line when checks pass; docs note Git’s `failed to push some refs` vs hook failures.   |
 
 
 ---
