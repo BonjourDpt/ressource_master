@@ -102,13 +102,20 @@ jobs:
     needs: [build, deploy]
     if: ${{ failure() }}
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     steps:
       - name: Notify Slack on failure
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           BRANCH: ${{ github.ref_name }}
           FULL_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_API_URL: ${{ github.api_url }}
           WORKFLOW_NAME: ${{ github.workflow }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           BUILD_RESULT: ${{ needs.build.result }}
@@ -128,29 +135,95 @@ jobs:
             FAILED_JOB="deploy"
           fi
 
-          SHORT_SHA="${FULL_SHA:0:7}"
-          payload="$(jq -n \
-            --arg workflow "$WORKFLOW_NAME" \
-            --arg repo "$REPO" \
-            --arg branch "$BRANCH" \
-            --arg sha "$SHORT_SHA" \
-            --arg failed "$FAILED_JOB" \
-            --arg url "$RUN_URL" \
-            '{
-              blocks: [
-                { type: "header", text: { type: "plain_text", text: "Workflow failed" } },
-                {
-                  type: "section",
-                  fields: [
-                    { type: "mrkdwn", text: ("*Workflow:* `" + $workflow + "`") },
-                    { type: "mrkdwn", text: ("*Repository:* `" + $repo + "`") },
-                    { type: "mrkdwn", text: ("*Branch:* `" + $branch + "`") },
-                    { type: "mrkdwn", text: ("*Commit:* `" + $sha + "`") },
-                    { type: "mrkdwn", text: ("*Failed job:* `" + $failed + "`") }
-                  ]
-                },
-                { type: "section", text: { type: "mrkdwn", text: ("<" + $url + "|View GitHub Actions run logs>") } }
-              ]
-            }')"
+          JOB_LOGS_URL=""
+          FAILED_STEP_DESC=""
+          API_JSON="$(mktemp)"
+          trap 'rm -f "$API_JSON"' EXIT
+
+          set +e
+          http_code="$(
+            curl -sS -o "$API_JSON" -w '%{http_code}' \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "${GITHUB_API_URL}/repos/${REPO}/actions/runs/${GITHUB_RUN_ID}/jobs" 2>/dev/null
+          )"
+          curl_ok=$?
+          set -e
+
+          if [ "$curl_ok" -eq 0 ] && [ "$http_code" = "200" ] && [ -s "$API_JSON" ]; then
+            line="$(jq -r '
+              (.jobs // []) | map(select(.conclusion == "failure")) | .[0]
+              | if . == null then empty
+                else
+                  . as $job | (($job.steps // []) | map(select(.conclusion == "failure")) | .[0]) as $step |
+                  if $step == null then empty
+                  else ($job.id | tostring) + "\t" + $job.name + "\t" + $step.name
+                  end
+                end
+            ' "$API_JSON" 2>/dev/null)" || line=""
+
+            if [ -n "$line" ]; then
+              job_id="${line%%$'\t'*}"
+              rest="${line#*$'\t'}"
+              job_name="${rest%%$'\t'*}"
+              step_name="${rest#*$'\t'}"
+              JOB_LOGS_URL="${GITHUB_SERVER_URL}/${REPO}/actions/runs/${GITHUB_RUN_ID}/job/${job_id}"
+              FAILED_STEP_DESC="${job_name} — ${step_name}"
+            fi
+          else
+            echo "Jobs API enrichment skipped (curl_exit=${curl_ok}, http=${http_code:-empty})"
+          fi
+
+          if [ -n "$JOB_LOGS_URL" ] && [ -n "$FAILED_STEP_DESC" ]; then
+            payload="$(jq -n \
+              --arg workflow "$WORKFLOW_NAME" \
+              --arg repo "$REPO" \
+              --arg branch "$BRANCH" \
+              --arg fullsha "$FULL_SHA" \
+              --arg failedstep "$FAILED_STEP_DESC" \
+              --arg runurl "$RUN_URL" \
+              --arg joburl "$JOB_LOGS_URL" \
+              '{
+                blocks: [
+                  { type: "header", text: { type: "plain_text", text: "Workflow failed" } },
+                  {
+                    type: "section",
+                    fields: [
+                      { type: "mrkdwn", text: ("*Workflow:* `" + $workflow + "`") },
+                      { type: "mrkdwn", text: ("*Repository:* `" + $repo + "`") },
+                      { type: "mrkdwn", text: ("*Branch:* `" + $branch + "`") },
+                      { type: "mrkdwn", text: ("*Commit:* `" + $fullsha + "`") },
+                      { type: "mrkdwn", text: ("*Failed step:* `" + $failedstep + "`") }
+                    ]
+                  },
+                  { type: "section", text: { type: "mrkdwn", text: ("<" + $runurl + "|Workflow run logs> • <" + $joburl + "|Failed job logs>") } }
+                ]
+              }')"
+          else
+            payload="$(jq -n \
+              --arg workflow "$WORKFLOW_NAME" \
+              --arg repo "$REPO" \
+              --arg branch "$BRANCH" \
+              --arg fullsha "$FULL_SHA" \
+              --arg failed "$FAILED_JOB" \
+              --arg runurl "$RUN_URL" \
+              '{
+                blocks: [
+                  { type: "header", text: { type: "plain_text", text: "Workflow failed" } },
+                  {
+                    type: "section",
+                    fields: [
+                      { type: "mrkdwn", text: ("*Workflow:* `" + $workflow + "`") },
+                      { type: "mrkdwn", text: ("*Repository:* `" + $repo + "`") },
+                      { type: "mrkdwn", text: ("*Branch:* `" + $branch + "`") },
+                      { type: "mrkdwn", text: ("*Commit:* `" + $fullsha + "`") },
+                      { type: "mrkdwn", text: ("*Failed job:* `" + $failed + "`") }
+                    ]
+                  },
+                  { type: "section", text: { type: "mrkdwn", text: ("<" + $runurl + "|View GitHub Actions run logs>") } }
+                ]
+              }')"
+          fi
 
           curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$SLACK_WEBHOOK_URL"
