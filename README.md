@@ -46,7 +46,7 @@ Internal web app to visualize and manage resource allocation across projects on 
 
 ## Quick start
 
-1. See **[docs/SETUP.md](docs/SETUP.md)** for prerequisites, env, database, and running the app.
+1. Use **Node.js 22** (same as CI). The repo pins it in **[`.nvmrc`](.nvmrc)**; use nvm, fnm, or another version manager so `node -v` matches. Then see **[docs/SETUP.md](docs/SETUP.md)** for install, env, database, and running the app.
 2. After setup: `npm run dev` → open [http://localhost:3000](http://localhost:3000). Root redirects to `/planning`.
 3. Click the **?** button in the header for the built-in cheatsheet, or read [CHEATSHEET.md](CHEATSHEET.md).
 

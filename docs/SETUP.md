@@ -4,17 +4,25 @@ Step-by-step instructions to run RESOURCE PLANNER locally.
 
 ## Prerequisites
 
-- **Node.js** **20**, **22**, or **24+** (LTS 20.x or 22.x is fine). Vitest 4 and other dev tooling in this repo do not support Node 18. Check: `node -v`
-- **npm** (or yarn/pnpm). Check: `npm -v`
+- **Node.js 22** — Same major version as CI and [`package.json`](../package.json) `engines.node`. The repo pins **`22`** in **[`.nvmrc`](../.nvmrc)**; use nvm, fnm, Volta, or another tool so `node -v` reports v22.x. (`package.json` warns if the major does not match.)
+- **npm** — Check: `npm -v`. Yarn/pnpm are not validated in CI; npm matches Actions.
 - **PostgreSQL** — either:
   - Local Postgres (e.g. [PostgreSQL downloads](https://www.postgresql.org/download/)), or
   - A hosted DB (e.g. [Neon](https://neon.tech), Supabase). You will need the connection string.
 
 ## 1. Install dependencies
 
+For a **clean install** that matches CI (uses `package-lock.json` exactly):
+
 ```bash
-npm install
+npm ci
 ```
+
+After pulling dependency changes from git, prefer `npm ci` again. For **day-to-day** work when you intentionally change dependencies, `npm install` is fine.
+
+### Production install (operators)
+
+On the server or build image, prefer **`npm ci`** after checkout so installs match the lockfile (same as [CI-deploy](../.github/workflows/ci-deploy.yml)). If you use **`npm ci --omit=dev`**, remember that **`prisma`** (the CLI) is a **devDependency** here: run migrations or `prisma generate` only in an environment that still has the Prisma CLI available (e.g. full `npm ci` in the build stage, or a dedicated migrate step with dev deps).
 
 ## 2. Environment variables
 
@@ -39,6 +47,32 @@ Examples:
 
 - **Neon / hosted:**  
   Use the connection string from your provider (often includes `?sslmode=require`).
+
+### Application vs GitHub Actions secrets
+
+Do not mix these up:
+
+| Kind | Where | Purpose |
+|------|--------|---------|
+| **Application** | Production host, preview hosts, local `.env` | **`DATABASE_URL`** is required for the running app and for Prisma against your real database. |
+| **GitHub Actions** | Repository **Secrets** | **`DEPLOY_WEBHOOK_URL`**, **`DEPLOY_HEALTH_CHECK_URL`**, **`SLACK_WEBHOOK_URL`** — used only by the workflow (deploy trigger, post-deploy health poll, failure notification). They are not Next.js env vars. |
+
+**Production checklist:** Set **`DATABASE_URL`** on the host to the same database you run migrations against. There are no **`NEXT_PUBLIC_*`** variables required by the codebase today (v1). No auth secrets are used until you add auth.
+
+Full workflow behavior: [docs/DEVELOPER_GUARDRAILS.md](DEVELOPER_GUARDRAILS.md).
+
+### When `DATABASE_URL` must be set (build vs runtime)
+
+The Prisma schema uses `env("DATABASE_URL")`. Align with CI by having the variable available wherever you run Prisma or `next build`.
+
+| Phase | `DATABASE_URL` | Notes |
+|--------|----------------|-------|
+| **`prisma generate`** | Must be **set** | The URL does not need to be reachable for a successful generate, but the variable must exist. |
+| **`prisma migrate deploy`** | Set and **reachable** | Applies migrations to the target database (CI uses ephemeral Postgres; production uses your real URL). |
+| **`next build`** | Set (recommended) | CI exports `DATABASE_URL` for the whole build job. Use the same on your production build environment to avoid surprises; RSC routes use Prisma. |
+| **Runtime** (`next start`, serverless) | **Required** | All live database access. |
+
+**`NODE_ENV`** is set by Next/Node — not something you add to `.env` for normal use.
 
 ## 3. Database setup
 
@@ -82,7 +116,7 @@ Runs the Vitest suite once (`vitest run`). Use `npm run test:watch` for watch mo
 - **Prisma migrate fails (e.g. timeout on Neon)** — Retry once; if it persists, check network and DB availability.
 - **Seed fails (e.g. unique constraint)** — Re-running `npm run prisma:seed` is idempotent (upserts). If you changed the seed data and hit conflicts, reset the DB with `npx prisma migrate reset` (drops data, reapplies migrations, runs seed).
 - **`prisma generate` fails on Windows with `EPERM`** — Stop all Node processes (including other `npm run dev` windows), then run `npm run prisma:generate` again.
-- **`npm test` fails with an engine / unsupported Node error** — Upgrade Node to **20**, **22**, or **24+** (see Prerequisites).
+- **`npm test` fails with an engine / unsupported Node error** — Use **Node 22** (see Prerequisites and `.nvmrc`).
 
 ## CI and deploy (maintainers)
 

@@ -37,6 +37,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      # Install exactly what package-lock.json specifies (requires lockfile committed).
       - run: npm ci
       - run: npx prisma generate
       - run: npx prisma migrate deploy

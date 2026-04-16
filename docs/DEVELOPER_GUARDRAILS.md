@@ -16,9 +16,14 @@ These are the checks and conventions that exist **in this repository today**. A 
 | **pre-push** (`[.husky/pre-push](../.husky/pre-push)`) | `npm run check:prepush` — Prisma `generate`, `typecheck`, and `lint` (no `next build`). Push is blocked if any step fails; **`next build`** still runs on **[CI-deploy](../.github/workflows/ci-deploy.yml)** for pushes to `main`. |
 
 
-Hooks are installed for contributors who run `npm install` (the `prepare` script runs `husky`). No commit-time hook is enabled by default; run `npm test` or `npm run check:watch` in your workflow when you need tests before sharing work.
+Hooks are installed for contributors who run **`npm install`** or **`npm ci`** (the `prepare` script runs `husky`). For parity with CI on a fresh clone, use **`npm ci`**. No commit-time hook is enabled by default; run `npm test` or `npm run check:watch` in your workflow when you need tests before sharing work.
 
 When a push is blocked, the hook prints **`PUSH BLOCKED`** to **stderr** after the failing command. Git then shows `error: failed to push some refs to '…'` (non-zero exit) even though the problem is local checks, not the remote—scroll up for `eslint` / `tsc` / Prisma errors, or run `npm run check:prepush` to reproduce.
+
+### Environment variables (application vs CI)
+
+- **Application (Next.js / Prisma):** Today the codebase requires **`DATABASE_URL`** for runtime and for Prisma CLI commands; there are no **`NEXT_PUBLIC_*`** or auth secrets in v1. See **[SETUP.md — Environment variables](SETUP.md#2-environment-variables)** for a production checklist and a **build vs runtime** table for `DATABASE_URL`.
+- **GitHub Actions only:** Repository secrets **`DEPLOY_WEBHOOK_URL`**, **`DEPLOY_HEALTH_CHECK_URL`**, and **`SLACK_WEBHOOK_URL`** are **not** application env vars; they configure the workflow (deploy webhook, health poll, Slack on failure).
 
 ### GitHub Actions
 
@@ -132,6 +137,7 @@ When you add an item, move it to the tables above and leave a one-line note unde
 | 2026-04-16 | Pre-push hook prints **`PUSH BLOCKED`** on failure and a success line when checks pass; docs note Git’s `failed to push some refs` vs hook failures.   |
 | 2026-04-16 | CI **`notify-failure`** job: on workflow failure, optional Slack via Actions secret **`SLACK_WEBHOOK_URL`** (skipped with success when unset).            |
 | 2026-04-16 | **`notify-failure`**: `actions: read`; best-effort Jobs API for failed **step** + job log link; fallback **full** SHA, branch, failed job heuristic, run URL. |
+| 2026-04-16 | **Env alignment:** Node **22** in `package.json` `engines` and `.nvmrc`; [SETUP.md](SETUP.md) documents **`npm ci`**, application vs CI secrets, and **`DATABASE_URL`** at build vs runtime; [`.env.example`](../.env.example) lists required and reserved keys. |
 
 
 ---
