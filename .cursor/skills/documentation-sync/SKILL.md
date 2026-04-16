@@ -1,6 +1,6 @@
 ---
 name: documentation-sync
-description: Runs a mandatory documentation impact check for every product change, updates repo docs and in-app user docs to match behavior, proposes a semver bump from Conventional Commits–style impact (with explicit user confirmation), removes obsolete copy, and reports gaps. Use when implementing or changing features, UI, APIs, schema, env, scripts, settings, navigation, labels, help text, or removing functionality — and before marking any such task complete.
+description: Runs a mandatory documentation impact check for every product change, updates repo docs and in-app user docs to match behavior, appends a Dev LOG entry to docs/DEV_LOG.md for RSEDE / R&D subsidy traceability, proposes a semver bump from Conventional Commits–style impact (with explicit user confirmation), removes obsolete copy, and reports gaps. Use when implementing or changing features, UI, APIs, schema, env, scripts, settings, navigation, labels, help text, or removing functionality — and before marking any such task complete.
 ---
 
 # Documentation sync (RESOURCE PLANNER)
@@ -30,6 +30,7 @@ Run **automatically** when the task touches any of:
 - `docs/ui-system.md` — layout, tokens, component conventions
 - `docs/PRODUCT_ASSUMPTIONS.md` — domain model, lifecycle, assumptions
 - `docs/FUTURE_IMPROVEMENTS.md` — backlog (only if a planned item is implemented or invalidated)
+- `docs/DEV_LOG.md` — append-only development journal for **RSEDE** / R&D funding dossiers (subsidies, traceability); see **Dev LOG (RSEDE / R&D funding)** below
 - `prisma/schema.prisma`, `package.json` scripts — often need SETUP or README cross-checks
 
 **In-app (end-user):**
@@ -40,6 +41,36 @@ Run **automatically** when the task touches any of:
 - Other UX copy: scan changed files for user-visible strings (toasts, placeholders, `aria-label`, confirmation dialogs)
 
 If the codebase gains new doc surfaces (CMS, MDX routes, seeded DB articles), extend this map in your assessment.
+
+## Dev LOG (RSEDE / R&D funding)
+
+Maintain **`docs/DEV_LOG.md`** as a factual trace of product-impacting work to support **RSEDE** and other **R&D subsidy / funding** dossiers. This is **not** legal or tax advice; align field wording with your organisation’s official RSEDE template.
+
+### When
+
+- **Same triggers** as documentation-sync (any product-impacting change listed under **Trigger conditions**).
+- **Skip** appending only if the user **explicitly** scopes the work as **non-R&D** (e.g. pure comment typo, formatting-only change with no behavior or docs impact). In that case, state in the closing report: `Dev LOG: skipped — <reason>`.
+
+### How
+
+1. **Create** `docs/DEV_LOG.md` with the repo header (purpose + disclaimer) if the file does not exist.
+2. **Insert** a new entry **newest-first**: place the dated `###` block **directly under** the preamble’s **Order** paragraph, **above** any existing `###` entries (and **above** the optional `<!-- AGENT TEMPLATE -->` block at end of file if present).
+3. **Fill** every field below from **verifiable session facts** (files touched, task outcome). Use `*(to complete)*` for anything unknown (internal references, PR/SHA unless provided).
+
+**Entry fields (fixed order):**
+
+- **Date (UTC or local):** use session / user context when available.
+- **Operational summary:** 2–4 sentences — what changed or shipped.
+- **Technical problem / uncertainty:** real unknowns or hypotheses addressed; do **not** invent scientific novelty or eligibility.
+- **Work performed:** bullets with concrete areas and **file paths** (not vague “code improved”).
+- **Result / status:** e.g. doc-sync done, tests run, merged vs local-only — facts only.
+- **Links / traceability:** branch, PR URL, commit SHAs if known; else `*(to complete)*`.
+
+### Guardrails
+
+- Do **not** invent budgets, eligibility, or subsidy outcomes.
+- Do **not** paste secrets, credentials, or confidential client data.
+- If scope is ambiguous, log **facts only** and flag gaps in **Remaining gaps** or inside the entry.
 
 ## Webapp version (mandatory)
 
@@ -85,7 +116,8 @@ If the user adjusts the bump level, follow their choice and still keep both vers
 8. **Visual / screenshot docs** — If the repo references screenshots or GIFs, flag them as potentially stale (do not invent new assets unless requested).
 9. **Gaps** — If structure or product intent is unclear, do not guess; output a TODO list with exact file locations and suggested wording.
 10. **Webapp version** — Run **Webapp version (mandatory)** above: estimate PATCH / MINOR / MAJOR from Conventional Commits rules, propose numbers, **request explicit user confirmation**, then update `package.json` and `src/lib/app-version.ts` only after they confirm (or confirm no bump).
-11. **Closing report** — Use the output template below in the task summary.
+11. **Dev LOG (RSEDE)** — Append a new **newest-first** entry to `docs/DEV_LOG.md` per **Dev LOG (RSEDE / R&D funding)** (create the file with header if missing), unless the user explicitly scoped the work as non-R&D — then skip and note the reason in the closing report.
+12. **Closing report** — Use the output template below in the task summary.
 
 ## Documentation checklist
 
@@ -101,6 +133,7 @@ Copy and use mentally or literally:
 - [ ] **Version** — Impact classified (Conventional Commits → SemVer), user explicitly confirmed bump (or no bump), `package.json` + `src/lib/app-version.ts` updated accordingly
 - [ ] **Removed features** — Purged from README, CHEATSHEET, Help, and any assumptions docs
 - [ ] **Naming** — Nav items, filters, field names consistent across UI, help, and repo docs
+- [ ] **Dev LOG** — New entry appended to `docs/DEV_LOG.md` (or skipped with explicit non-R&D reason noted in summary)
 
 ## Expected output template
 
@@ -137,6 +170,12 @@ Return this for the task (fill every section):
 
 - **`<path>`** — Why still accurate or out of scope
 
+### 8. Dev LOG (RSEDE)
+
+- **Appended:** Yes / Skipped — (if Skipped: one-line reason)
+- **Path:** `docs/DEV_LOG.md`
+- **Entry:** (heading line of the new `###` block, e.g. `YYYY-MM-DD — …`)
+
 ## Failure / ambiguity behavior
 
 - **Never** assume docs are correct after a product change.
@@ -145,7 +184,8 @@ Return this for the task (fill every section):
 - If unsure **where** content should live, prefer updating the canonical surfaces (`HelpDialog.tsx` + `CHEATSHEET.md` for user help; `docs/SETUP.md` for ops).
 - If **no** documentation update is needed, explain why (e.g. internal refactor with identical UX and API).
 - **Never** bump `package.json` or `src/lib/app-version.ts` without the user’s **explicit** confirmation of the proposed bump (or no bump); if they have not answered yet, leave versions unchanged and report **User confirmed: Pending** with the exact question asked.
+- **Dev LOG:** If non-R&D skip applies, do not append; always record **Skipped** + reason in section **8. Dev LOG (RSEDE)**.
 
 ## Quick reuse blurb (paste into prompts)
 
-> After implementation, run **documentation-sync**: assess repo + in-app docs, update `README.md`, `docs/*`, `CHEATSHEET.md`, and `src/components/app-shell/HelpDialog.tsx` as needed, remove obsolete instructions, align names with the UI, propose a version bump using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) rules and **wait for explicit confirmation** before changing `package.json` / `src/lib/app-version.ts`, then finish with the skill’s output template (including intentional no-ops).
+> After implementation, run **documentation-sync**: assess repo + in-app docs, update `README.md`, `docs/*`, `CHEATSHEET.md`, and `src/components/app-shell/HelpDialog.tsx` as needed, append a **Dev LOG** entry to `docs/DEV_LOG.md` for **RSEDE** traceability (unless explicitly non-R&D), remove obsolete instructions, align names with the UI, propose a version bump using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) rules and **wait for explicit confirmation** before changing `package.json` / `src/lib/app-version.ts`, then finish with the skill’s output template (including intentional no-ops and §8 Dev LOG).
