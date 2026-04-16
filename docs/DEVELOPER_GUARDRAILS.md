@@ -22,12 +22,12 @@ When a push is blocked, the hook prints **`PUSH BLOCKED`** to **stderr** after t
 
 ### GitHub Actions
 
-Both the `**build`** and `**deploy`** jobs use the GitHub-hosted `**ubuntu-latest**` runner.
+The `**build**`, `**deploy**`, and `**notify-failure**` jobs use the GitHub-hosted `**ubuntu-latest**` runner.
 
 
 | Workflow                                            | When it runs                 | What it runs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | --------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[CI-deploy](../.github/workflows/ci-deploy.yml)** | Every **push** to `**main`** | Job `**build`**: ephemeral Postgres 16 (`services.postgres`), job `DATABASE_URL` (no DB secrets), `npm ci`, `prisma generate`, `prisma migrate deploy`, `typecheck`, `lint`, `next build`. Node version follows `[.nvmrc](../.nvmrc)` via `actions/setup-node` with npm cache. Job `**deploy**` (after `build`, same runner): if Actions secret `**DEPLOY_WEBHOOK_URL**` is set, `curl` sends a **POST** request to trigger your host webhook; if unset, the step prints a skip message and **exits successfully** without calling the webhook (e.g. forks). The deploy job still **runs**—only the HTTP trigger is omitted. When the webhook ran and secret `**DEPLOY_HEALTH_CHECK_URL**` is set to the full public URL of **`GET /api/health`** (e.g. `https://your-host.example.com/api/health`), a follow-up step **retries** that URL until HTTP **200** or **fails the job** after repeated attempts (spacing between tries is defined in the workflow). If the health URL secret is unset, health verification is **skipped** after a successful webhook. |
+| **[CI-deploy](../.github/workflows/ci-deploy.yml)** | Every **push** to `**main`** | Job `**build`**: ephemeral Postgres 16 (`services.postgres`), job `DATABASE_URL` (no DB secrets), `npm ci`, `prisma generate`, `prisma migrate deploy`, `typecheck`, `lint`, `next build`. Node version follows `[.nvmrc](../.nvmrc)` via `actions/setup-node` with npm cache. Job `**deploy**` (after `build`, same runner): if Actions secret `**DEPLOY_WEBHOOK_URL**` is set, `curl` sends a **POST** request to trigger your host webhook; if unset, the step prints a skip message and **exits successfully** without calling the webhook (e.g. forks). The deploy job still **runs**—only the HTTP trigger is omitted. When the webhook ran and secret `**DEPLOY_HEALTH_CHECK_URL**` is set to the full public URL of **`GET /api/health`** (e.g. `https://your-host.example.com/api/health`), a follow-up step **retries** that URL until HTTP **200** or **fails the job** after repeated attempts (spacing between tries is defined in the workflow). If the health URL secret is unset, health verification is **skipped** after a successful webhook. Job `**notify-failure**` (after `build` and `deploy`, same runner): runs **only** when the workflow is in a failed state (`if: failure()`). If Actions secret `**SLACK_WEBHOOK_URL**` (Slack Incoming Webhook) is set, it **POST**s a Block Kit payload with the workflow name, repository, branch, short commit SHA, which job failed (`build` vs `deploy`), and a link to the run logs; if unset, the step logs that the secret is missing and **exits successfully** without calling Slack. |
 
 
 ### Recommended local command sequence
@@ -111,7 +111,7 @@ When you add an item, move it to the tables above and leave a one-line note unde
 ### Not in the repo yet
 
 - **E2E or smoke tests against production** — Not defined in this repo.
-- **Monitoring / alerting** — External to the codebase; document provider and dashboards here if you adopt them.
+- **Monitoring / alerting** — Mostly external to the codebase. **Optional:** CI can post a Slack message on `build`/`deploy` failure when **`SLACK_WEBHOOK_URL`** is set (see [GitHub Actions](#github-actions) table). Document other providers and dashboards here if you adopt them.
 
 ---
 
@@ -130,6 +130,7 @@ When you add an item, move it to the tables above and leave a one-line note unde
 | 2026-04-16 | **`GET /api/health`**: liveness + DB readiness; CI deploy may poll `DEPLOY_HEALTH_CHECK_URL` after webhook (retries).                                |
 | 2026-04-16 | Husky **pre-push** runs `npm run check:prepush` (generate, typecheck, lint only); full `next build` remains on CI for `main`.                         |
 | 2026-04-16 | Pre-push hook prints **`PUSH BLOCKED`** on failure and a success line when checks pass; docs note Git’s `failed to push some refs` vs hook failures.   |
+| 2026-04-16 | CI **`notify-failure`** job: on workflow failure, optional Slack via Actions secret **`SLACK_WEBHOOK_URL`** (skipped with success when unset).            |
 
 
 ---

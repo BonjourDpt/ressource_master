@@ -95,5 +95,62 @@ jobs:
           echo "Health check did not return HTTP 200 after $max_attempts attempts"
           echo "Final response body:"
           cat /tmp/health.json || true
-          rm -f /tmp/health.json         
+          rm -f /tmp/health.json
           exit 1
+
+  notify-failure:
+    needs: [build, deploy]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack on failure
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          FULL_SHA: ${{ github.sha }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then
+            echo "SLACK_WEBHOOK_URL not set, skipping Slack notification"
+            exit 0
+          fi
+
+          FAILED_JOB=""
+          if [ "$BUILD_RESULT" != "success" ]; then
+            FAILED_JOB="build"
+          elif [ "$DEPLOY_RESULT" != "success" ]; then
+            FAILED_JOB="deploy"
+          fi
+
+          SHORT_SHA="${FULL_SHA:0:7}"
+          payload="$(jq -n \
+            --arg workflow "$WORKFLOW_NAME" \
+            --arg repo "$REPO" \
+            --arg branch "$BRANCH" \
+            --arg sha "$SHORT_SHA" \
+            --arg failed "$FAILED_JOB" \
+            --arg url "$RUN_URL" \
+            '{
+              blocks: [
+                { type: "header", text: { type: "plain_text", text: "Workflow failed" } },
+                {
+                  type: "section",
+                  fields: [
+                    { type: "mrkdwn", text: ("*Workflow:* `" + $workflow + "`") },
+                    { type: "mrkdwn", text: ("*Repository:* `" + $repo + "`") },
+                    { type: "mrkdwn", text: ("*Branch:* `" + $branch + "`") },
+                    { type: "mrkdwn", text: ("*Commit:* `" + $sha + "`") },
+                    { type: "mrkdwn", text: ("*Failed job:* `" + $failed + "`") }
+                  ]
+                },
+                { type: "section", text: { type: "mrkdwn", text: ("<" + $url + "|View GitHub Actions run logs>") } }
+              ]
+            }')"
+
+          curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$SLACK_WEBHOOK_URL"
