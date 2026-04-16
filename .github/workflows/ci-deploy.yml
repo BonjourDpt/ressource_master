@@ -52,7 +52,9 @@ jobs:
       - name: Trigger deployment
         env:
           DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        shell: bash
         run: |
+          set -euo pipefail
           if [ -z "$DEPLOY_WEBHOOK_URL" ]; then
             echo "DEPLOY_WEBHOOK_URL not set, skipping deploy"
             exit 0
@@ -63,7 +65,9 @@ jobs:
         env:
           DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
           DEPLOY_HEALTH_CHECK_URL: ${{ secrets.DEPLOY_HEALTH_CHECK_URL }}
+        shell: bash
         run: |
+          set -euo pipefail
           if [ -z "$DEPLOY_WEBHOOK_URL" ]; then
             echo "Deploy webhook not used; skipping health verification"
             exit 0
@@ -73,6 +77,8 @@ jobs:
             exit 0
           fi
 
+          echo "Checking health at: $DEPLOY_HEALTH_CHECK_URL"
+
           max_attempts=30
           delay_sec=10
 
@@ -81,7 +87,8 @@ jobs:
             if [ "$code" = "200" ]; then
               echo "Health check passed (HTTP 200, attempt $i/$max_attempts)"
               exit 0
-            fi            echo "Health check returned HTTP $code (attempt $i/$max_attempts), retrying in ${delay_sec}s..."
+            fi
+            echo "Health check returned HTTP $code (attempt $i/$max_attempts), retrying in ${delay_sec}s..."
             sleep "$delay_sec"
           done
 
