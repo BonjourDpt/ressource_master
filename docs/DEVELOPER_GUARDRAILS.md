@@ -6,14 +6,14 @@ This document is a **living inventory** of how the project validates changes **b
 
 ## Before changes reach `main`
 
-These are the checks and conventions that exist **in this repository today**. A **pre-push** hook also runs `npm run check` locally (see [Git hooks (Husky)](#git-hooks-husky)).
+These are the checks and conventions that exist **in this repository today**. A **pre-push** hook runs `npm run check:prepush` locally (see [Git hooks (Husky)](#git-hooks-husky)); run `npm run check` yourself before merging when you want a local production build too.
 
 ### Git hooks (Husky)
 
 
 | Hook                                                   | What runs                                                                                                      |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| **pre-push** (`[.husky/pre-push](../.husky/pre-push)`) | `npm run check` — Prisma `generate`, `typecheck`, `lint`, and `next build`. Push is blocked if any step fails. |
+| **pre-push** (`[.husky/pre-push](../.husky/pre-push)`) | `npm run check:prepush` — Prisma `generate`, `typecheck`, and `lint` (no `next build`). Push is blocked if any step fails; **`next build`** still runs on **[CI-deploy](../.github/workflows/ci-deploy.yml)** for pushes to `main`. |
 
 
 Hooks are installed for contributors who run `npm install` (the `prepare` script runs `husky`). No commit-time hook is enabled by default; run `npm test` or `npm run check:watch` in your workflow when you need tests before sharing work.
@@ -33,8 +33,9 @@ Both the `**build`** and `**deploy`** jobs use the GitHub-hosted `**ubuntu-lates
 
 | Command               | What it validates                                                                                                              |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `npm run check`       | Prisma client generation (`prisma generate`), TypeScript (`tsc --noEmit`), ESLint (`eslint .`), and a production `next build`. |
-| `npm run check:watch` | Same as `check`, then the Vitest suite (`vitest run`).                                                                         |
+| `npm run check`        | Prisma client generation (`prisma generate`), TypeScript (`tsc --noEmit`), ESLint (`eslint .`), and a production `next build`. |
+| `npm run check:prepush` | Same as `check` but **without** `next build` — used by the Husky **pre-push** hook for a faster gate.                            |
+| `npm run check:watch`  | Same as `check`, then the Vitest suite (`vitest run`).                                                                         |
 
 
 Run `check` (or at least `typecheck`, `lint`, and `build`) before opening a PR or merging to `main`. Run `check:watch` when you want tests included in that loop.
@@ -44,7 +45,7 @@ Individual scripts from `[package.json](../package.json)`:
 
 | Script                            | Purpose                                                                                                                      |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `npm run prisma:generate`         | Ensures `@prisma/client` matches the schema (also the first step of `check`).                                                |
+| `npm run prisma:generate`         | Ensures `@prisma/client` matches the schema (first step of `check` and `check:prepush`).                                      |
 | `npm run typecheck`               | TypeScript with **strict** mode (`tsconfig.json`); no emit.                                                                  |
 | `npm run lint`                    | ESLint with `eslint-config-next` **Core Web Vitals** + **TypeScript** presets (`[eslint.config.mjs](../eslint.config.mjs)`). |
 | `npm run build`                   | Next.js production build (catches many bundling and framework-level issues).                                                 |
@@ -125,6 +126,7 @@ When you add an item, move it to the tables above and leave a one-line note unde
 | 2026-04-15 | CI workflow path: `[.github/workflows/ci-deploy.yml](../.github/workflows/ci-deploy.yml)` (was `ci.yml`).                                            |
 | 2026-04-15 | README, SETUP, FUTURE_IMPROVEMENTS: point to `ci-deploy.yml`, deploy webhook, and maintainer-oriented CI summary.                                    |
 | 2026-04-16 | **`GET /api/health`**: liveness + DB readiness; CI deploy may poll `DEPLOY_HEALTH_CHECK_URL` after webhook (retries).                                |
+| 2026-04-16 | Husky **pre-push** runs `npm run check:prepush` (generate, typecheck, lint only); full `next build` remains on CI for `main`.                         |
 
 
 ---
