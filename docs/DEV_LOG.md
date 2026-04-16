@@ -8,6 +8,15 @@
 
 **Order:** **newest first**. Each new `###` entry goes **directly under this paragraph**, **before** any older entry (and **before** the optional `<!-- AGENT TEMPLATE -->` block at the end of the file).
 
+### 2026-04-16 — Prisma: seed command in prisma.config.ts (package.json deprecation)
+
+- **Date (UTC or local):** 2026-04-16
+- **Operational summary:** Moved integrated DB seed from deprecated `package.json#prisma` to root **`prisma.config.ts`** (`schema`, `migrations.path`, `migrations.seed`) so `npx prisma generate` no longer warns about Prisma 7 removal; CI behavior unchanged.
+- **Technical problem / uncertainty:** Prisma 6.19 deprecates `package.json#prisma` in favor of the config file; no Prisma major upgrade in this change.
+- **Work performed:** [`prisma.config.ts`](../prisma.config.ts) (new); [`package.json`](../package.json) — removed `prisma` key; [`docs/SETUP.md`](SETUP.md), [`docs/FUTURE_IMPROVEMENTS.md`](FUTURE_IMPROVEMENTS.md); verified `npx prisma generate` and `npx prisma db seed` locally.
+- **Result / status:** Implemented locally; `prisma generate` / `db seed` succeed without the deprecation line.
+- **Links / traceability:** `*(to complete)*`
+
 ### 2026-04-16 — Docs: project-wide AI assistance since inception (maintainer note)
 
 - **Date (UTC or local):** 2026-04-16

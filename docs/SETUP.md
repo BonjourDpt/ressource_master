@@ -85,7 +85,7 @@ npm run prisma:seed
 ```
 
 - **First run:** `prisma migrate dev` will create the database schema. You may be prompted for a migration name; you can accept the default or use e.g. `init` if creating the first migration manually.
-- **Seed:** Inserts a few sample projects, resources, and bookings so you can use the planning view immediately.
+- **Seed:** Inserts a few sample projects, resources, and bookings so you can use the planning view immediately. The seed command is set in **[`prisma.config.ts`](../prisma.config.ts)** (`migrations.seed`), not in `package.json` (deprecated from Prisma 7 onward).
 
 ## 4. Run the dev server
 

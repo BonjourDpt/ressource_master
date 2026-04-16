@@ -36,7 +36,7 @@ Items marked ~~strikethrough~~ have been implemented.
 - ~~**Error handling**~~ — ✅ Toasts for failed mutations; custom ConfirmDialog for destructive actions.
 - **Loading states** — Skeleton or spinner for planning data when changing week or view.
 - **Validation feedback** — Inline errors on the booking form (partially present); ensure all server validation errors surface clearly.
-- **Prisma** — Consider moving seed config to `prisma.config.ts` when upgrading to Prisma 7+.
+- ~~**Prisma** — Seed config in `prisma.config.ts`~~ — ✅ Root [`prisma.config.ts`](../prisma.config.ts) defines `migrations.seed`; removes deprecated `package.json#prisma` ahead of Prisma 7.
 - ~~**Modal accessibility**~~ — ✅ Focus trapping via focus-trap-react, ARIA attributes, Escape key handling.
 
 ---
