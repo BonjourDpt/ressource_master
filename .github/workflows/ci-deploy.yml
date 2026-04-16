@@ -1,9 +1,13 @@
-name: CI
+name: CI and Deploy
 
 on:
   push:
     branches:
       - main
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -33,22 +37,17 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-
       - run: npm ci
-
       - run: npx prisma generate
-
       - run: npx prisma migrate deploy
-
       - run: npm run typecheck
-
       - run: npm run lint
-
       - run: npm run build
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Trigger deployment
         env:
