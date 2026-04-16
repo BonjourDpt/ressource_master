@@ -11,12 +11,14 @@ These are the checks and conventions that exist **in this repository today**. A 
 ### Git hooks (Husky)
 
 
-| Hook                                                   | What runs                                                                                                      |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| **pre-push** (`[.husky/pre-push](../.husky/pre-push)`) | `npm run check:prepush` — Prisma `generate`, `typecheck`, and `lint` (no `next build`). Push is blocked if any step fails; **`next build`** still runs on **[CI-deploy](../.github/workflows/ci-deploy.yml)** for pushes to `main`. |
+| Hook                                                     | What runs                                                                                                                                                                                                                                                                 |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **pre-push** (`[.husky/pre-push](../.husky/pre-push)`)   | `npm run check:prepush` — Prisma `generate`, `typecheck`, and `lint` (no `next build`). Push is blocked if any step fails; **`next build`** still runs on **[CI-deploy](../.github/workflows/ci-deploy.yml)** for pushes to `main`.                                       |
+| **prepare-commit-msg** (`[.husky/prepare-commit-msg](../.husky/prepare-commit-msg)`) | **Auto-appends** `Assisted-by: human-only` when the message has no `Assisted-by:` line yet (skips merge and `Merge ` / `Revert ` first lines). Override with env **`ASSISTED_BY`** for AI-assisted commits (see [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md)). |
+| **commit-msg** (`[.husky/commit-msg](../.husky/commit-msg)`) | Runs [`scripts/check-assisted-by.mjs`](../scripts/check-assisted-by.mjs) in **warn-only** mode: reminds you if the commit message lacks a non-empty `Assisted-by:` trailer (see [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md)). Does **not** block the commit locally. |
 
 
-Hooks are installed for contributors who run **`npm install`** or **`npm ci`** (the `prepare` script runs `husky`). For parity with CI on a fresh clone, use **`npm ci`**. No commit-time hook is enabled by default; run `npm test` or `npm run check:watch` in your workflow when you need tests before sharing work.
+Hooks are installed for contributors who run **`npm install`** or **`npm ci`** (the `prepare` script runs `husky`). For parity with CI on a fresh clone, use **`npm ci`**. **CI on `main`** enforces the same `Assisted-by` rule in **strict** mode during the `build` job (push fails if the head commit message is invalid). Run `npm test` or `npm run check:watch` in your workflow when you need tests before sharing work.
 
 When a push is blocked, the hook prints **`PUSH BLOCKED`** to **stderr** after the failing command. Git then shows `error: failed to push some refs to '…'` (non-zero exit) even though the problem is local checks, not the remote—scroll up for `eslint` / `tsc` / Prisma errors, or run `npm run check:prepush` to reproduce.
 
@@ -34,6 +36,7 @@ The `**build**`, `**deploy**`, `**notify-success**`, and `**notify-failure**` jo
 | --------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **[CI-deploy](../.github/workflows/ci-deploy.yml)** | Every **push** to `**main`** | Job `**build`**: ephemeral Postgres 16 (`services.postgres`), job `DATABASE_URL` (no DB secrets), `npm ci`, `prisma generate`, `prisma migrate deploy`, `typecheck`, `lint`, `next build`. Node version follows `[.nvmrc](../.nvmrc)` via `actions/setup-node` with npm cache. Job `**deploy**` (after `build`, same runner): if Actions secret `**DEPLOY_WEBHOOK_URL**` is set, `curl` sends a **POST** request to trigger your host webhook; if unset, the step prints a skip message and **exits successfully** without calling the webhook (e.g. forks). The deploy job still **runs**—only the HTTP trigger is omitted. When the webhook ran and secret `**DEPLOY_HEALTH_CHECK_URL**` is set to the full public URL of **`GET /api/health`** (e.g. `https://your-host.example.com/api/health`), a follow-up step **retries** that URL until HTTP **200** or **fails the job** after repeated attempts (spacing between tries is defined in the workflow). If the health URL secret is unset, health verification is **skipped** after a successful webhook. Job `**notify-success**` (after `build` and `deploy`, same runner): runs **only** when both jobs succeed (`if: success()`). If Actions secret `**SLACK_WEBHOOK_URL**` is set, it **POST**s a Block Kit payload with workflow name, repository, branch, **full** commit SHA, and the **workflow run** log URL; if unset, the step logs that the secret is missing and **exits successfully** without calling Slack. Job `**notify-failure**` (after `build` and `deploy`, same runner): runs **only** when the workflow is in a failed state (`if: failure()`). Uses `permissions: actions: read` so the job can call the GitHub **Jobs** API (best-effort) to enrich Slack with the first failed **step** and a **failed job** log link; if that call fails or is non-200, notification still succeeds with **full** commit SHA, branch, coarse **failed job** (`build` vs `deploy` from `needs.*.result`), and the **workflow run** log URL. If Actions secret `**SLACK_WEBHOOK_URL**` (Slack Incoming Webhook) is set, it **POST**s a Block Kit payload; if unset, the step logs that the secret is missing and **exits successfully** without calling Slack. |
 
+After `actions/setup-node`, job **`build`** runs a **strict** check that **`HEAD`** includes a non-empty **`Assisted-by:`** line ([`scripts/check-assisted-by.mjs`](../scripts/check-assisted-by.mjs)); see [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md).
 
 ### Recommended local command sequence
 
@@ -57,6 +60,7 @@ Individual scripts from `[package.json](../package.json)`:
 | `npm run lint`                    | ESLint with `eslint-config-next` **Core Web Vitals** + **TypeScript** presets (`[eslint.config.mjs](../eslint.config.mjs)`). |
 | `npm run build`                   | Next.js production build (catches many bundling and framework-level issues).                                                 |
 | `npm test` / `npm run test:watch` | Vitest: `src/**/*.test.ts` in Node, `src/**/*.test.tsx` in jsdom (`[vitest.config.ts](../vitest.config.ts)`).                |
+| `npm run check:commit-msg`       | Pass a commit message file after `--`, e.g. `npm run check:commit-msg -- .git/COMMIT_EDITMSG` (optional `--strict`). Hooks and CI invoke [`scripts/check-assisted-by.mjs`](../scripts/check-assisted-by.mjs) directly. |
 
 
 ### Static analysis and types
@@ -77,8 +81,10 @@ These guide humans and agents; they are **not** enforced by `npm` or git:
 | Location                                                                                      | Role                                                                    |
 | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | `[.cursor/rules/documentation.mdc](../.cursor/rules/documentation.mdc)`                       | When matched paths change, follow the documentation-sync workflow.      |
+| `[.cursor/rules/ai-assisted-contributions.mdc](../.cursor/rules/ai-assisted-contributions.mdc)` | AI attribution: no `Signed-off-by` from agents; `Assisted-by` commit trailers; sync docs when policy changes. |
 | `[.cursor/skills/documentation-sync/SKILL.md](../.cursor/skills/documentation-sync/SKILL.md)` | Full checklist: repo docs, Help dialog, cheatsheet, version bump rules. |
 | `[.cursor/skills/tdd/SKILL.md](../.cursor/skills/tdd/SKILL.md)`                               | TDD workflow for feature work when using that skill.                    |
+| [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md)                           | Human/agent responsibilities, `Assisted-by` format, hook/CI behavior.   |
 
 
 ### Not in the repo yet
@@ -139,6 +145,8 @@ When you add an item, move it to the tables above and leave a one-line note unde
 | 2026-04-16 | CI **`notify-failure`** job: on workflow failure, optional Slack via Actions secret **`SLACK_WEBHOOK_URL`** (skipped with success when unset).            |
 | 2026-04-16 | **`notify-failure`**: `actions: read`; best-effort Jobs API for failed **step** + job log link; fallback **full** SHA, branch, failed job heuristic, run URL. |
 | 2026-04-16 | **Env alignment:** Node **22** in `package.json` `engines` and `.nvmrc`; [SETUP.md](SETUP.md) documents **`npm ci`**, application vs CI secrets, and **`DATABASE_URL`** at build vs runtime; [`.env.example`](../.env.example) lists required and reserved keys. |
+| 2026-04-16 | **AI-assisted contributions:** [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md), Husky **`commit-msg`** (warn), CI **`build`** strict `Assisted-by` check ([`scripts/check-assisted-by.mjs`](../scripts/check-assisted-by.mjs)), Cursor rule `ai-assisted-contributions.mdc`; documentation-sync owns ongoing updates. |
+| 2026-04-16 | Husky **`prepare-commit-msg`**: auto-append `Assisted-by` (default `human-only`, override **`ASSISTED_BY`**); see [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md). |
 
 
 ---

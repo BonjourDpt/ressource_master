@@ -8,6 +8,43 @@
 
 **Order:** **newest first**. Each new `###` entry goes **directly under this paragraph**, **before** any older entry (and **before** the optional `<!-- AGENT TEMPLATE -->` block at the end of the file).
 
+### 2026-04-16 — Husky prepare-commit-msg: auto-append Assisted-by (ASSISTED_BY override)
+
+- **Date (UTC or local):** 2026-04-16
+- **Operational summary:** Added **[`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg)** to append `Assisted-by: human-only` when missing; optional env **`ASSISTED_BY`** for AI-assisted commits; skips merge and `Merge ` / `Revert ` first lines; updated [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md), [`docs/DEVELOPER_GUARDRAILS.md`](DEVELOPER_GUARDRAILS.md), [`README.md`](../README.md), Cursor rule, documentation-sync checklist.
+- **Technical problem / uncertainty:** Default must satisfy CI without interactive prompts; contributors override per-commit via env.
+- **Work performed:**
+  - [`.husky/prepare-commit-msg`](../.husky/prepare-commit-msg) — new hook
+  - [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md), [`docs/DEVELOPER_GUARDRAILS.md`](DEVELOPER_GUARDRAILS.md), [`README.md`](../README.md), [`.cursor/rules/ai-assisted-contributions.mdc`](../.cursor/rules/ai-assisted-contributions.mdc), [`.cursor/skills/documentation-sync/SKILL.md`](../.cursor/skills/documentation-sync/SKILL.md)
+- **Result / status:** Implemented locally.
+- **Links / traceability:** `*(to complete)*`
+
+### 2026-04-16 — AI contributions: document HEAD; Cursor rule asks A/B for Assisted-by
+
+- **Date (UTC or local):** 2026-04-16
+- **Operational summary:** Clarified what Git **`HEAD`** means for CI; updated [`.cursor/rules/ai-assisted-contributions.mdc`](../.cursor/rules/ai-assisted-contributions.mdc) so agents **ask the user to choose** human-only vs AI-assisted before suggesting a commit message; noted that auto-append needs a hook, not the chat agent alone.
+- **Technical problem / uncertainty:** None beyond aligning contributor expectations with enforcement scope (`git log -1`).
+- **Work performed:**
+  - [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md) — `HEAD` explanation in enforcement section
+  - [`.cursor/rules/ai-assisted-contributions.mdc`](../.cursor/rules/ai-assisted-contributions.mdc) — mandatory A/B prompt before draft commit messages
+- **Result / status:** Doc + rule updated locally.
+- **Links / traceability:** `*(to complete)*`
+
+### 2026-04-16 — AI-assisted contributions: Assisted-by policy, hooks, CI, documentation-sync ownership
+
+- **Date (UTC or local):** 2026-04-16
+- **Operational summary:** Adopted Linux-kernel–inspired AI contribution practices for this repo: human-only DCO certification, `Assisted-by` commit trailers, Husky **`commit-msg`** (warn-only), strict check on **`main`** CI `build`, shared [`scripts/check-assisted-by.mjs`](../scripts/check-assisted-by.mjs), contributor doc [`AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md), Cursor rule `ai-assisted-contributions.mdc`, and documentation-sync skill updates for ongoing maintenance.
+- **Technical problem / uncertainty:** Balance traceability (RSEDE / audit) with developer friction; warn locally vs fail in CI on `HEAD` only.
+- **Work performed:**
+  - [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md) — policy, enforcement, edge cases
+  - [`scripts/check-assisted-by.mjs`](../scripts/check-assisted-by.mjs) — message validation (strict / warn, merge/revert skip)
+  - [`.husky/commit-msg`](../.husky/commit-msg) — local warn hook
+  - [`.github/workflows/ci-deploy.yml`](../.github/workflows/ci-deploy.yml) — strict `Assisted-by` step after `setup-node`
+  - [`docs/DEVELOPER_GUARDRAILS.md`](DEVELOPER_GUARDRAILS.md), [`README.md`](../README.md), [`package.json`](../package.json) — cross-links and `check:commit-msg` script
+  - [`.cursor/rules/ai-assisted-contributions.mdc`](../.cursor/rules/ai-assisted-contributions.mdc), [`.cursor/skills/documentation-sync/SKILL.md`](../.cursor/skills/documentation-sync/SKILL.md) — agent rules and doc-sync triggers/checklist
+- **Result / status:** Implemented locally; awaiting merge to `main` with a commit message that includes `Assisted-by:` for CI.
+- **Links / traceability:** `*(to complete — commit SHA after merge)*`
+
 ### 2026-04-16 — RSEDE Dev LOG: English journal + documentation-sync integration
 
 - **Date (UTC or local):** 2026-04-16

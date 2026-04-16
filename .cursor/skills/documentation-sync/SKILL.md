@@ -16,6 +16,7 @@ Run **automatically** when the task touches any of:
 - APIs, server actions, `src/lib/`, Prisma schema/migrations/seed
 - Env vars, scripts, Docker, CI, or local setup behavior
 - Architecture, data model, security, or operational assumptions
+- **AI-assisted contribution policy** — substantive edits to [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](../../../docs/AI_ASSISTED_CONTRIBUTIONS.md), [`.cursor/rules/ai-assisted-contributions.mdc`](../../rules/ai-assisted-contributions.mdc), [`scripts/check-assisted-by.mjs`](../../../scripts/check-assisted-by.mjs), Husky **`prepare-commit-msg`** / **`commit-msg`**, or CI steps that enforce **`Assisted-by`**
 
 **Always run** a documentation impact check **before** declaring the task finished.
 
@@ -27,11 +28,14 @@ Run **automatically** when the task touches any of:
 - `CHEATSHEET.md` — end-user reference (should stay aligned with in-app help)
 - `docs/SETUP.md` — install, env, DB, migrations, troubleshooting
 - `docs/DEVELOPER_GUARDRAILS.md` — quality gates (local checks, CI/hooks when added), pre/post-main validation inventory
+- `docs/AI_ASSISTED_CONTRIBUTIONS.md` — `Assisted-by` commit trailers, human vs agent duties, hook/CI enforcement (must stay aligned with [`scripts/check-assisted-by.mjs`](../../../scripts/check-assisted-by.mjs) and Husky/CI)
 - `docs/ui-system.md` — layout, tokens, component conventions
 - `docs/PRODUCT_ASSUMPTIONS.md` — domain model, lifecycle, assumptions
 - `docs/FUTURE_IMPROVEMENTS.md` — backlog (only if a planned item is implemented or invalidated)
 - `docs/DEV_LOG.md` — append-only development journal for **RSEDE** / R&D funding dossiers (subsidies, traceability); see **Dev LOG (RSEDE / R&D funding)** below
 - `prisma/schema.prisma`, `package.json` scripts — often need SETUP or README cross-checks
+- [`scripts/check-assisted-by.mjs`](../../../scripts/check-assisted-by.mjs) — commit-message guard; keep in sync with `docs/AI_ASSISTED_CONTRIBUTIONS.md` and `docs/DEVELOPER_GUARDRAILS.md`
+- [`.cursor/rules/ai-assisted-contributions.mdc`](../../rules/ai-assisted-contributions.mdc) — agent behavior for DCO / `Assisted-by`; update when policy changes
 
 **In-app (end-user):**
 
@@ -126,6 +130,8 @@ Copy and use mentally or literally:
 - [ ] **README** — Feature list, screens table, stack, links still true?
 - [ ] **CHEATSHEET.md** — Matches Help dialog and actual UI labels/workflows?
 - [ ] **docs/SETUP.md** — Env vars, commands, migrations, troubleshooting still valid?
+- [ ] **docs/DEVELOPER_GUARDRAILS.md** — Hooks, CI, and script inventory still match `.husky/`, `.github/workflows/`, and `package.json` scripts?
+- [ ] **docs/AI_ASSISTED_CONTRIBUTIONS.md** — Matches `scripts/check-assisted-by.mjs`, Husky `prepare-commit-msg` / `commit-msg`, **`ASSISTED_BY`** override, and CI `Assisted-by` step (skip rules, strict vs warn, bypass policy)?
 - [ ] **docs/ui-system.md** — New/changed layout or component patterns documented if they establish precedent?
 - [ ] **docs/PRODUCT_ASSUMPTIONS.md** — Domain or security assumptions changed?
 - [ ] **HelpDialog.tsx** — Tabs/sections reflect current product behavior and shortcuts?
@@ -188,4 +194,4 @@ Return this for the task (fill every section):
 
 ## Quick reuse blurb (paste into prompts)
 
-> After implementation, run **documentation-sync**: assess repo + in-app docs, update `README.md`, `docs/*`, `CHEATSHEET.md`, and `src/components/app-shell/HelpDialog.tsx` as needed, append a **Dev LOG** entry to `docs/DEV_LOG.md` for **RSEDE** traceability (unless explicitly non-R&D), remove obsolete instructions, align names with the UI, propose a version bump using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) rules and **wait for explicit confirmation** before changing `package.json` / `src/lib/app-version.ts`, then finish with the skill’s output template (including intentional no-ops and §8 Dev LOG).
+> After implementation, run **documentation-sync**: assess repo + in-app docs, update `README.md`, `docs/*` (including `docs/AI_ASSISTED_CONTRIBUTIONS.md` and guardrails when AI/commit policy or `scripts/check-assisted-by.mjs` / hooks / CI change), `CHEATSHEET.md`, and `src/components/app-shell/HelpDialog.tsx` as needed, append a **Dev LOG** entry to `docs/DEV_LOG.md` for **RSEDE** traceability (unless explicitly non-R&D), remove obsolete instructions, align names with the UI, propose a version bump using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) rules and **wait for explicit confirmation** before changing `package.json` / `src/lib/app-version.ts`, then finish with the skill’s output template (including intentional no-ops and §8 Dev LOG).

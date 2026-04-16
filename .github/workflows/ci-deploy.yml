@@ -37,6 +37,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+
+      - name: Verify commit message (Assisted-by)
+        run: git log -1 --format=%B | node scripts/check-assisted-by.mjs --stdin --strict
       # Install exactly what package-lock.json specifies (requires lockfile committed).
       - run: npm ci
       - run: npx prisma generate

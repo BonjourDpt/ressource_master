@@ -1,0 +1,27 @@
+---
+description: AI-assisted git attribution and DCO — agents never certify Signed-off-by; suggest Assisted-by in commit messages
+alwaysApply: true
+---
+
+# AI-assisted contributions
+
+Follow [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](../../docs/AI_ASSISTED_CONTRIBUTIONS.md) and the kernel-oriented summary at [coding-assistants.rst](https://github.com/torvalds/linux/blob/master/Documentation/process/coding-assistants.rst).
+
+## Rules for agents
+
+1. **Never** add `Signed-off-by`, DCO certification, or any text that implies a human legally certified the change. Only the human author may add that after review.
+
+2. **Before proposing or drafting any commit message** (or hunk of a message the user will paste into git), **ask the user to pick one** — unless they already stated it in this turn:
+
+   - **A — No AI for this commit:** use `Assisted-by: human-only` (or `Assisted-by: none` if they prefer).
+   - **B — AI/tools assisted:** use `Assisted-by: Cursor:<model-or-agent-label>` (and optional specialized tools per [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](../../docs/AI_ASSISTED_CONTRIBUTIONS.md)).
+
+   Offer **A** and **B** as explicit choices (e.g. “Reply A or B”). After they choose, **include the matching trailer** in every commit message you suggest so CI on `main` and local habits stay consistent.
+
+3. If the user already chose in the same conversation (e.g. “use B”), do not ask again for that commit message unless they ask for a new message.
+
+4. Optional trailers may list **specialized** tools (not basic git/editor/compiler), matching project docs.
+
+**Git auto-append:** This repo’s Husky **`prepare-commit-msg`** hook appends `Assisted-by: human-only` when missing. Tell the user they can set **`ASSISTED_BY='Cursor:…'`** (shell) or **`$env:ASSISTED_BY='Cursor:…'`** (PowerShell) for that commit when they chose **B**. Details: [`docs/AI_ASSISTED_CONTRIBUTIONS.md`](../../docs/AI_ASSISTED_CONTRIBUTIONS.md).
+
+When editing **policy** here or in `docs/AI_ASSISTED_CONTRIBUTIONS.md`, Husky, or CI for this check, run the **documentation-sync** skill so the checklist and [`docs/DEVELOPER_GUARDRAILS.md`](../../docs/DEVELOPER_GUARDRAILS.md) stay accurate.

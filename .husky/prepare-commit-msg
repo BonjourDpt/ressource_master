@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+# Append Assisted-by before the editor opens (and for -m / -F), unless already present.
+# Override for AI-assisted commits: ASSISTED_BY='Cursor:YourModel' git commit ...
+# Default when unset: human-only
+#
+# Args: $1 = path to commit message file, $2 = source (message|template|merge|squash|commit)
+
+msg_file="$1"
+source="${2:-}"
+
+if [ -z "$msg_file" ] || [ ! -f "$msg_file" ]; then
+  exit 0
+fi
+
+# Git supplies source=merge for merge commits; validator also skips Merge/Revert first line.
+if [ "$source" = merge ]; then
+  exit 0
+fi
+
+read -r first_line < "$msg_file" || first_line=""
+# Strip CR for Windows-checked-out files
+first_line=$(printf '%s' "$first_line" | tr -d '\r')
+case "$first_line" in
+  Merge\ *|Revert\ *) exit 0 ;;
+esac
+
+if grep -qiE '^Assisted-by:[[:space:]]*[^[:space:]]' "$msg_file"; then
+  exit 0
+fi
+
+value="${ASSISTED_BY:-human-only}"
+if [ -z "$value" ]; then
+  value="human-only"
+fi
+
+printf '\nAssisted-by: %s\n' "$value" >> "$msg_file"

@@ -62,6 +62,10 @@ If something is misconfigured, **`npm run dev` shows an in-browser “Developer 
 
 Authoritative step-by-step setup, including migrations and seed, remains in **[docs/SETUP.md](docs/SETUP.md)**.
 
+## Contributing and AI assistance
+
+Commits must include a non-empty **`Assisted-by:`** line. **Husky** auto-appends `Assisted-by: human-only` via **`prepare-commit-msg`** unless you already added one; for AI-assisted work set **`ASSISTED_BY`** for that commit (see **[docs/AI_ASSISTED_CONTRIBUTIONS.md](docs/AI_ASSISTED_CONTRIBUTIONS.md)**). **CI on `main`** still enforces the rule on the pushed commit. Policy aligns with the Linux kernel’s [coding-assistants](https://github.com/torvalds/linux/blob/master/Documentation/process/coding-assistants.rst) guidance.
+
 ## Documentation
 
 | Doc | Purpose |
@@ -69,7 +73,8 @@ Authoritative step-by-step setup, including migrations and seed, remains in **[d
 | [.cursor/skills/](.cursor/skills/) | Cursor agent skills (workflows for contributors; each skill is a `SKILL.md` folder) |
 | [docs/SETUP.md](docs/SETUP.md) | Install, env, migrations, seed, troubleshooting |
 | [docs/DEVELOPER_GUARDRAILS.md](docs/DEVELOPER_GUARDRAILS.md) | Quality gates: Husky pre-push, GitHub Actions on `main`, runtime probes; full inventory |
-| [.github/workflows/ci-deploy.yml](.github/workflows/ci-deploy.yml) | CI on push to `main`: `build` then `deploy` on `ubuntu-latest`; webhook `POST` when `DEPLOY_WEBHOOK_URL` is set; optional `DEPLOY_HEALTH_CHECK_URL` polls `GET /api/health` after deploy; optional `notify-success` / `notify-failure` + `SLACK_WEBHOOK_URL` for Slack alerts |
+| [docs/AI_ASSISTED_CONTRIBUTIONS.md](docs/AI_ASSISTED_CONTRIBUTIONS.md) | `Assisted-by` commit trailers, human vs agent responsibilities, hook/CI behavior |
+| [.github/workflows/ci-deploy.yml](.github/workflows/ci-deploy.yml) | CI on push to `main`: `build` (strict **`Assisted-by`** on `HEAD`, then `npm ci` … `next build`) then `deploy` on `ubuntu-latest`; webhook `POST` when `DEPLOY_WEBHOOK_URL` is set; optional `DEPLOY_HEALTH_CHECK_URL` polls `GET /api/health` after deploy; optional `notify-success` / `notify-failure` + `SLACK_WEBHOOK_URL` for Slack alerts |
 | [CHEATSHEET.md](CHEATSHEET.md) | End-user reference (mirrors in-app help) |
 | [docs/ui-system.md](docs/ui-system.md) | Design tokens, layout, and component conventions |
 | [docs/PRODUCT_ASSUMPTIONS.md](docs/PRODUCT_ASSUMPTIONS.md) | Domain model, weeks, lifecycle, security assumptions |
