@@ -45,7 +45,7 @@ Items marked ~~strikethrough~~ have been implemented.
 
 - **Larger datasets** — If projects/resources grow a lot: paginate or virtualize the planning grid rows; keep week range bounded.
 - **Concurrent edits** — If multiple people edit at once: optional optimistic updates and clear "last updated" or conflict messaging; no need for full CRDTs for MVP.
-- ~~**Deployment**~~ — ✅ Push to `main` runs [`ci-deploy.yml`](../.github/workflows/ci-deploy.yml): after a green build, a **`deploy`** job `POST`s to the `DEPLOY_WEBHOOK_URL` Actions secret when set (see [DEVELOPER_GUARDRAILS.md](DEVELOPER_GUARDRAILS.md)). On failure, optional **`notify-failure`** posts to Slack when `SLACK_WEBHOOK_URL` is set. **Still open:** operator runbook for the host (env, `DATABASE_URL`, backups) beyond the webhook.
+- ~~**Deployment**~~ — ✅ Push to `main` runs [`ci-deploy.yml`](../.github/workflows/ci-deploy.yml): after a green build, a **`deploy`** job `POST`s to the `DEPLOY_WEBHOOK_URL` Actions secret when set (see [DEVELOPER_GUARDRAILS.md](DEVELOPER_GUARDRAILS.md)). On success, optional **`notify-success`** posts to Slack when `SLACK_WEBHOOK_URL` is set; on failure, optional **`notify-failure`** does the same. **Still open:** operator runbook for the host (env, `DATABASE_URL`, backups) beyond the webhook.
 - **Backups** — Rely on managed Postgres backups; optional: scheduled export job for bookings.
 
 ---

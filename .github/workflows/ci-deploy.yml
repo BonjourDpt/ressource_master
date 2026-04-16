@@ -99,6 +99,51 @@ jobs:
           rm -f /tmp/health.json
           exit 1
 
+  notify-success:
+    needs: [build, deploy]
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack on success
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          FULL_SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then
+            echo "SLACK_WEBHOOK_URL not set, skipping Slack success notification"
+            exit 0
+          fi
+
+          payload="$(jq -n \
+            --arg workflow "$WORKFLOW_NAME" \
+            --arg repo "$REPO" \
+            --arg branch "$BRANCH" \
+            --arg fullsha "$FULL_SHA" \
+            --arg runurl "$RUN_URL" \
+            '{
+              blocks: [
+                { type: "header", text: { type: "plain_text", text: "Workflow succeeded" } },
+                {
+                  type: "section",
+                  fields: [
+                    { type: "mrkdwn", text: ("*Workflow:* `" + $workflow + "`") },
+                    { type: "mrkdwn", text: ("*Repository:* `" + $repo + "`") },
+                    { type: "mrkdwn", text: ("*Branch:* `" + $branch + "`") },
+                    { type: "mrkdwn", text: ("*Commit:* `" + $fullsha + "`") }
+                  ]
+                },
+                { type: "section", text: { type: "mrkdwn", text: ("<" + $runurl + "|View GitHub Actions workflow run>") } }
+              ]
+            }')"
+
+          curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$SLACK_WEBHOOK_URL"
+
   notify-failure:
     needs: [build, deploy]
     if: ${{ failure() }}
