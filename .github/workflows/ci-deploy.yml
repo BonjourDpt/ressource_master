@@ -48,11 +48,14 @@ jobs:
 
   deploy:
     needs: build
-    if: secrets.DEPLOY_WEBHOOK_URL != ''
     runs-on: ubuntu-latest
     steps:
       - name: Trigger deployment
         env:
           DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
         run: |
+          if [ -z "$DEPLOY_WEBHOOK_URL" ]; then
+            echo "DEPLOY_WEBHOOK_URL not set, skipping deploy"
+            exit 0
+          fi
           curl -fsS -X POST "$DEPLOY_WEBHOOK_URL"
