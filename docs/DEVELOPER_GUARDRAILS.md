@@ -25,7 +25,7 @@ Both the `**build`** and `**deploy`** jobs use the GitHub-hosted `**ubuntu-lates
 
 | Workflow                                            | When it runs                 | What it runs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | --------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[CI-deploy](../.github/workflows/ci-deploy.yml)** | Every **push** to `**main`** | Job `**build`**: ephemeral Postgres 16 (`services.postgres`), job `DATABASE_URL` (no DB secrets), `npm ci`, `prisma generate`, `prisma migrate deploy`, `typecheck`, `lint`, `next build`. Node version follows `[.nvmrc](../.nvmrc)` via `actions/setup-node` with npm cache. Job `**deploy**` (after `build`, same runner): if Actions secret `**DEPLOY_WEBHOOK_URL**` is set, `curl` sends a **POST** request to trigger your host webhook; if unset, the step prints a skip message and **exits successfully** without calling the webhook (e.g. forks). The deploy job still **runs**—only the HTTP trigger is omitted. |
+| **[CI-deploy](../.github/workflows/ci-deploy.yml)** | Every **push** to `**main`** | Job `**build`**: ephemeral Postgres 16 (`services.postgres`), job `DATABASE_URL` (no DB secrets), `npm ci`, `prisma generate`, `prisma migrate deploy`, `typecheck`, `lint`, `next build`. Node version follows `[.nvmrc](../.nvmrc)` via `actions/setup-node` with npm cache. Job `**deploy**` (after `build`, same runner): if Actions secret `**DEPLOY_WEBHOOK_URL**` is set, `curl` sends a **POST** request to trigger your host webhook; if unset, the step prints a skip message and **exits successfully** without calling the webhook (e.g. forks). The deploy job still **runs**—only the HTTP trigger is omitted. When the webhook ran and secret `**DEPLOY_HEALTH_CHECK_URL**` is set to the full public URL of **`GET /api/health`** (e.g. `https://your-host.example.com/api/health`), a follow-up step **retries** that URL until HTTP **200** or **fails the job** after repeated attempts (spacing between tries is defined in the workflow). If the health URL secret is unset, health verification is **skipped** after a successful webhook. |
 
 
 ### Recommended local command sequence
@@ -101,9 +101,12 @@ When you add an item, move it to the tables above and leave a one-line note unde
 
 - **Zod** and server-side patterns validate inputs for mutations and imports (see product code under `src/`). This is normal runtime validation, not a separate “deploy gate.”
 
+### Health / readiness (production)
+
+- **`GET /api/health`** — Implemented in [`src/app/api/health/route.ts`](../src/app/api/health/route.ts). Responds with **`Cache-Control: no-store`**. Returns **200** and `status: "ok"` when the app and database (Prisma `SELECT 1`) are reachable; **503** and `status: "degraded"` when the database check fails (generic `error` message in JSON only—no raw exception details). Always **`dynamic = "force-dynamic"`** and **`runtime = "nodejs"`**.
+
 ### Not in the repo yet
 
-- **Dedicated `/api/health` or liveness route** — Not present; add here if you introduce one.
 - **E2E or smoke tests against production** — Not defined in this repo.
 - **Monitoring / alerting** — External to the codebase; document provider and dashboards here if you adopt them.
 
@@ -121,6 +124,7 @@ When you add an item, move it to the tables above and leave a one-line note unde
 | 2026-04-16 | CI docs: both jobs on `**ubuntu-latest`**; clarify `**deploy`** always runs and only the webhook `**POST**` is conditional.                          |
 | 2026-04-15 | CI workflow path: `[.github/workflows/ci-deploy.yml](../.github/workflows/ci-deploy.yml)` (was `ci.yml`).                                            |
 | 2026-04-15 | README, SETUP, FUTURE_IMPROVEMENTS: point to `ci-deploy.yml`, deploy webhook, and maintainer-oriented CI summary.                                    |
+| 2026-04-16 | **`GET /api/health`**: liveness + DB readiness; CI deploy may poll `DEPLOY_HEALTH_CHECK_URL` after webhook (retries).                                |
 
 
 ---
