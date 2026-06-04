@@ -1,0 +1,153 @@
+---
+name: Resource OFF weeks
+overview: Add a per-resource, per-week "OFF" percentage (resource unavailability) that is editable directly in the by-resource planning grid and visually signified in both planning views, reducing the resource's available capacity.
+todos:
+  - id: tdd-discovery
+    content: TDD Phase 0 - confirm scope already captured, then ask which model writes tests vs implementation; verify Vitest infra exists
+    status: in_progress
+  - id: tdd-red
+    content: TDD Red - write failing tests first (view-model off row/offByWeek/overload, server actions, EditableOffCell), run and confirm they fail
+    status: pending
+  - id: tdd-review
+    content: TDD Review - present failing tests to user as checklist + runner output, wait for explicit approval
+    status: pending
+  - id: schema
+    content: Add ResourceTimeOff model + Resource.timeOff relation in prisma/schema.prisma and create a Prisma migration
+    status: pending
+  - id: validation-actions
+    content: Add timeOffSchema in validations.ts and setResourceTimeOff/deleteResourceTimeOff server actions in app/planning/actions.ts
+    status: pending
+  - id: data-load
+    content: Query resourceTimeOff in planning/page.tsx and pass into PlanningGrid
+    status: pending
+  - id: view-model
+    content: Add 'off' row type, TimeOffModel, offByWeek map, and off row in buildPlanningMatrix (by-resource)
+    status: pending
+  - id: edit-cell
+    content: Create EditableOffCell component (trimmed allocation cell, no project/note)
+    status: pending
+  - id: render
+    content: Render OFF row in by-resource view, read-only OFF marker in by-project view, and update over-allocation threshold to 100 - offPct; thread props through PlanningGrid/PlanningTable/PlanningTableBody
+    status: pending
+  - id: tdd-green
+    content: TDD Green/Refactor - make all tests pass, refactor, run full suite green
+    status: pending
+  - id: doc-sync
+    content: Run documentation-sync skill - update README/CHEATSHEET/docs/HelpDialog, append docs/DEV_LOG.md entry, propose semver bump and wait for confirmation before editing package.json + app-version.ts
+    status: pending
+  - id: summary
+    content: TDD Phase 7 - final suite run + detailed implementation summary
+    status: pending
+isProject: false
+---
+
+# Signify when a resource is OFF in the planning views
+
+## Chosen design (from your answers)
+
+- OFF is a **partial percentage per week** (e.g. 40% off), independent of any project.
+- **No reason/label** — just `offPct`.
+- Editing happens **directly in the by-resource grid** via a dedicated "OFF" row; the by-project view shows it read-only.
+
+## Why this fits the codebase
+
+The whole app is already weekly: `Booking` is keyed by `(resourceId, projectId, weekStart)` in [prisma/schema.prisma](prisma/schema.prisma). OFF is the same shape minus the project, so it maps cleanly to a new sibling table and a new grid row type. It stays "linked to a resource, not a project" by construction, and add/update/delete reuse the exact inline-cell pattern already used for allocations.
+
+## Data model — new table
+
+Add to [prisma/schema.prisma](prisma/schema.prisma):
+
+```prisma
+model ResourceTimeOff {
+  id         String   @id @default(uuid())
+  resourceId String
+  weekStart  DateTime
+  offPct     Int      // 1..100, percent of the week the resource is unavailable
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([resourceId, weekStart])
+  @@index([weekStart])
+  @@index([resourceId, weekStart])
+}
+```
+
+Add `timeOff ResourceTimeOff[]` to the `Resource` model. Then run a Prisma migration (`prisma migrate dev`) — this is the only DB change.
+
+## Server actions + validation
+
+- [src/lib/validations.ts](src/lib/validations.ts): add `timeOffSchema` (`resourceId`, `weekStart`, `offPct` 1..100).
+- [src/app/planning/actions.ts](src/app/planning/actions.ts): add `setResourceTimeOff(data)` (upsert on `[resourceId, weekStart]`; `offPct <= 0` deletes the row) and `deleteResourceTimeOff(id)`, each calling `revalidatePath("/planning")`. Mirrors the existing `createBooking`/`deleteBooking` style.
+
+## Data loading
+
+[src/app/planning/page.tsx](src/app/planning/page.tsx): add a 4th query for `db.resourceTimeOff.findMany` over the visible week range (active resources), and pass `timeOff` into `PlanningGrid`.
+
+## View model
+
+[src/lib/planning-view-model.ts](src/lib/planning-view-model.ts):
+
+- Add `TimeOffModel` and a new `PlanningRowType` value `"off"`.
+- Build an `offByWeek` map keyed `${resourceId}:${wk}` -> `offPct` (helper like the existing `resourceWeekTotals`).
+- In the **by-resource** branch of `buildPlanningMatrix`, push an `"off"` row into each resource group (next to the existing `summary` row).
+- Cells carry `offPct` so both views can read it.
+
+## UI
+
+- New component `src/components/planning/EditableOffCell.tsx`: a trimmed copy of [EditableAllocationCell.tsx](src/components/planning/EditableAllocationCell.tsx) — numeric % input, no project, no note; empty/0 deletes. Calls `setResourceTimeOff`/`deleteResourceTimeOff`.
+- [src/components/planning/PlanningTableBody.tsx](src/components/planning/PlanningTableBody.tsx):
+  - Render the `"off"` row (label "OFF") in by-resource view using `EditableOffCell`.
+  - In **by-project** view, when a resource is off in a week, render a read-only marker on that allocation cell (subtle striped/“OFF” background + tooltip like `40% off`).
+  - Update the over-allocation logic: available = `100 - offPct`, so `OverloadHint` and the summary `TotalPctPill` flag a week when `bookedTotal > 100 - offPct` (today it uses `> 100`).
+- Thread the off data through [PlanningGrid.tsx](src/components/planning/PlanningGrid.tsx) -> `PlanningTable` -> `PlanningTableBody` (same prop-drilling as `resWeekTotals`).
+
+## Visual summary
+
+```mermaid
+flowchart LR
+  DB[(ResourceTimeOff)] --> Page[planning/page.tsx]
+  Page --> Grid[PlanningGrid]
+  Grid --> Body[PlanningTableBody]
+  Body -->|by resource| OffRow["OFF row (editable)"]
+  Body -->|by project| Marker["read-only OFF marker on resource cells"]
+  OffRow --> Action[setResourceTimeOff / delete]
+  Action --> DB
+```
+
+
+
+## Technical impact
+
+- **Scope:** ~8-10 files; one new table + one migration; one new small component.
+- **Risk: low.** OFF is an additive, separate table and a separate row type; existing booking create/update/delete/undo paths are untouched. The only shared logic touched is the over-allocation threshold in the by-resource summary.
+- **Out of scope / optional follow-ups:** undo-redo support for OFF edits (booking history currently assumes a `projectId`); managing OFF from the resource screen; bulk "off for N weeks".
+
+## Development workflow — TDD (mandatory)
+
+This feature will be built following [.cursor/skills/tdd/SKILL.md](.cursor/skills/tdd/SKILL.md) (Red-Green-Refactor). The "Implementation" sections above describe the *target* code, but the work is sequenced tests-first:
+
+- **Phase 0 — Discovery:** scope is already settled (partial `offPct`, no label, edit in by-resource grid). At execution start, ask the user which model writes the **tests** vs the **implementation** (the skill requires this), and confirm Vitest infra — already present (`vitest.config.ts`, `*.test.ts(x)` files exist), so no setup needed.
+- **Phase 2 — Red:** write failing tests first, before any production code, covering:
+  - `planning-view-model`: an `"off"` row is emitted per resource group; `offByWeek` map is built correctly; overload threshold uses `100 - offPct` (happy path, no-off, 0%, >100% boundary, multiple weeks).
+  - server actions: `setResourceTimeOff` upsert + `<=0` deletes; `deleteResourceTimeOff`; zod `timeOffSchema` bounds (1..100, invalid week).
+  - `EditableOffCell`: enter %, clear/0 deletes, invalid input rejected — mirroring `EditableAllocationCell.test.tsx`.
+  Run the suite and confirm all new tests **fail**.
+- **Phase 3 — Review:** present the failing tests (checklist + raw runner output) and wait for explicit approval before implementing.
+- **Phase 4-5 — Green/Refactor:** implement the schema/actions/view-model/UI from the sections above until green, then refactor with the suite staying green.
+
+Per the skill, test-writing and implementation are delegated to subagents using the user-chosen models.
+
+## Documentation sync (mandatory, before summary)
+
+After green, run [.cursor/skills/documentation-sync/SKILL.md](.cursor/skills/documentation-sync/SKILL.md). This feature is a user-visible `feat` (new planning capability + schema change), so it triggers a full doc pass:
+
+- **In-app help:** [src/components/app-shell/HelpDialog.tsx](src/components/app-shell/HelpDialog.tsx) and [CHEATSHEET.md](CHEATSHEET.md) — document the OFF row and how to set/clear a resource's off %.
+- **Repo docs:** [README.md](README.md) feature list; [docs/PRODUCT_ASSUMPTIONS.md](docs/PRODUCT_ASSUMPTIONS.md) (new domain concept + capacity impact); [docs/SETUP.md](docs/SETUP.md) only if migration steps need a note.
+- **Dev LOG (RSEDE):** append a newest-first entry to [docs/DEV_LOG.md](docs/DEV_LOG.md).
+- **Version bump:** classify as `feat` (MINOR) per Conventional Commits, propose `package.json` + [src/lib/app-version.ts](src/lib/app-version.ts) bump, and **wait for explicit user confirmation** before editing either.
+- Finish with the skill's output template (impact assessment, actions performed, version, gaps, Dev LOG section).
+
+## Note on execution
+
+Since this is the `ressource_master` repo (currently opened from your home directory), the first implementation step will move the agent into `C:\Users\laure\Documents\GitHub\ressource_master` before any edits.
