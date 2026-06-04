@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "sonner";
 import "./globals.css";
 import { AppShell } from "@/components/app-shell/AppShell";
 import { DeveloperSetupError } from "@/components/developer-setup-error";
 import { parseDeveloperDbSetupFailure } from "@/lib/developer-db-setup";
 import { db } from "@/lib/db";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,24 +75,18 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppShell resourceCount={resourceCount} projectCount={projectCount}>
           {children}
         </AppShell>
-        <Toaster
-          theme="dark"
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: "var(--rm-surface-elevated)",
-              border: "1px solid var(--rm-border)",
-              color: "var(--rm-fg)",
-            },
-          }}
-        />
       </body>
     </html>
   );

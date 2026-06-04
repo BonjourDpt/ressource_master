@@ -2,7 +2,7 @@
 
 ## Intent
 RESOURCE PLANNER should feel like a premium internal planning product:
-calm, precise, dark, readable, structured, restrained.
+calm, precise, readable, structured, restrained. **Dark is the default**; an optional **light** theme uses the same token names.
 
 The UI should not feel like:
 - a default admin template
@@ -27,7 +27,7 @@ The UI should feel coherent across Planning, Projects, Resources, and Admin.
 ## Layout Rules
 
 ### App Shell
-- **Top header** — Sticky full-width bar with brand mark (`public/app-brand-icon.png`, luminance-masked and filled with `currentColor` / primary text for white-on-dark artwork), two-line app title (**RESOURCE** / **PLANNER**), primary nav (Planning, Projects, Resources, Admin), and the in-app **Help** control.
+- **Top header** — Sticky full-width bar with brand mark (`public/app-brand-icon.png`, luminance-masked and filled with `currentColor` / primary text for white-on-dark artwork), two-line app title (**RESOURCE** / **PLANNER**), primary nav (Planning, Projects, Resources, Admin), **theme toggle** (sun/moon), and the in-app **Help** control.
 - **Main area** — Centered content column (`max-w-[1800px]`) with horizontal padding; page content sits in `<main>` with bottom padding so lists clear the status bar.
 - **Status bar** — Fixed footer strip showing live **resource** and **project** counts (mono, subtle).
 - Header and content width should stay aligned so pages feel like one product, not separate templates.
@@ -73,10 +73,16 @@ Do not use mono as a decorative font.
 
 ## Color System
 
-Use existing Indigo Graphite tokens as the source of truth.
+Use existing Indigo Graphite tokens as the source of truth. All semantic colors are `--rm-*` variables on `:root` in [`src/app/globals.css`](../src/app/globals.css). **Dark** values live on `:root`; **light** overrides apply on `:root[data-theme="light"]` (set on `<html>`). Components must reference tokens, not hardcoded palette classes.
+
+### Theme switching
+- **Default:** dark (no `data-theme` attribute).
+- **Persistence:** `localStorage` key `rm-theme` (`"light"` | `"dark"`); invalid values are ignored.
+- **No flash:** a blocking inline script in [`src/app/layout.tsx`](../src/app/layout.tsx) applies stored light theme before first paint.
+- **Runtime:** [`src/lib/theme.ts`](../src/lib/theme.ts) + [`ThemeProvider`](../src/components/app-shell/ThemeProvider.tsx) / [`ThemeToggle`](../src/components/app-shell/ThemeToggle.tsx) in the app shell.
 
 ### Visual hierarchy
-- Background: calm, dark, flat
+- Background: calm, flat (dark or light per theme)
 - Surfaces: slightly lifted from background
 - Borders: subtle, never loud
 - Primary accent: reserved and meaningful

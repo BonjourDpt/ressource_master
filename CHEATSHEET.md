@@ -148,13 +148,19 @@ Existing records are matched **by name** — if a name already exists, the recor
 
 ---
 
-## 9. In-App Help
+## 9. Appearance (light / dark)
+
+Use the **sun / moon** button in the header (to the left of **?**) to switch between **dark** and **light** mode. Your preference is saved in this browser. The app opens in **dark** mode on first visit.
+
+---
+
+## 10. In-App Help
 
 Click the **?** button in the top-right corner of the header to open this cheatsheet in a dialog. Press **Escape**, click **×**, or click the dimmed backdrop to close it.
 
 ---
 
-## 10. Visual Indicators at a Glance
+## 11. Visual Indicators at a Glance
 
 | Indicator | Meaning |
 |-----------|---------|

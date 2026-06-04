@@ -146,6 +146,18 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
             </li>
           </ol>
         </Section>
+        <Section title="Appearance">
+          <BulletList
+            items={[
+              <>
+                Use the <strong className="text-[var(--rm-fg)]">sun / moon</strong> button in the header (left of{" "}
+                <strong className="text-[var(--rm-fg)]">?</strong>) to switch between <strong className="text-[var(--rm-fg)]">dark</strong> and{" "}
+                <strong className="text-[var(--rm-fg)]">light</strong> mode.
+              </>,
+              <>Your choice is saved in this browser. New visits start in dark mode until you switch.</>,
+            ]}
+          />
+        </Section>
         <Tip>
           Row shortcuts on Projects and Resources are ignored while search, tabs, buttons, or another dialog is
           focused.

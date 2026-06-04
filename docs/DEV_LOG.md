@@ -8,6 +8,20 @@
 
 **Order:** **newest first**. Each new `###` entry goes **directly under this paragraph**, **before** any older entry (and **before** the optional `<!-- AGENT TEMPLATE -->` block at the end of the file).
 
+### 2026-06-04 — Light / dark theme toggle
+
+- **Date (UTC or local):** 2026-06-04 local
+- **Operational summary:** Added an opt-in **light** UI theme alongside the existing dark default. Users switch with a sun/moon control in the header; the choice persists per browser via `localStorage`, with a pre-paint script to avoid a flash of the wrong theme on reload.
+- **Technical problem / uncertainty:** The product is token-driven (`--rm-*` CSS variables). The work needed a single override surface on `<html>`, validated storage reads, and Sonner/select surfaces that previously assumed dark-only rendering.
+- **Work performed:**
+  - [`src/app/globals.css`](../src/app/globals.css) — light token overrides on `:root[data-theme="light"]`
+  - [`src/lib/theme.ts`](../src/lib/theme.ts), [`src/lib/theme.test.tsx`](../src/lib/theme.test.tsx) — theme helpers, allowlisted storage, init script constant
+  - [`src/components/app-shell/ThemeProvider.tsx`](../src/components/app-shell/ThemeProvider.tsx), [`ThemeToggle.tsx`](../src/components/app-shell/ThemeToggle.tsx), [`ThemeToggle.test.tsx`](../src/components/app-shell/ThemeToggle.test.tsx), [`AppShell.tsx`](../src/components/app-shell/AppShell.tsx), [`AppHeader.tsx`](../src/components/app-shell/AppHeader.tsx), [`src/app/layout.tsx`](../src/app/layout.tsx) — provider, toggle, no-flash init, theme-aware toasts
+  - [`src/components/ui/Select.tsx`](../src/components/ui/Select.tsx) — portaled menu follows active color scheme
+  - [`README.md`](../README.md), [`CHEATSHEET.md`](../CHEATSHEET.md), [`docs/ui-system.md`](ui-system.md), [`src/components/app-shell/HelpDialog.tsx`](../src/components/app-shell/HelpDialog.tsx) — documentation sync
+- **Result / status:** Implemented locally; Vitest suite green (137 tests including new theme tests).
+- **Links / traceability:** `*(to complete)*`
+
 ### 2026-06-04 — Resource OFF weeks in planning
 
 - **Date (UTC or local):** 2026-06-04 local

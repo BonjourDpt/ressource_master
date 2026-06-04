@@ -256,10 +256,10 @@ export function Select({
         ...(menuLayout.placement === "bottom"
           ? { top: menuLayout.top, bottom: "auto" as const }
           : { bottom: menuLayout.bottom, top: "auto" as const }),
-        // Portaled to document.body: ensure dark surface even if CSS vars fail to inherit
-        backgroundColor: "var(--rm-surface-highest, #252529)",
-        color: "var(--rm-fg, #e7e4ea)",
-        colorScheme: "dark",
+        backgroundColor: "var(--rm-surface-highest)",
+        color: "var(--rm-fg)",
+        colorScheme:
+          document.documentElement.dataset.theme === "light" ? "light" : "dark",
       }}
       className="overflow-auto rounded-lg border border-[var(--rm-border)] py-1 shadow-[0_4px_16px_rgba(0,0,0,0.25)]"
     >
