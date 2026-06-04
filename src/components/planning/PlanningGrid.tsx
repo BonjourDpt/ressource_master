@@ -29,6 +29,7 @@ import {
   type PlanningEditingCell,
   type ProjectModel,
   type ResourceModel,
+  type ResourceTimeOffModel,
 } from "@/lib/planning-view-model";
 import type { PlanningViewMode } from "./TimelineHeader";
 import { SegmentedTabs } from "@/components/ui/SegmentedTabs";
@@ -40,6 +41,7 @@ interface PlanningGridProps {
   projects: ProjectModel[];
   resources: ResourceModel[];
   bookings: BookingWithRelations[];
+  timeOff: ResourceTimeOffModel[];
   startWeek: Date;
   span: number;
 }
@@ -83,6 +85,7 @@ export function PlanningGrid({
   projects,
   resources,
   bookings,
+  timeOff,
   startWeek,
   span,
 }: PlanningGridProps) {
@@ -112,9 +115,15 @@ export function PlanningGrid({
     return bookings.filter((b) => ids.has(b.resourceId));
   }, [bookings, filteredResources, teamFilter]);
 
+  const filteredTimeOff = useMemo(() => {
+    if (teamFilter === "ALL") return timeOff;
+    const ids = new Set(filteredResources.map((r) => r.id));
+    return timeOff.filter((entry) => ids.has(entry.resourceId));
+  }, [filteredResources, teamFilter, timeOff]);
+
   const allGroups = useMemo(
-    () => buildPlanningMatrix(view, projects, filteredResources, filteredBookings, weekRange),
-    [view, projects, filteredResources, filteredBookings, weekRange],
+    () => buildPlanningMatrix(view, projects, filteredResources, filteredBookings, filteredTimeOff, weekRange),
+    [view, projects, filteredResources, filteredBookings, filteredTimeOff, weekRange],
   );
 
   const resWeekTotals = useMemo(() => resourceWeekTotals(filteredBookings), [filteredBookings]);
@@ -216,8 +225,9 @@ export function PlanningGrid({
     const order: { rowId: string; weekId: string }[] = [];
     for (const g of mergedGroups) {
       for (const row of g.rows) {
-        if (row.rowType !== "allocation") continue;
-        if (!row.projectId || !row.resourceId) continue;
+        if (row.rowType === "allocation" && (!row.projectId || !row.resourceId)) continue;
+        if (row.rowType !== "allocation" && row.rowType !== "off") continue;
+        if (row.rowType === "off" && !row.resourceId) continue;
         for (const cell of row.weeks) {
           order.push({ rowId: row.id, weekId: cell.weekStart });
         }

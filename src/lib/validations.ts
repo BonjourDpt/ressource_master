@@ -34,6 +34,13 @@ export const bookingSchema = z.object({
   note: z.string().max(200).optional().or(z.literal("")),
 });
 
+export const timeOffSchema = z.object({
+  resourceId: z.string().min(1, "Resource is required"),
+  weekStart: z.string().min(1, "Week is required"),
+  offPct: z.coerce.number().min(1, "Min 1%").max(100, "Max 100%"),
+});
+
 export type ProjectFormData = z.infer<typeof projectSchema>;
 export type ResourceFormData = z.infer<typeof resourceSchema>;
 export type BookingFormData = z.infer<typeof bookingSchema>;
+export type TimeOffFormData = z.infer<typeof timeOffSchema>;

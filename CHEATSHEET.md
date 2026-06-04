@@ -43,9 +43,12 @@ You're planning.
 | **Assign a new resource to a project** | Click **+ Add resource** (by-project view) or **+ Add project** (by-resource view) inside a group. Pick from the dropdown, then type a percentage. |
 | **Bring in an unallocated project/resource** | Use the **+ Add allocation** dropdown at the bottom of the grid. |
 | **Delete an allocation** | Edit the cell → clear the value (or type 0) → press Enter. |
+| **Mark a resource OFF** | Switch to **By resource** → use the resource's **OFF** row → click a week cell → type the unavailable percentage (1–100) → press Enter. Clear or type 0 to remove OFF. |
 | **Highlight a row** | **By project:** click any row in a project group to highlight the whole group; click again to clear. **By resource:** click an allocation row to highlight it; click again to clear. |
 
 Values are integers from **1%** to **100%** per cell. One cell = one resource on one project for one week.
+
+The **OFF** row is resource-level unavailability, not a project booking. OFF reduces available capacity for that resource/week: if Alice is **20% OFF**, totals above **80%** show as over-allocated. In **By project** view, affected cells show a small **OFF** marker.
 
 The **planning table header** (Project/Resource column titles and week dates) stays pinned below the nav as you scroll down through a long grid. When you scroll sideways, the first-column titles stay aligned with the sticky name columns so labels stay readable.
 
@@ -94,7 +97,7 @@ Shortcuts apply when you are **not** typing in an input, textarea, select, or ri
 
 | Key | Action |
 |-----|--------|
-| **Ctrl+Z** (**⌘+Z** on Mac) | Undo the last **saved** allocation change. |
+| **Ctrl+Z** (**⌘+Z** on Mac) | Undo the last **saved** allocation change. OFF edits are saved immediately but are not part of allocation undo/redo. |
 | **Ctrl+Y** or **Ctrl+Shift+Z** (**⌘+Y** / **⌘+Shift+Z** on Mac) | Redo. |
 
 ### Modals & dialogs
@@ -157,9 +160,11 @@ Click the **?** button in the top-right corner of the header to open this cheats
 |-----------|---------|
 | Colored dot next to a project name | Project color (set in project settings). |
 | Corner fold + note preview (under the %) | This cell has a note — preview is truncated; hover for the full text in the tooltip. |
-| Orange warning text under a resource name | Resource is **over-allocated** (> 100%) for those weeks. |
+| Orange warning text under a resource name | Resource is **over-allocated** for those weeks after OFF is subtracted from 100%. |
+| **OFF** row in by-resource view | Editable resource unavailability percentage for each week; clear or type 0 to remove it. |
+| Small **OFF** marker in by-project cells | That resource has OFF time in the same week; hover/edit OFF from the by-resource view. |
 | **By resource:** **Total allocation** band (bottom of each resource) | Summed allocation % per week for that resource; shaded band with a stronger top border so it reads as a section closer (not another project row). The resource name stays in the sticky column above — it is not repeated in that band. |
-| Total allocation pill turns orange/red | When the weekly sum exceeds 100% (warning) or 120% (danger). |
+| Total allocation pill turns orange/red | When the weekly sum exceeds available capacity after OFF (warning, then stronger danger above that threshold). |
 | Indigo top border + accent label on a week header | That column is the **current week**. |
 | "Archived" badge on a list row | Item is archived and hidden from planning. |
 | Reduced opacity row | Archived item in the list view. |

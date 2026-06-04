@@ -12,7 +12,9 @@ import type {
   ProjectModel,
   ResourceModel,
 } from "@/lib/planning-view-model";
+import { isResourceWeekOverloaded } from "@/lib/planning-view-model";
 import { AllocationCell } from "./AllocationCell";
+import { EditableOffCell } from "./EditableOffCell";
 import { stickyBodyFirst, stickyBodySecond, weekBodyCell, weekBodyCellCurrent } from "./planningStickyClasses";
 import { TotalPctPill } from "./TotalPctPill";
 import { isResourceRowSelectable } from "@/lib/planning-resource-selection";
@@ -127,6 +129,10 @@ export function PlanningTableBody({
       {groups.map((g, groupIndex) => {
         const groupTop = groupIndex > 0 ? "border-t-2 border-[var(--rm-border)]/30" : "";
         const rowSpan = g.mode === "resource" ? g.rows.length - 1 : g.rows.length;
+        const offRow = g.mode === "resource" ? g.rows.find((row) => row.rowType === "off") : null;
+        const offByWeek = new Map(
+          offRow?.weeks.map((cell) => [cell.weekStart, cell.offPct ?? 0]) ?? [],
+        );
 
         const overloads: Overload[] =
           g.mode === "resource"
@@ -134,7 +140,7 @@ export function PlanningTableBody({
                 .map((w) => {
                   const wk = toWeekStartKey(w);
                   const t = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
-                  if (t <= 100) return null;
+                  if (!isResourceWeekOverloaded(t, offByWeek.get(wk))) return null;
                   return { wk, label: formatWeekLabel(w), pct: t };
                 })
                 .filter((v): v is Overload => v !== null)
@@ -159,10 +165,13 @@ export function PlanningTableBody({
               const resourceRowSelectable = resourceRowMode && isResourceRowSelectable(row);
               const resourceRowSelected = resourceRowSelectable && selectedResourceRowId === row.id;
               const isSummaryRow = resourceRowMode && row.rowType === "summary";
+              const isOffRow = resourceRowMode && row.rowType === "off";
               const baseTr = isSummaryRow
                 ? "border-t-2 border-[var(--rm-border)]/50 h-8 [&>td]:py-1 [&>td]:align-middle"
                 : row.rowType === "add"
                   ? `${addRowLine} ${isFirstInGroup ? groupTop : ""}`.trim()
+                  : isOffRow
+                    ? `${rowLine} bg-[var(--rm-warning)]/5 ${isFirstInGroup ? groupTop : ""}`.trim()
                   : `${rowLine} ${isFirstInGroup ? groupTop : ""}`.trim();
               const trClass = cx(
                 baseTr,
@@ -228,6 +237,8 @@ export function PlanningTableBody({
                   </button>
                 ) : row.rowType === "summary" ? (
                   <span className="text-xs font-semibold text-[var(--rm-muted)]">Total allocation</span>
+                ) : row.rowType === "off" ? (
+                  <span className="text-xs font-semibold tracking-wide text-[var(--rm-warning)]">OFF</span>
                 ) : pairingIncomplete ? (
                   <div
                     className="min-w-0 max-w-[11rem]"
@@ -323,6 +334,26 @@ export function PlanningTableBody({
                         />
                       </td>
                     ))}
+                  {row.rowType === "off" &&
+                    row.weeks.map((cell) => (
+                      <td key={cell.weekStart} className={weekTdForKey(cell.weekStart)}>
+                        {row.resourceId ? (
+                          <EditableOffCell
+                            rowId={row.id}
+                            resourceId={row.resourceId}
+                            weekStart={cell.weekStart}
+                            timeOff={cell.timeOff ?? null}
+                            isEditing={
+                              editingCell?.rowId === row.id && editingCell?.weekId === cell.weekStart
+                            }
+                            onEditingCellChange={onEditingCellChange}
+                            onTabNavigate={onTabNavigate}
+                          />
+                        ) : (
+                          <div className="min-h-9" aria-hidden />
+                        )}
+                      </td>
+                    ))}
                   {row.rowType === "add" &&
                     weekRange.map((w) => {
                       const wk = toWeekStartKey(w);
@@ -334,10 +365,11 @@ export function PlanningTableBody({
                     weekRange.map((w) => {
                       const wk = toWeekStartKey(w);
                       const total = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
+                      const offPct = offByWeek.get(wk);
                       return (
                         <td key={wk} className={summaryWeekTdForKey(wk)}>
                           <div className="flex min-h-9 items-center justify-center">
-                            <TotalPctPill pct={total} />
+                            <TotalPctPill pct={total} offPct={offPct} />
                           </div>
                         </td>
                       );

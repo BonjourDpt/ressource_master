@@ -8,6 +8,19 @@
 
 **Order:** **newest first**. Each new `###` entry goes **directly under this paragraph**, **before** any older entry (and **before** the optional `<!-- AGENT TEMPLATE -->` block at the end of the file).
 
+### 2026-06-04 — Resource OFF weeks in planning
+
+- **Date (UTC or local):** 2026-06-04 local
+- **Operational summary:** Added per-resource weekly OFF percentages to the planning grid. Users can edit OFF directly in the by-resource view, see read-only OFF markers in by-project cells, and allocation warnings now compare totals against availability after OFF is subtracted.
+- **Technical problem / uncertainty:** Existing planning capacity warnings assumed a fixed 100% weekly availability. The change adds a separate resource-week availability model while keeping project bookings independent and preserving existing booking undo/redo behavior.
+- **Work performed:**
+  - [`prisma/schema.prisma`](../prisma/schema.prisma), [`prisma/migrations/20260604100000_add_resource_time_off/migration.sql`](../prisma/migrations/20260604100000_add_resource_time_off/migration.sql) — added `ResourceTimeOff`
+  - [`src/app/planning/actions.ts`](../src/app/planning/actions.ts), [`src/lib/validations.ts`](../src/lib/validations.ts) — added OFF validation and server actions
+  - [`src/lib/planning-view-model.ts`](../src/lib/planning-view-model.ts), [`src/components/planning/`](../src/components/planning/) — added OFF rows, markers, and reduced-capacity overload logic
+  - [`README.md`](../README.md), [`CHEATSHEET.md`](../CHEATSHEET.md), [`docs/PRODUCT_ASSUMPTIONS.md`](PRODUCT_ASSUMPTIONS.md), [`docs/SETUP.md`](SETUP.md), [`src/components/app-shell/HelpDialog.tsx`](../src/components/app-shell/HelpDialog.tsx) — documentation sync
+- **Result / status:** Implemented locally with focused OFF tests, nearby planning regression tests, Prisma generate, and TypeScript typecheck passing.
+- **Links / traceability:** `*(to complete)*`
+
 ### 2026-04-16 — Prisma: seed command in prisma.config.ts (package.json deprecation)
 
 - **Date (UTC or local):** 2026-04-16

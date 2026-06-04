@@ -6,7 +6,7 @@ import { getIsoMonday } from "@/lib/weeks";
 
 export type PlanningViewMode = "project" | "resource";
 
-export type PlanningRowType = "allocation" | "add" | "summary";
+export type PlanningRowType = "allocation" | "off" | "add" | "summary";
 
 /** At most one active inline editor in the planning grid. */
 export type PlanningEditingCell = { rowId: string; weekId: string } | null;
@@ -47,10 +47,19 @@ export type BookingWithRelations = BookingModel & {
   resource: ResourceModel;
 };
 
+export type ResourceTimeOffModel = {
+  id: string;
+  resourceId: string;
+  weekStart: Date;
+  offPct: number;
+};
+
 export type PlanningWeekCell = {
   weekStart: string;
   allocationPercent: number | null;
   booking: BookingWithRelations | null;
+  offPct?: number | null;
+  timeOff?: ResourceTimeOffModel | null;
 };
 
 export type PlanningMatrixRow = {
@@ -108,6 +117,24 @@ export function resourceWeekTotals(
   return m;
 }
 
+export function buildResourceTimeOffByWeek(
+  timeOff: ResourceTimeOffModel[],
+): Map<string, { offPct: number; timeOff: ResourceTimeOffModel }> {
+  const m = new Map<string, { offPct: number; timeOff: ResourceTimeOffModel }>();
+  for (const entry of timeOff) {
+    m.set(`${entry.resourceId}:${weekKey(entry.weekStart)}`, {
+      offPct: entry.offPct,
+      timeOff: entry,
+    });
+  }
+  return m;
+}
+
+export function isResourceWeekOverloaded(totalAllocationPct: number, offPct?: number): boolean {
+  const availablePct = Math.max(0, 100 - (offPct ?? 0));
+  return totalAllocationPct > availablePct;
+}
+
 function emptyWeekCells(weekRange: Date[]): PlanningWeekCell[] {
   return weekRange.map((w) => ({
     weekStart: weekKey(w),
@@ -130,11 +157,15 @@ export function buildPlanningMatrix(
   projects: ProjectModel[],
   resources: ResourceModel[],
   bookings: BookingWithRelations[],
-  weekRange: Date[]
+  timeOffOrWeekRange: ResourceTimeOffModel[] | Date[],
+  maybeWeekRange?: Date[],
 ): PlanningMatrixGroup[] {
+  const timeOff = maybeWeekRange ? (timeOffOrWeekRange as ResourceTimeOffModel[]) : [];
+  const weekRange = maybeWeekRange ?? (timeOffOrWeekRange as Date[]);
   const byProject = new Map(projects.map((p) => [p.id, p]));
   const byResource = new Map(resources.map((r) => [r.id, r]));
   const bookingMap = buildBookingMap(bookings);
+  const timeOffByWeek = buildResourceTimeOffByWeek(timeOff);
 
   if (view === "resource") {
     return resources.map((resource) => {
@@ -155,10 +186,13 @@ export function buildPlanningMatrix(
           const ws = weekKey(w);
           const booking =
             bookingMap.get(bookingLookupKey(resource.id, projectId, ws)) ?? null;
+          const off = timeOffByWeek.get(`${resource.id}:${ws}`) ?? null;
           return {
             weekStart: ws,
             allocationPercent: booking?.allocationPct ?? null,
             booking,
+            offPct: off?.offPct ?? null,
+            timeOff: off?.timeOff ?? null,
           };
         });
         rows.push({
@@ -172,6 +206,24 @@ export function buildPlanningMatrix(
           allocations: allocationsFromWeeks(weeks),
         });
       }
+
+      rows.push({
+        id: `off:${resource.id}`,
+        rowType: "off",
+        resourceId: resource.id,
+        secondaryLabel: "OFF",
+        weeks: weekRange.map((w) => {
+          const ws = weekKey(w);
+          const off = timeOffByWeek.get(`${resource.id}:${ws}`) ?? null;
+          return {
+            weekStart: ws,
+            allocationPercent: null,
+            booking: null,
+            offPct: off?.offPct ?? null,
+            timeOff: off?.timeOff ?? null,
+          };
+        }),
+      });
 
       rows.push({
         id: `add:${resource.id}`,
@@ -214,10 +266,13 @@ export function buildPlanningMatrix(
         const ws = weekKey(w);
         const booking =
           bookingMap.get(bookingLookupKey(resourceId, project.id, ws)) ?? null;
+        const off = timeOffByWeek.get(`${resourceId}:${ws}`) ?? null;
         return {
           weekStart: ws,
           allocationPercent: booking?.allocationPct ?? null,
           booking,
+          offPct: off?.offPct ?? null,
+          timeOff: off?.timeOff ?? null,
         };
       });
       rows.push({
@@ -283,6 +338,7 @@ export function mergeDraftRowsIntoGroups(
   return groups.map((g) => {
     const groupDrafts = drafts.filter((d) => d.groupId === g.groupId);
     const allocationRows = g.rows.filter((r) => r.rowType === "allocation");
+    const offRow = g.rows.find((r) => r.rowType === "off");
     const addRow = g.rows.find((r) => r.rowType === "add");
     const summaryRow = g.rows.find((r) => r.rowType === "summary");
 
@@ -315,7 +371,7 @@ export function mergeDraftRowsIntoGroups(
       };
     });
 
-    const tail = [addRow, summaryRow].filter((r): r is PlanningMatrixRow => r != null);
+    const tail = [offRow, addRow, summaryRow].filter((r): r is PlanningMatrixRow => r != null);
 
     return {
       ...g,

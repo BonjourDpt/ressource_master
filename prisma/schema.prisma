@@ -33,6 +33,7 @@ model Resource {
   capacity       Float            @default(37.5)
   status         LifecycleStatus  @default(ACTIVE)
   bookings       Booking[]
+  timeOff        ResourceTimeOff[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
@@ -56,6 +57,22 @@ model Booking {
   @@unique([resourceId, projectId, weekStart])
   @@index([weekStart])
   @@index([projectId, weekStart])
+  @@index([resourceId, weekStart])
+}
+
+model ResourceTimeOff {
+  id          String    @id @default(uuid())
+  resourceId  String
+  weekStart   DateTime
+  offPct      Int
+
+  resource    Resource  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([resourceId, weekStart])
+  @@index([weekStart])
   @@index([resourceId, weekStart])
 }
 

@@ -173,6 +173,12 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
                 Add a group: <strong className="text-[var(--rm-fg)]">+ Add allocation</strong> at the bottom.
               </>,
               <>
+                <strong className="text-[var(--rm-fg)]">By resource</strong>: use the{" "}
+                <strong className="text-[var(--rm-fg)]">OFF</strong> row to mark weekly unavailability. Type{" "}
+                <strong className="text-[var(--rm-fg)]">1–100</strong> and press <Kbd>Enter</Kbd>; clear or type{" "}
+                <strong className="text-[var(--rm-fg)]">0</strong> to remove it.
+              </>,
+              <>
                 Notes: in edit mode use <strong className="text-[var(--rm-fg)]">Add note</strong> /{" "}
                 <strong className="text-[var(--rm-fg)]">Edit note</strong>. Saved with the cell on <Kbd>Enter</Kbd> or{" "}
                 <Kbd>Tab</Kbd> on the % field. Max <strong className="text-[var(--rm-fg)]">200</strong> characters. On the
@@ -223,9 +229,14 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
               <>Dot / left stripe — project color (name vs by-resource view).</>,
               <>
                 <strong className="text-[var(--rm-fg)]">By resource</strong> —{" "}
+                <strong className="text-[var(--rm-fg)]">OFF</strong> marks resource unavailability per week, and{" "}
                 <strong className="text-[var(--rm-fg)]">Total allocation</strong> closes each resource block (summed % per
                 week) in a shaded band with a stronger top border; the name stays in the column above, not repeated on
                 that row.
+              </>,
+              <>
+                Small <strong className="text-[var(--rm-fg)]">OFF</strong> marker in by-project cells — that resource is
+                partly unavailable that week; edit it from the by-resource OFF row.
               </>,
               <>
                 Corner fold — saved note on the cell; the button shows a bordered note layout with a preview line under the
@@ -241,8 +252,8 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
                 sideways, those column titles stay aligned with the sticky first columns.
               </>,
               <>
-                Orange / red totals — week over <strong className="text-[var(--rm-fg)]">100%</strong> (warning) or{" "}
-                <strong className="text-[var(--rm-fg)]">120%</strong> (stronger).
+                Orange / red totals — allocations exceed availability after{" "}
+                <strong className="text-[var(--rm-fg)]">OFF</strong> is subtracted from 100%.
               </>,
               <>Orange label — resource row over-allocated.</>,
               <>Archived badge or muted row — hidden from planning; restore from the Archived tab.</>,

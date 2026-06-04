@@ -14,6 +14,7 @@ Explicit assumptions behind the current product design. Revisit when changing be
 - **Unit:** Allocation is always a **percentage** of that week (not hours or days). Interpretation is informal (e.g. "60%" = roughly 3 days).
 - **Uniqueness:** At most one booking per (resource, project, week). Same resource can have multiple bookings in the same week (different projects).
 - **Over-allocation:** A resource can total more than 100% in a week. The app **allows** it and shows a **warning** (orange/red indicators in the planning view); it does not block saving.
+- **Resource OFF time:** A resource can have one OFF percentage per week, independent of any project. OFF represents unavailability for that week (for example, 40% OFF) and reduces the allocation threshold used for warnings: available percentage = `100 - offPct`.
 
 ## Time and weeks
 
@@ -25,7 +26,8 @@ Explicit assumptions behind the current product design. Revisit when changing be
 
 - **Projects and resources:** **Soft delete via archiving.** Archiving sets the status to `ARCHIVED`, hiding the item from active views and the planning grid. Archived items can be restored at any time. Permanent deletion is only available on archived items and removes the entity and all its bookings (DB cascade).
 - **Bookings:** **Hard delete** only. No archive. Deleting an allocation (clearing or zeroing the cell) removes the booking permanently.
-- **Planning undo/redo:** The planning page keeps an **in-memory** stack of successful allocation **create / update / delete** operations so users can undo or redo via toolbar buttons or keyboard shortcuts. The stack is **not** persisted (full reload clears it). **Switching** between *By project* and *By resource* **clears** the stack. A new saved edit after an undo **discards** any redo branch (standard undo model).
+- **Resource OFF time:** **Hard delete** only. Clearing or zeroing an OFF cell removes the time-off row permanently. Deleting a resource cascades its OFF rows.
+- **Planning undo/redo:** The planning page keeps an **in-memory** stack of successful allocation **create / update / delete** operations so users can undo or redo via toolbar buttons or keyboard shortcuts. The stack is **not** persisted (full reload clears it). **Switching** between *By project* and *By resource* **clears** the stack. A new saved edit after an undo **discards** any redo branch (standard undo model). OFF edits are saved immediately and are not part of allocation undo/redo.
 
 ## Security and access (v1)
 
@@ -39,7 +41,7 @@ Explicit assumptions behind the current product design. Revisit when changing be
 
 ## UI and scope
 
-- **MVP scope** — Projects, resources, bookings, weekly planning view, CSV import, and in-app help. No timesheets, approvals, reporting, notifications, or integrations.
+- **MVP scope** — Projects, resources, bookings, resource OFF percentages, weekly planning view, CSV import, and in-app help. No timesheets, approvals, reporting, notifications, or integrations.
 - **Single user / small team** — No real-time collaboration or conflict handling; last write wins.
 - **Dark-first theme** — Custom design system using CSS custom properties. Optimized for dark backgrounds.
 - **Accessibility** — Focus trapping in modals, ARIA attributes, keyboard navigation for allocation cells.
