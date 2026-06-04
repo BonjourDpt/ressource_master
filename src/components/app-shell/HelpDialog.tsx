@@ -175,8 +175,13 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
               <>
                 Notes: in edit mode use <strong className="text-[var(--rm-fg)]">Add note</strong> /{" "}
                 <strong className="text-[var(--rm-fg)]">Edit note</strong>. Saved with the cell on <Kbd>Enter</Kbd> or{" "}
-                <Kbd>Tab</Kbd> on the % field. Max <strong className="text-[var(--rm-fg)]">200</strong> characters; hover a
-                cell with a note to read it.
+                <Kbd>Tab</Kbd> on the % field. Max <strong className="text-[var(--rm-fg)]">200</strong> characters. On the
+                grid, a short <strong className="text-[var(--rm-fg)]">preview</strong> appears under the % (truncated); hover
+                the cell for the full note in a tooltip.
+              </>,
+              <>
+                <strong className="text-[var(--rm-fg)]">Highlight a row</strong> — click a row to mark it (by-project:
+                whole group; by-resource: individual allocation row). Click again to clear.
               </>,
             ]}
           />
@@ -185,6 +190,13 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
         <Section title="Toolbar">
           <BulletList
             items={[
+              <>
+                <strong className="text-[var(--rm-fg)]">Undo</strong> /{" "}
+                <strong className="text-[var(--rm-fg)]">Redo</strong> — reverse or re-apply the last{" "}
+                <strong className="text-[var(--rm-fg)]">saved</strong> allocation edits (create, change %, clear cell).
+                Session-only; switching <strong className="text-[var(--rm-fg)]">By project</strong> /{" "}
+                <strong className="text-[var(--rm-fg)]">By resource</strong> clears the stack.
+              </>,
               <>
                 <strong className="text-[var(--rm-fg)]">By project</strong> /{" "}
                 <strong className="text-[var(--rm-fg)]">By resource</strong> — group the grid.
@@ -195,7 +207,7 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
                 — full span.
               </>,
               <>
-                <strong className="text-[var(--rm-fg)]">Today</strong> — current week.{" "}
+                <strong className="text-[var(--rm-fg)]">This week</strong> — current week.{" "}
                 <strong className="text-[var(--rm-fg)]">4w · 8w · 12w</strong> — visible range.
               </>,
               <>
@@ -209,7 +221,25 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
           <BulletList
             items={[
               <>Dot / left stripe — project color (name vs by-resource view).</>,
-              <>Corner fold — saved note on the cell.</>,
+              <>
+                <strong className="text-[var(--rm-fg)]">By resource</strong> —{" "}
+                <strong className="text-[var(--rm-fg)]">Total allocation</strong> closes each resource block (summed % per
+                week) in a shaded band with a stronger top border; the name stays in the column above, not repeated on
+                that row.
+              </>,
+              <>
+                Corner fold — saved note on the cell; the button shows a bordered note layout with a preview line under the
+                %.
+              </>,
+              <>
+                Indigo top border + accent label on a week column —{" "}
+                <strong className="text-[var(--rm-fg)]">current week</strong>.
+              </>,
+              <>
+                <strong className="text-[var(--rm-fg)]">Planning header</strong> — the full top row (Project/Resource
+                columns and week dates) stays pinned below the main nav while you scroll down. When you scroll the grid
+                sideways, those column titles stay aligned with the sticky first columns.
+              </>,
               <>
                 Orange / red totals — week over <strong className="text-[var(--rm-fg)]">100%</strong> (warning) or{" "}
                 <strong className="text-[var(--rm-fg)]">120%</strong> (stronger).
@@ -256,6 +286,35 @@ function HelpPanels({ tab, idPrefix }: { tab: HelpTab; idPrefix: string }) {
                 desc: "New line.",
               },
               { keys: <Kbd>Esc</Kbd>, desc: "Close note, focus % input." },
+            ]}
+          />
+          <ShortcutBlock
+            label="Planning (not typing in a field)"
+            rows={[
+              {
+                keys: (
+                  <>
+                    <Kbd>Ctrl</Kbd>/<Kbd>⌘</Kbd>+<Kbd>Z</Kbd>
+                  </>
+                ),
+                desc: "Undo last saved allocation change.",
+              },
+              {
+                keys: (
+                  <>
+                    <Kbd>Ctrl</Kbd>/<Kbd>⌘</Kbd>+<Kbd>Y</Kbd>
+                  </>
+                ),
+                desc: "Redo.",
+              },
+              {
+                keys: (
+                  <>
+                    <Kbd>Ctrl</Kbd>/<Kbd>⌘</Kbd>+<Kbd>Shift</Kbd>+<Kbd>Z</Kbd>
+                  </>
+                ),
+                desc: "Redo (alternate).",
+              },
             ]}
           />
           <ShortcutBlock
@@ -388,7 +447,7 @@ export function HelpButton() {
                       id={titleId}
                       className="text-lg font-semibold leading-snug tracking-tight text-[var(--rm-fg)]"
                     >
-                      Help · Resource Master · {APP_VERSION_LABEL}
+                      Help · RESOURCE PLANNER · {APP_VERSION_LABEL}
                     </h2>
                     <button
                       type="button"

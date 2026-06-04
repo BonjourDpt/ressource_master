@@ -19,18 +19,23 @@ Explicit assumptions behind the current product design. Revisit when changing be
 
 - **Week definition:** **ISO week** — week starts on **Monday**. All "week" values are stored as the Monday of that week (normalized, no time component).
 - **Range:** Planning view shows a configurable number of weeks (4, 8, or 12 via span selector). If `span` is omitted in the URL, the server default is **12** weeks. No fiscal or custom week calendars.
-- **Today button:** Snaps the view to the current ISO week.
+- **This week button:** Snaps the view to the current ISO week.
 
 ## Data lifecycle
 
 - **Projects and resources:** **Soft delete via archiving.** Archiving sets the status to `ARCHIVED`, hiding the item from active views and the planning grid. Archived items can be restored at any time. Permanent deletion is only available on archived items and removes the entity and all its bookings (DB cascade).
 - **Bookings:** **Hard delete** only. No archive. Deleting an allocation (clearing or zeroing the cell) removes the booking permanently.
+- **Planning undo/redo:** The planning page keeps an **in-memory** stack of successful allocation **create / update / delete** operations so users can undo or redo via toolbar buttons or keyboard shortcuts. The stack is **not** persisted (full reload clears it). **Switching** between *By project* and *By resource* **clears** the stack. A new saved edit after an undo **discards** any redo branch (standard undo model).
 
 ## Security and access (v1)
 
 - **No authentication** — The app does not implement login or sessions.
 - **No permissions** — No roles, no per-user or per-entity access control. Anyone with access to the app can change any data.
 - **Internal use** — Access control is assumed to be handled outside the app (e.g. network, VPN, deployment environment).
+
+## Development process
+
+- **AI-assisted engineering** — Work on this product and repository has used **AI coding assistants from project inception** (e.g. Cursor), with humans responsible for intent, review, and merges. See [`AI_ASSISTED_CONTRIBUTIONS.md`](AI_ASSISTED_CONTRIBUTIONS.md) for commit-level `Assisted-by` policy and the project-wide historical note.
 
 ## UI and scope
 

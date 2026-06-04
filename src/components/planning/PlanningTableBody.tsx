@@ -5,6 +5,7 @@ import { Select } from "@/components/ui/Select";
 import { cx } from "@/lib/cx";
 import { formatWeekLabel, toWeekStartKey } from "@/lib/weeks";
 import { formatAllocationPercent } from "@/lib/planning-format";
+import type { BookingHistoryCommitEvent } from "@/lib/planning-booking-history";
 import type {
   PlanningEditingCell,
   PlanningMatrixGroup,
@@ -12,8 +13,9 @@ import type {
   ResourceModel,
 } from "@/lib/planning-view-model";
 import { AllocationCell } from "./AllocationCell";
-import { stickyBodyFirst, stickyBodySecond, weekBodyCell } from "./planningStickyClasses";
+import { stickyBodyFirst, stickyBodySecond, weekBodyCell, weekBodyCellCurrent } from "./planningStickyClasses";
 import { TotalPctPill } from "./TotalPctPill";
+import { isResourceRowSelectable } from "@/lib/planning-resource-selection";
 
 type Overload = { wk: string; label: string; pct: number };
 
@@ -81,6 +83,10 @@ export interface PlanningTableBodyProps {
   onDraftPairChange: (draftRowId: string, pairedEntityId: string) => void;
   selectedProjectId: string | null;
   onToggleProjectSelection: (projectId: string) => void;
+  selectedResourceRowId: string | null;
+  onToggleResourceRowSelection: (rowId: string) => void;
+  onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
+  currentWeekKey?: string;
 }
 
 export function PlanningTableBody({
@@ -96,6 +102,10 @@ export function PlanningTableBody({
   onDraftPairChange,
   selectedProjectId,
   onToggleProjectSelection,
+  selectedResourceRowId,
+  onToggleResourceRowSelection,
+  onBookingHistoryCommit,
+  currentWeekKey,
 }: PlanningTableBodyProps) {
   const resourcePairOptions = useMemo(
     () => [
@@ -116,7 +126,7 @@ export function PlanningTableBody({
     <>
       {groups.map((g, groupIndex) => {
         const groupTop = groupIndex > 0 ? "border-t-2 border-[var(--rm-border)]/30" : "";
-        const rowSpan = g.rows.length;
+        const rowSpan = g.mode === "resource" ? g.rows.length - 1 : g.rows.length;
 
         const overloads: Overload[] =
           g.mode === "resource"
@@ -139,43 +149,67 @@ export function PlanningTableBody({
           ) : null;
 
         const projectRowSelectable = g.mode === "project";
+        const resourceRowMode = g.mode === "resource";
 
         return (
           <tbody key={g.groupId} data-planning-group={g.groupId}>
             {g.rows.map((row, rowIndex) => {
               const isFirstInGroup = rowIndex === 0;
               const rowSelected = projectRowSelectable && selectedProjectId === g.groupId;
-              const baseTr =
-                row.rowType === "add"
+              const resourceRowSelectable = resourceRowMode && isResourceRowSelectable(row);
+              const resourceRowSelected = resourceRowSelectable && selectedResourceRowId === row.id;
+              const isSummaryRow = resourceRowMode && row.rowType === "summary";
+              const baseTr = isSummaryRow
+                ? "border-t-2 border-[var(--rm-border)]/50 h-8 [&>td]:py-1 [&>td]:align-middle"
+                : row.rowType === "add"
                   ? `${addRowLine} ${isFirstInGroup ? groupTop : ""}`.trim()
                   : `${rowLine} ${isFirstInGroup ? groupTop : ""}`.trim();
               const trClass = cx(
                 baseTr,
                 projectRowSelectable && projectRowTrInteractive,
                 rowSelected && projectRowTrSelected,
+                resourceRowSelectable && projectRowTrInteractive,
+                resourceRowSelected && projectRowTrSelected,
               );
 
               const stickyFirstTd = cx(
                 stickyBodyFirst,
                 projectRowSelectable && rowSelected && projectRowTdSelected,
                 projectRowSelectable && !rowSelected && projectRowStickyTdHover,
+                resourceRowSelectable && resourceRowSelected && projectRowTdSelected,
+                resourceRowSelectable && !resourceRowSelected && projectRowStickyTdHover,
               );
               const stickySecondTd = cx(
                 stickyBodySecond,
+                isSummaryRow && "bg-[var(--rm-surface-elevated)]",
                 projectRowSelectable && rowSelected && projectRowTdSelected,
                 projectRowSelectable && !rowSelected && projectRowStickyTdHover,
+                resourceRowSelectable && resourceRowSelected && projectRowTdSelected,
+                resourceRowSelectable && !resourceRowSelected && projectRowStickyTdHover,
               );
-              const weekTd = cx(
-                weekBodyCell,
-                projectRowSelectable && rowSelected && projectRowTdSelected,
-                projectRowSelectable && !rowSelected && projectRowWeekTdHover,
-              );
-              const addRowWeekTd = cx(
-                weekBodyCell,
-                "bg-[var(--rm-bg)]",
-                projectRowSelectable && rowSelected && projectRowTdSelected,
-                projectRowSelectable && !rowSelected && projectRowWeekTdHover,
-              );
+              const weekTdForKey = (wk: string) =>
+                cx(
+                  weekBodyCell,
+                  currentWeekKey && wk === currentWeekKey && weekBodyCellCurrent,
+                  projectRowSelectable && rowSelected && projectRowTdSelected,
+                  projectRowSelectable && !rowSelected && projectRowWeekTdHover,
+                  resourceRowSelectable && resourceRowSelected && projectRowTdSelected,
+                  resourceRowSelectable && !resourceRowSelected && projectRowWeekTdHover,
+                );
+              const addRowWeekTdForKey = (wk: string) =>
+                cx(
+                  weekBodyCell,
+                  "bg-[var(--rm-bg)]",
+                  currentWeekKey && wk === currentWeekKey && weekBodyCellCurrent,
+                  projectRowSelectable && rowSelected && projectRowTdSelected,
+                  projectRowSelectable && !rowSelected && projectRowWeekTdHover,
+                );
+              const summaryWeekTdForKey = (wk: string) =>
+                cx(
+                  weekBodyCell,
+                  "bg-[var(--rm-surface-elevated)]",
+                  currentWeekKey && wk === currentWeekKey && weekBodyCellCurrent,
+                );
 
               const pairingIncomplete =
                 row.rowType === "allocation" && (!row.projectId || !row.resourceId);
@@ -193,7 +227,7 @@ export function PlanningTableBody({
                     {g.mode === "project" ? "+ Add resource" : "+ Add project"}
                   </button>
                 ) : row.rowType === "summary" ? (
-                  <span className="text-xs font-medium text-[var(--rm-muted)]">Total</span>
+                  <span className="text-xs font-semibold text-[var(--rm-muted)]">Total allocation</span>
                 ) : pairingIncomplete ? (
                   <div
                     className="min-w-0 max-w-[11rem]"
@@ -242,11 +276,19 @@ export function PlanningTableBody({
                         "aria-selected": rowSelected,
                         onClick: () => onToggleProjectSelection(g.groupId),
                       }
-                    : {})}
+                    : resourceRowSelectable
+                      ? {
+                          "aria-selected": resourceRowSelected,
+                          onClick: () => onToggleResourceRowSelection(row.id),
+                        }
+                      : {})}
                 >
-                  {isFirstInGroup && (
-                    <td className={stickyFirstTd} rowSpan={rowSpan}>
-                      {g.mode === "project" ? (
+                  {(isFirstInGroup || isSummaryRow) && (
+                    <td
+                      className={isSummaryRow ? cx(stickyBodyFirst, "bg-[var(--rm-surface-elevated)]") : stickyFirstTd}
+                      rowSpan={isFirstInGroup ? rowSpan : undefined}
+                    >
+                      {isSummaryRow ? null : g.mode === "project" ? (
                         <div className="flex flex-col gap-0.5 py-0.5">
                           <div className="flex items-center gap-2.5">
                             {g.groupColor ? (
@@ -269,7 +311,7 @@ export function PlanningTableBody({
                   <td className={stickySecondTd}>{secondaryCell}</td>
                   {row.rowType === "allocation" &&
                     row.weeks.map((cell) => (
-                      <td key={cell.weekStart} className={weekTd}>
+                      <td key={cell.weekStart} className={weekTdForKey(cell.weekStart)}>
                         <AllocationCell
                           g={g}
                           row={row}
@@ -277,6 +319,7 @@ export function PlanningTableBody({
                           editingCell={editingCell}
                           onEditingCellChange={onEditingCellChange}
                           onTabNavigate={onTabNavigate}
+                          onBookingHistoryCommit={onBookingHistoryCommit}
                         />
                       </td>
                     ))}
@@ -284,7 +327,7 @@ export function PlanningTableBody({
                     weekRange.map((w) => {
                       const wk = toWeekStartKey(w);
                       return (
-                        <td key={wk} className={addRowWeekTd} aria-hidden />
+                        <td key={wk} className={addRowWeekTdForKey(wk)} aria-hidden />
                       );
                     })}
                   {row.rowType === "summary" &&
@@ -292,7 +335,7 @@ export function PlanningTableBody({
                       const wk = toWeekStartKey(w);
                       const total = resWeekTotals.get(`${g.groupId}:${wk}`) ?? 0;
                       return (
-                        <td key={wk} className={weekTd}>
+                        <td key={wk} className={summaryWeekTdForKey(wk)}>
                           <div className="flex min-h-9 items-center justify-center">
                             <TotalPctPill pct={total} />
                           </div>

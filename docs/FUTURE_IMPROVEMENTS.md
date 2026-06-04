@@ -20,10 +20,10 @@ Items marked ~~strikethrough~~ have been implemented.
 ## UX improvements
 
 - **Mobile-friendly planning** — Responsive grid or simplified week/resource picker for small screens.
-- ~~**Keyboard shortcuts**~~ — ✅ Enter/Escape/Tab/Shift+Tab for allocation cells; Enter for note save; Escape to close modals.
+- ~~**Keyboard shortcuts**~~ — ✅ Enter/Escape/Tab/Shift+Tab for allocation cells; Enter for note save; Escape to close modals; Ctrl/⌘+Z and Ctrl/⌘+Y (or Shift+Z) for planning undo/redo when not focused in a field.
 - **Bulk actions** — Copy a week's bookings to the next week; duplicate a resource's week.
 - ~~**Clearer over-allocation**~~ — ✅ Orange/red indicators for over-allocation in resource view.
-- ~~**Default week range**~~ — ✅ Today button snaps to current week; span selector (4/8/12) in URL.
+- ~~**Default week range**~~ — ✅ This week button snaps to current week; span selector (4/8/12) in URL.
 - ~~**Toast notifications**~~ — ✅ Replaced alert()/confirm() with Sonner toasts and custom confirmation dialogs.
 - ~~**Empty states**~~ — ✅ Engaging empty state cards with icons and call-to-action links.
 - ~~**In-app help**~~ — ✅ Cheatsheet accessible via ? button in header, rendered as a portal overlay.
@@ -36,7 +36,7 @@ Items marked ~~strikethrough~~ have been implemented.
 - ~~**Error handling**~~ — ✅ Toasts for failed mutations; custom ConfirmDialog for destructive actions.
 - **Loading states** — Skeleton or spinner for planning data when changing week or view.
 - **Validation feedback** — Inline errors on the booking form (partially present); ensure all server validation errors surface clearly.
-- **Prisma** — Consider moving seed config to `prisma.config.ts` when upgrading to Prisma 7+.
+- ~~**Prisma** — Seed config in `prisma.config.ts`~~ — ✅ Root [`prisma.config.ts`](../prisma.config.ts) defines `migrations.seed`; removes deprecated `package.json#prisma` ahead of Prisma 7.
 - ~~**Modal accessibility**~~ — ✅ Focus trapping via focus-trap-react, ARIA attributes, Escape key handling.
 
 ---
@@ -45,7 +45,7 @@ Items marked ~~strikethrough~~ have been implemented.
 
 - **Larger datasets** — If projects/resources grow a lot: paginate or virtualize the planning grid rows; keep week range bounded.
 - **Concurrent edits** — If multiple people edit at once: optional optimistic updates and clear "last updated" or conflict messaging; no need for full CRDTs for MVP.
-- **Deployment** — Document or automate deploy to a single internal host (e.g. Vercel, Docker, or internal VM) with env-based `DATABASE_URL`.
+- ~~**Deployment**~~ — ✅ Push to `main` runs [`ci-deploy.yml`](../.github/workflows/ci-deploy.yml): after a green build, a **`deploy`** job `POST`s to the `DEPLOY_WEBHOOK_URL` Actions secret when set (see [DEVELOPER_GUARDRAILS.md](DEVELOPER_GUARDRAILS.md)). On success, optional **`notify-success`** posts to Slack when `SLACK_WEBHOOK_URL` is set; on failure, optional **`notify-failure`** does the same. **Still open:** operator runbook for the host (env, `DATABASE_URL`, backups) beyond the webhook.
 - **Backups** — Rely on managed Postgres backups; optional: scheduled export job for bookings.
 
 ---

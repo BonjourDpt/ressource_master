@@ -12,7 +12,7 @@ export async function createBooking(data: BookingFormData) {
   const { projectId, resourceId, weekStart, allocationPct, note } = parsed.data;
   const weekDate = new Date(weekStart);
   try {
-    await db.booking.create({
+    const created = await db.booking.create({
       data: {
         projectId,
         resourceId,
@@ -20,9 +20,10 @@ export async function createBooking(data: BookingFormData) {
         allocationPct,
         note: note?.trim() || null,
       },
+      select: { id: true },
     });
     revalidatePath("/planning");
-    return { ok: true as const };
+    return { ok: true as const, bookingId: created.id };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Failed to create booking";
     if (msg.includes("Unique constraint") || msg.includes("unique")) {

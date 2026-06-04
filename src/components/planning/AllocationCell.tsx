@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
+import type { BookingHistoryCommitEvent } from "@/lib/planning-booking-history";
 import type {
   PlanningEditingCell,
   PlanningMatrixGroup,
@@ -16,15 +17,16 @@ export interface AllocationCellProps {
   editingCell: PlanningEditingCell;
   onEditingCellChange: Dispatch<SetStateAction<PlanningEditingCell>>;
   onTabNavigate: (rowId: string, weekId: string, delta: number) => void;
+  onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
 }
 
 export function AllocationCell({
-  g,
   row,
   cell,
   editingCell,
   onEditingCellChange,
   onTabNavigate,
+  onBookingHistoryCommit,
 }: AllocationCellProps) {
   if (row.rowType !== "allocation") {
     return null;
@@ -37,9 +39,6 @@ export function AllocationCell({
   if (!paired) {
     return <div className="min-h-9" aria-hidden />;
   }
-
-  const accentColor =
-    g.mode === "resource" ? row.secondaryColor ?? null : null;
 
   const isEditing =
     editingCell?.rowId === row.id && editingCell?.weekId === cell.weekStart;
@@ -54,7 +53,7 @@ export function AllocationCell({
       isEditing={isEditing}
       onEditingCellChange={onEditingCellChange}
       onTabNavigate={onTabNavigate}
-      accentColor={accentColor}
+      onBookingHistoryCommit={onBookingHistoryCommit}
     />
   );
 }

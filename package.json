@@ -1,15 +1,26 @@
 {
   "name": "ressource_master",
-  "version": "0.1.0",
+  "version": "3.1.1",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0 <23.0.0"
+  },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "check": "npm run prisma:generate && npm run typecheck && npm run lint && npm run build",
+    "check:prepush": "npm run prisma:generate && npm run typecheck && npm run lint",
+    "check:commit-msg": "node scripts/check-assisted-by.mjs",
+    "check:watch": "npm run check && npm run test",
+    "prepare": "husky"
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",
@@ -23,18 +34,22 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.7",
+    "husky": "^9.1.7",
+    "jsdom": "^29.0.2",
     "prisma": "^6.19.2",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "typescript": "5.9.3",
+    "vitest": "^4.1.4"
   }
 }

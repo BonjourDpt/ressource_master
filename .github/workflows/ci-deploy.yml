@@ -1,0 +1,278 @@
+name: CI and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci?schema=public
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify commit message (Assisted-by)
+        run: git log -1 --format=%B | node scripts/check-assisted-by.mjs --stdin --strict
+      # Install exactly what package-lock.json specifies (requires lockfile committed).
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npx prisma migrate deploy
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger deployment
+        env:
+          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$DEPLOY_WEBHOOK_URL" ]; then
+            echo "DEPLOY_WEBHOOK_URL not set, skipping deploy"
+            exit 0
+          fi
+          curl -fsS -X POST "$DEPLOY_WEBHOOK_URL"
+
+      - name: Verify deployment health
+        env:
+          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+          DEPLOY_HEALTH_CHECK_URL: ${{ secrets.DEPLOY_HEALTH_CHECK_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$DEPLOY_WEBHOOK_URL" ]; then
+            echo "Deploy webhook not used; skipping health verification"
+            exit 0
+          fi
+          if [ -z "$DEPLOY_HEALTH_CHECK_URL" ]; then
+            echo "DEPLOY_HEALTH_CHECK_URL not set; skipping health verification (set it to your public GET /api/health URL)"
+            exit 0
+          fi
+
+          echo "Checking health at: $DEPLOY_HEALTH_CHECK_URL"
+
+          max_attempts=30
+          delay_sec=10
+
+          for i in $(seq 1 "$max_attempts"); do
+            code=$(curl -sS --max-time 5 -o /tmp/health.json -w "%{http_code}" "$DEPLOY_HEALTH_CHECK_URL" || echo "000")
+            if [ "$code" = "200" ]; then
+              echo "Health check passed (HTTP 200, attempt $i/$max_attempts)"
+              exit 0
+            fi
+            echo "Health check returned HTTP $code (attempt $i/$max_attempts), retrying in ${delay_sec}s..."
+            sleep "$delay_sec"
+          done
+
+          echo "Health check did not return HTTP 200 after $max_attempts attempts"
+          echo "Final response body:"
+          cat /tmp/health.json || true
+          rm -f /tmp/health.json
+          exit 1
+
+  notify-success:
+    needs: [build, deploy]
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack on success
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          FULL_SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then
+            echo "SLACK_WEBHOOK_URL not set, skipping Slack success notification"
+            exit 0
+          fi
+
+          payload="$(jq -n \
+            --arg workflow "$WORKFLOW_NAME" \
+            --arg repo "$REPO" \
+            --arg branch "$BRANCH" \
+            --arg fullsha "$FULL_SHA" \
+            --arg runurl "$RUN_URL" \
+            '{
+              blocks: [
+                { type: "header", text: { type: "plain_text", text: "Workflow succeeded" } },
+                {
+                  type: "section",
+                  fields: [
+                    { type: "mrkdwn", text: ("*Workflow:* `" + $workflow + "`") },
+                    { type: "mrkdwn", text: ("*Repository:* `" + $repo + "`") },
+                    { type: "mrkdwn", text: ("*Branch:* `" + $branch + "`") },
+                    { type: "mrkdwn", text: ("*Commit:* `" + $fullsha + "`") }
+                  ]
+                },
+                { type: "section", text: { type: "mrkdwn", text: ("<" + $runurl + "|View GitHub Actions workflow run>") } }
+              ]
+            }')"
+
+          curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$SLACK_WEBHOOK_URL"
+
+  notify-failure:
+    needs: [build, deploy]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Notify Slack on failure
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          FULL_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_API_URL: ${{ github.api_url }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then
+            echo "SLACK_WEBHOOK_URL not set, skipping Slack notification"
+            exit 0
+          fi
+
+          FAILED_JOB=""
+          if [ "$BUILD_RESULT" != "success" ]; then
+            FAILED_JOB="build"
+          elif [ "$DEPLOY_RESULT" != "success" ]; then
+            FAILED_JOB="deploy"
+          fi
+
+          JOB_LOGS_URL=""
+          FAILED_STEP_DESC=""
+          API_JSON="$(mktemp)"
+          trap 'rm -f "$API_JSON"' EXIT
+
+          set +e
+          http_code="$(
+            curl -sS -o "$API_JSON" -w '%{http_code}' \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "${GITHUB_API_URL}/repos/${REPO}/actions/runs/${GITHUB_RUN_ID}/jobs" 2>/dev/null
+          )"
+          curl_ok=$?
+          set -e
+
+          if [ "$curl_ok" -eq 0 ] && [ "$http_code" = "200" ] && [ -s "$API_JSON" ]; then
+            line="$(jq -r '
+              (.jobs // []) | map(select(.conclusion == "failure")) | .[0]
+              | if . == null then empty
+                else
+                  . as $job | (($job.steps // []) | map(select(.conclusion == "failure")) | .[0]) as $step |
+                  if $step == null then empty
+                  else ($job.id | tostring) + "\t" + $job.name + "\t" + $step.name
+                  end
+                end
+            ' "$API_JSON" 2>/dev/null)" || line=""
+
+            if [ -n "$line" ]; then
+              job_id="${line%%$'\t'*}"
+              rest="${line#*$'\t'}"
+              job_name="${rest%%$'\t'*}"
+              step_name="${rest#*$'\t'}"
+              JOB_LOGS_URL="${GITHUB_SERVER_URL}/${REPO}/actions/runs/${GITHUB_RUN_ID}/job/${job_id}"
+              FAILED_STEP_DESC="${job_name} — ${step_name}"
+            fi
+          else
+            echo "Jobs API enrichment skipped (curl_exit=${curl_ok}, http=${http_code:-empty})"
+          fi
+
+          if [ -n "$JOB_LOGS_URL" ] && [ -n "$FAILED_STEP_DESC" ]; then
+            payload="$(jq -n \
+              --arg workflow "$WORKFLOW_NAME" \
+              --arg repo "$REPO" \
+              --arg branch "$BRANCH" \
+              --arg fullsha "$FULL_SHA" \
+              --arg failedstep "$FAILED_STEP_DESC" \
+              --arg runurl "$RUN_URL" \
+              --arg joburl "$JOB_LOGS_URL" \
+              '{
+                blocks: [
+                  { type: "header", text: { type: "plain_text", text: "Workflow failed" } },
+                  {
+                    type: "section",
+                    fields: [
+                      { type: "mrkdwn", text: ("*Workflow:* `" + $workflow + "`") },
+                      { type: "mrkdwn", text: ("*Repository:* `" + $repo + "`") },
+                      { type: "mrkdwn", text: ("*Branch:* `" + $branch + "`") },
+                      { type: "mrkdwn", text: ("*Commit:* `" + $fullsha + "`") },
+                      { type: "mrkdwn", text: ("*Failed step:* `" + $failedstep + "`") }
+                    ]
+                  },
+                  { type: "section", text: { type: "mrkdwn", text: ("<" + $runurl + "|Workflow run logs> • <" + $joburl + "|Failed job logs>") } }
+                ]
+              }')"
+          else
+            payload="$(jq -n \
+              --arg workflow "$WORKFLOW_NAME" \
+              --arg repo "$REPO" \
+              --arg branch "$BRANCH" \
+              --arg fullsha "$FULL_SHA" \
+              --arg failed "$FAILED_JOB" \
+              --arg runurl "$RUN_URL" \
+              '{
+                blocks: [
+                  { type: "header", text: { type: "plain_text", text: "Workflow failed" } },
+                  {
+                    type: "section",
+                    fields: [
+                      { type: "mrkdwn", text: ("*Workflow:* `" + $workflow + "`") },
+                      { type: "mrkdwn", text: ("*Repository:* `" + $repo + "`") },
+                      { type: "mrkdwn", text: ("*Branch:* `" + $branch + "`") },
+                      { type: "mrkdwn", text: ("*Commit:* `" + $fullsha + "`") },
+                      { type: "mrkdwn", text: ("*Failed job:* `" + $failed + "`") }
+                    ]
+                  },
+                  { type: "section", text: { type: "mrkdwn", text: ("<" + $runurl + "|View GitHub Actions run logs>") } }
+                ]
+              }')"
+          fi
+
+          curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$SLACK_WEBHOOK_URL"

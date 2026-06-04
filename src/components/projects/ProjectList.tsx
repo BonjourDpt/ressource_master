@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  type ChangeEvent,
+} from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -73,9 +80,15 @@ export function ProjectList({ projects }: ProjectListProps) {
     setModalOpen(true);
   }, []);
 
-  useEffect(() => {
+  const handleStatusFilterChange = useCallback((value: StatusFilter) => {
+    setStatusFilter(value);
     setSelectedId(null);
-  }, [search, statusFilter]);
+  }, []);
+
+  const handleSearchChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setSelectedId(null);
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -151,14 +164,14 @@ export function ProjectList({ projects }: ProjectListProps) {
         <SegmentedTabs
           tabs={statusTabs}
           value={statusFilter}
-          onChange={setStatusFilter}
+          onChange={handleStatusFilterChange}
           ariaLabel="Filter by status"
         />
         <div className="w-full max-w-xs">
           <Input
             placeholder="Search projects…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             size="compact"
           />
         </div>
@@ -179,7 +192,14 @@ export function ProjectList({ projects }: ProjectListProps) {
           description="Try a different search term or status filter."
           action={
             search ? (
-              <Button variant="secondary" size="compact" onClick={() => setSearch("")}>
+              <Button
+                variant="secondary"
+                size="compact"
+                onClick={() => {
+                  setSearch("");
+                  setSelectedId(null);
+                }}
+              >
                 Clear search
               </Button>
             ) : undefined

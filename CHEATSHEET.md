@@ -1,6 +1,6 @@
-# Resource Master — Cheatsheet
+# RESOURCE PLANNER — Cheatsheet
 
-Resource Master is a weekly capacity planning tool where you assign **resources** (people) to **projects** with percentage allocations per week.
+**RESOURCE PLANNER** is a weekly capacity planning tool where you assign **resources** (people) to **projects** with percentage allocations per week.
 
 ---
 
@@ -43,8 +43,11 @@ You're planning.
 | **Assign a new resource to a project** | Click **+ Add resource** (by-project view) or **+ Add project** (by-resource view) inside a group. Pick from the dropdown, then type a percentage. |
 | **Bring in an unallocated project/resource** | Use the **+ Add allocation** dropdown at the bottom of the grid. |
 | **Delete an allocation** | Edit the cell → clear the value (or type 0) → press Enter. |
+| **Highlight a row** | **By project:** click any row in a project group to highlight the whole group; click again to clear. **By resource:** click an allocation row to highlight it; click again to clear. |
 
 Values are integers from **1%** to **100%** per cell. One cell = one resource on one project for one week.
+
+The **planning table header** (Project/Resource column titles and week dates) stays pinned below the nav as you scroll down through a long grid. When you scroll sideways, the first-column titles stay aligned with the sticky name columns so labels stay readable.
 
 ---
 
@@ -52,14 +55,17 @@ Values are integers from **1%** to **100%** per cell. One cell = one resource on
 
 | Control | What it does |
 |---------|--------------|
-| **By project / By resource** | Toggle how the grid is grouped. |
+| **Undo / Redo** | Step backward or forward through **saved** allocation changes (create, edit, delete from a cell). Buttons next to the view toggle. Shortcuts: **Ctrl+Z** (undo), **Ctrl+Y** or **Ctrl+Shift+Z** (redo); on Mac use **⌘** instead of **Ctrl**. Disabled when there is nothing to undo or redo. |
+| **By project / By resource** | Toggle how the grid is grouped. **Switching view clears** the undo/redo history for that page. |
 | **Team filter** | Dropdown (appears when resources have teams). Filters resources and their bookings. |
 | **« / »** | Shift the visible window by **1 week**. |
 | **«« / »»** | Jump by the **full span** (4, 8, or 12 weeks). |
-| **Today** | Snap back to the current week. |
+| **This week** | Snap back to the current week. |
 | **4w · 8w · 12w** | Set how many weeks are visible at once. |
 
 All navigation updates the URL, so you can bookmark or share any view.
+
+Undo/redo applies to changes **after** they are saved to the server. It does **not** cover unsaved text in an open cell, and the stack is **not** kept after a full page reload — only for the current session in that tab.
 
 ---
 
@@ -82,6 +88,15 @@ All navigation updates the URL, so you can bookmark or share any view.
 | **Shift + Enter** | Insert a newline in the note. |
 | **Escape** | Close note area, return focus to % input. |
 
+### Planning (focus not in a field)
+
+Shortcuts apply when you are **not** typing in an input, textarea, select, or rich-text field (same idea as row **E** on list pages).
+
+| Key | Action |
+|-----|--------|
+| **Ctrl+Z** (**⌘+Z** on Mac) | Undo the last **saved** allocation change. |
+| **Ctrl+Y** or **Ctrl+Shift+Z** (**⌘+Y** / **⌘+Shift+Z** on Mac) | Redo. |
+
 ### Modals & dialogs
 
 | Key | Action |
@@ -94,8 +109,8 @@ All navigation updates the URL, so you can bookmark or share any view.
 
 - While editing a cell, click **Add note** (or **Edit note**) below the input to expand a textarea.
 - Notes are saved together with the allocation when you press Enter or Tab.
-- Cells with a note show a small **corner fold** (triangle) in the top-right of the percentage button.
-- Hover over a filled cell to see the note in a **tooltip**.
+- Cells with a note use a **note layout** on the button: percentage on top, a **truncated preview** of the note underneath (long notes end with …), and a **corner fold** (triangle) in the top-right.
+- Hover over the cell to see the **full** note in a **tooltip**.
 - Max length: 200 characters.
 
 ---
@@ -141,9 +156,10 @@ Click the **?** button in the top-right corner of the header to open this cheats
 | Indicator | Meaning |
 |-----------|---------|
 | Colored dot next to a project name | Project color (set in project settings). |
-| Left color stripe on a cell (by-resource view) | Which project this allocation belongs to. |
-| Corner fold (top-right of the % button) | This cell has a note — hover to read it in the tooltip. |
+| Corner fold + note preview (under the %) | This cell has a note — preview is truncated; hover for the full text in the tooltip. |
 | Orange warning text under a resource name | Resource is **over-allocated** (> 100%) for those weeks. |
-| Total row pill turns orange/red | Week total exceeds 100% (warning) or 120% (danger). |
+| **By resource:** **Total allocation** band (bottom of each resource) | Summed allocation % per week for that resource; shaded band with a stronger top border so it reads as a section closer (not another project row). The resource name stays in the sticky column above — it is not repeated in that band. |
+| Total allocation pill turns orange/red | When the weekly sum exceeds 100% (warning) or 120% (danger). |
+| Indigo top border + accent label on a week header | That column is the **current week**. |
 | "Archived" badge on a list row | Item is archived and hidden from planning. |
 | Reduced opacity row | Archived item in the list view. |

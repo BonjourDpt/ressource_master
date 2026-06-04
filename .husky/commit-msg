@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# Warn if Assisted-by is missing; does not block (strict enforcement runs on CI for main).
+node scripts/check-assisted-by.mjs "$1"

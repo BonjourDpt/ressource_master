@@ -18,3 +18,9 @@ export const weekHeadCell = `sticky top-0 z-10 min-w-[80px] ${lineB} ${stickyBg}
 
 export const weekBodyCell =
   "bg-[var(--rm-bg)] border-l border-[var(--rm-border-subtle)]/8 px-1.5 py-1.5 align-middle";
+
+/** Applied on top of weekHeadCell for the current-week column header. */
+export const weekHeadCellCurrent = `border-t-2 border-t-[var(--rm-primary)] text-[var(--rm-primary-text)]!`;
+
+/** Applied on top of weekBodyCell for all body cells in the current-week column. */
+export const weekBodyCellCurrent = "bg-[var(--rm-primary)]/[0.06]";

@@ -1,7 +1,7 @@
-# Resource Master UI System v1
+# RESOURCE PLANNER UI System v1
 
 ## Intent
-Resource Master should feel like a premium internal planning product:
+RESOURCE PLANNER should feel like a premium internal planning product:
 calm, precise, dark, readable, structured, restrained.
 
 The UI should not feel like:
@@ -27,7 +27,7 @@ The UI should feel coherent across Planning, Projects, Resources, and Admin.
 ## Layout Rules
 
 ### App Shell
-- **Top header** — Sticky full-width bar with app title, primary nav (Planning, Projects, Resources, Admin), and the in-app **Help** control.
+- **Top header** — Sticky full-width bar with brand mark (`public/app-brand-icon.png`, luminance-masked and filled with `currentColor` / primary text for white-on-dark artwork), two-line app title (**RESOURCE** / **PLANNER**), primary nav (Planning, Projects, Resources, Admin), and the in-app **Help** control.
 - **Main area** — Centered content column (`max-w-[1800px]`) with horizontal padding; page content sits in `<main>` with bottom padding so lists clear the status bar.
 - **Status bar** — Fixed footer strip showing live **resource** and **project** counts (mono, subtle).
 - Header and content width should stay aligned so pages feel like one product, not separate templates.
@@ -176,8 +176,42 @@ Rules:
 
 ---
 
+## Planning Table Layout
+
+### Split-header pattern (`PlanningTable`)
+
+The planning grid splits into two sibling containers so the full planning header row (name columns plus week dates) stays persistent during window-level vertical scroll:
+
+1. **Sticky header div** — `sticky top-14 z-30 overflow-hidden` (positioned below the `h-14` app nav; **`z-30` is required** so the whole thead paints above the body’s sticky label columns, which use `z-[21]` / `z-[20]` — otherwise Project/Resource header text is covered during vertical page scroll). Contains a `<table>` with only `<thead>`. Horizontal scroll position is kept in sync with the body via a `scrollLeft` mirror on `onScroll`.
+2. **Scroll body div** — `overflow-x-auto` (standard horizontal scroll). Contains a `<table>` with only `<tbody>`. Fires `onScroll` to update the header div's `scrollLeft`.
+
+Both tables share identical `<colgroup>` definitions and the same `minWidth` style so column widths stay aligned. The first two columns (`sticky left-0` / `sticky left-48`) remain pinned within each container independently.
+
+Both `<table>` elements use **`border-separate` with `border-spacing: 0`** instead of `border-collapse: collapse`. Collapsed borders interact poorly with `position: sticky` on `<th>` in several engines, so the Project/Resource header cells would scroll horizontally out of view while the synced week row moved — separate borders keep label headers pinned like the body’s sticky label columns.
+
+**Why not a single `overflow-x-auto` wrapper?** Setting `overflow-x: auto` on a parent creates a CSS scroll container for *both* axes. Any `position: sticky; top: …` inside it becomes sticky relative to that container, not the window — so the header scrolls away when the page scrolls down. The split pattern avoids this constraint entirely.
+
+### By-resource summary band (`PlanningTableBody`)
+
+In **By resource** view only, each resource group ends with a **Total allocation** row styled as a section closer (elevated surface background, stronger top border, slightly denser row height). It shows summed weekly percentages only; the first sticky column cell is intentionally empty there because the resource title lives in the rowspan cell above. **By project** view has no equivalent summary row.
+
+---
+
+## Planning Cell Conventions
+
+### Allocation cells with notes (`EditableAllocationCell`)
+- **Read-only, no note**: single centered allocation `%` label; standard background/text tokens.
+- **Read-only, with note**: the button gains the `note-cell` class and switches to a stacked layout — allocation `%` on top, a truncated note preview (`text-[9px]`, `--rm-muted-subtle`) underneath, a corner-fold triangle indicator (`border-t-[var(--rm-primary)]`) in the top-right.
+- **Border treatment for note cells**: use `ring-1 ring-inset ring-[var(--rm-primary)]/35` instead of a `border` property. This keeps the styling layout-neutral (ring is rendered as `box-shadow`) so row heights stay identical whether or not a cell has a note.
+- **Note preview truncation**: handled by `truncateNotePreview()` (`src/lib/planning-note-utils.ts`), hard-capped at 25 characters + `…`.
+- **Editing state**: unchanged from base design; note indicator and border treatment are only on the read-only button.
+
+---
+
 ## Planning-Specific Carryover
 Planning remains the most complex page and acts as the main interaction benchmark.
+
+Its toolbar clusters related controls (undo/redo for saved grid edits, view mode, optional team filter, week navigation, span). New planning affordances should stay visually grouped and aligned with that row rather than floating as one-offs.
 
 Other pages should inherit:
 - spacing discipline

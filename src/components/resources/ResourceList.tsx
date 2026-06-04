@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  type ChangeEvent,
+} from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -95,9 +102,20 @@ export function ResourceList({ resources }: ResourceListProps) {
     setModalOpen(true);
   }, []);
 
-  useEffect(() => {
+  const handleStatusFilterChange = useCallback((value: StatusFilter) => {
+    setStatusFilter(value);
     setSelectedId(null);
-  }, [search, statusFilter, teamFilter]);
+  }, []);
+
+  const handleTeamFilterChange = useCallback((value: string) => {
+    setTeamFilter(value);
+    setSelectedId(null);
+  }, []);
+
+  const handleSearchChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setSelectedId(null);
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -174,7 +192,7 @@ export function ResourceList({ resources }: ResourceListProps) {
           <SegmentedTabs
             tabs={statusTabs}
             value={statusFilter}
-            onChange={setStatusFilter}
+            onChange={handleStatusFilterChange}
             ariaLabel="Filter by status"
           />
           {teams.length > 0 && (
@@ -182,7 +200,7 @@ export function ResourceList({ resources }: ResourceListProps) {
               <Select
                 options={teamSelectOptions}
                 value={teamFilter}
-                onChange={setTeamFilter}
+                onChange={handleTeamFilterChange}
                 size="compact"
                 aria-label="Filter by team"
               />
@@ -193,7 +211,7 @@ export function ResourceList({ resources }: ResourceListProps) {
           <Input
             placeholder="Search resources…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             size="compact"
           />
         </div>
@@ -220,6 +238,7 @@ export function ResourceList({ resources }: ResourceListProps) {
                 onClick={() => {
                   setSearch("");
                   setTeamFilter("ALL");
+                  setSelectedId(null);
                 }}
               >
                 Clear filters

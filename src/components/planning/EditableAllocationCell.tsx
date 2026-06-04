@@ -12,7 +12,10 @@ import {
 import { useRouter } from "next/navigation";
 import { createBooking, deleteBooking, updateBooking } from "@/app/planning/actions";
 import { formatAllocationPercent } from "@/lib/planning-format";
+import { truncateNotePreview } from "@/lib/planning-note-utils";
+import type { BookingHistoryCommitEvent } from "@/lib/planning-booking-history";
 import type { BookingWithRelations, PlanningEditingCell } from "@/lib/planning-view-model";
+import type { BookingFormData } from "@/lib/validations";
 
 type ParsedInput =
   | { kind: "empty" }
@@ -37,8 +40,8 @@ export interface EditableAllocationCellProps {
   isEditing: boolean;
   onEditingCellChange: Dispatch<SetStateAction<PlanningEditingCell>>;
   onTabNavigate: (rowId: string, weekId: string, delta: number) => void;
-  /** Project accent stripe (by-resource project rows) */
-  accentColor?: string | null;
+  /** Record server-backed allocation changes for undo/redo (planning grid). */
+  onBookingHistoryCommit?: (ev: BookingHistoryCommitEvent) => void;
 }
 
 export function EditableAllocationCell({
@@ -50,7 +53,7 @@ export function EditableAllocationCell({
   isEditing,
   onEditingCellChange,
   onTabNavigate,
-  accentColor,
+  onBookingHistoryCommit,
 }: EditableAllocationCellProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -74,7 +77,9 @@ export function EditableAllocationCell({
 
   useEffect(() => {
     if (!isEditing) return;
-    resetFromProps();
+    queueMicrotask(() => {
+      resetFromProps();
+    });
     return () => {
       if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
     };
@@ -117,9 +122,17 @@ export function EditableAllocationCell({
           clearIfStillHere();
           return;
         }
+        const restorePayload: BookingFormData = {
+          projectId,
+          resourceId,
+          weekStart,
+          allocationPct: booking.allocationPct,
+          note: booking.note?.trim() ?? "",
+        };
         startTransition(async () => {
           const r = await deleteBooking(booking.id);
           if (r.ok) {
+            onBookingHistoryCommit?.({ type: "delete", payload: restorePayload });
             router.refresh();
             clearIfStillHere();
           } else {
@@ -139,7 +152,7 @@ export function EditableAllocationCell({
         setHint("Capped at 100%");
       }
 
-      const payload = {
+      const payload: BookingFormData = {
         projectId,
         resourceId,
         weekStart,
@@ -148,10 +161,44 @@ export function EditableAllocationCell({
       };
 
       startTransition(async () => {
-        const r = booking
-          ? await updateBooking(booking.id, payload)
-          : await createBooking(payload);
+        if (booking) {
+          const r = await updateBooking(booking.id, payload);
+          if (r.ok) {
+            const before: BookingFormData = {
+              projectId: booking.projectId,
+              resourceId: booking.resourceId,
+              weekStart,
+              allocationPct: booking.allocationPct,
+              note: booking.note?.trim() ?? "",
+            };
+            onBookingHistoryCommit?.({
+              type: "update",
+              bookingId: booking.id,
+              before,
+              after: payload,
+            });
+            router.refresh();
+            clearIfStillHere();
+          } else {
+            const err = r.error;
+            const msg =
+              ("_form" in err ? err._form?.[0] : undefined) ??
+              ("allocationPct" in err ? err.allocationPct?.[0] : undefined) ??
+              ("projectId" in err ? err.projectId?.[0] : undefined) ??
+              ("resourceId" in err ? err.resourceId?.[0] : undefined) ??
+              "Save failed";
+            setError(msg);
+          }
+          return;
+        }
+
+        const r = await createBooking(payload);
         if (r.ok) {
+          onBookingHistoryCommit?.({
+            type: "create",
+            bookingId: r.bookingId,
+            payload,
+          });
           router.refresh();
           clearIfStillHere();
         } else {
@@ -166,7 +213,18 @@ export function EditableAllocationCell({
         }
       });
     },
-    [booking, draftNote, onEditingCellChange, projectId, resetFromProps, resourceId, router, rowId, weekStart],
+    [
+      booking,
+      draftNote,
+      onBookingHistoryCommit,
+      onEditingCellChange,
+      projectId,
+      resetFromProps,
+      resourceId,
+      router,
+      rowId,
+      weekStart,
+    ],
   );
 
   const commit = useCallback(() => {
@@ -199,11 +257,6 @@ export function EditableAllocationCell({
     }
   };
 
-  const accentStyle =
-    accentColor != null
-      ? ({ boxShadow: `inset 3px 0 0 0 ${accentColor}` } as const)
-      : undefined;
-
   const hasNote = booking?.note != null && booking.note.trim().length > 0;
   const pct = booking?.allocationPct ?? 0;
 
@@ -221,22 +274,43 @@ export function EditableAllocationCell({
         className={`flex min-h-[36px] items-center justify-center ${isPending ? "opacity-60" : ""}`}
       >
         {booking ? (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditingCellChange({ rowId, weekId: weekStart });
-            }}
-            title={hasNote ? booking.note! : "Edit allocation"}
-            aria-label={`Edit allocation ${formatAllocationPercent(pct)}${hasNote ? ` — ${booking.note}` : ""}`}
-            className={`relative min-w-[3rem] rounded-md px-2 py-1.5 text-center font-mono text-xs font-semibold tabular-nums ${filledClasses} overflow-hidden transition-all hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
-            style={accentStyle}
-          >
-            {formatAllocationPercent(pct)}
-            {hasNote && (
-              <span className="absolute right-0 top-0 border-l-[7px] border-t-[7px] border-l-transparent border-t-[var(--rm-primary)]" />
-            )}
-          </button>
+          hasNote ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditingCellChange({ rowId, weekId: weekStart });
+              }}
+              title={booking.note!}
+              aria-label={`Edit allocation ${formatAllocationPercent(pct)} — ${booking.note}`}
+              className={`note-cell relative flex min-w-[3rem] flex-col items-center justify-center gap-0 rounded-md px-2 pb-1 pt-1.5 text-center font-mono text-xs font-semibold tabular-nums ring-1 ring-inset ring-[var(--rm-danger)]/40 ${filledClasses} overflow-hidden transition-all hover:brightness-110 hover:ring-[var(--rm-danger)]/65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
+            >
+              <span className="leading-tight">{formatAllocationPercent(pct)}</span>
+              <span
+                data-testid="note-preview"
+                className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-sans text-[9px] font-normal leading-tight text-[var(--rm-muted-subtle)]"
+              >
+                {truncateNotePreview(booking.note!)}
+              </span>
+              <span
+                data-testid="note-indicator"
+                className="absolute right-0 top-0 border-l-[9px] border-t-[9px] border-l-transparent border-t-[var(--rm-danger)]"
+              />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditingCellChange({ rowId, weekId: weekStart });
+              }}
+              title="Edit allocation"
+              aria-label={`Edit allocation ${formatAllocationPercent(pct)}`}
+              className={`relative min-w-[3rem] rounded-md px-2 py-1.5 text-center font-mono text-xs font-semibold tabular-nums ${filledClasses} overflow-hidden transition-all hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--rm-primary)]/30`}
+            >
+              {formatAllocationPercent(pct)}
+            </button>
+          )
         ) : (
           <button
             type="button"
@@ -281,7 +355,6 @@ export function EditableAllocationCell({
           disabled={isPending}
           aria-label="Allocation percent"
           className="h-8 w-14 rounded-md border-2 border-[var(--rm-primary-text)] bg-[var(--rm-surface-highest)] px-1.5 text-center font-mono text-xs font-bold tabular-nums text-[var(--rm-primary-text)] outline-none"
-          style={accentStyle}
         />
       </div>
       <button
